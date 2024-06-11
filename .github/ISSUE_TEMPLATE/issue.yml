@@ -19,6 +19,14 @@ body:
       description: '영어(소문자)로 이슈를 요약하여 브랜치 이름을 지어주세요 (ex. set-jira-issue)'
     validations:
       required: true
+      
+  - type: input
+    id: branchPrefix
+    attributes:
+      label: '브랜치 전략(GitFlow)'
+      description: '기능 개발의 경우 feat 이라고 작성하면 됩니다.'
+    validations:
+      required: true
 
   - type: textarea
     id: details
