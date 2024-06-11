@@ -66,7 +66,7 @@ jobs:
 
       - name: Create branch with Ticket number
         run: |
-          BRANCH_NAME="#${{ steps.issue-parser.outputs.issueparser_parentKey }}-${{ steps.issue-parser.outputs.issueparser_branchName }}"
+          BRANCH_NAME="${{ steps.issue-parser.outputs.issueparser_branchPrefix }}/#${{ steps.issue-parser.outputs.issueparser_parentKey }}-${{ steps.issue-parser.outputs.issueparser_branchName }}"
           git checkout -b "$BRANCH_NAME"
           git push origin "$BRANCH_NAME"
 
