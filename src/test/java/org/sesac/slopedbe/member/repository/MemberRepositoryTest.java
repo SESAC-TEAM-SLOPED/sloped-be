@@ -61,7 +61,7 @@ public class MemberRepositoryTest {
 
 	@Test
 	public void testDeleteMember() {
-		memberRepository.delete(testMember);
+		memberRepository.deleteByEmail("test@example.com");
 		Optional<Member> foundMember = memberRepository.findByEmail("test@example.com");
 		assertThat(foundMember).isNotPresent();
 	}
