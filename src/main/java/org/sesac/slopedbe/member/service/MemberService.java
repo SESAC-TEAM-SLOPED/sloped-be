@@ -13,5 +13,5 @@ public interface MemberService {
     Member updateMemberPassword(String email, String verifiedCode, String newPassword); // 비밀번호 찾기(재설정)
     void deleteMember(String email); // 회원 탈퇴, 회원 삭제
     Member updateMemberStatus(String email, MemberStatus status); // 회원 블락
-    Member updateMemberInfo(String email, Member updatedInfo); // 회원 정보 수정
+    Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability); // 회원 정보 수정
 }

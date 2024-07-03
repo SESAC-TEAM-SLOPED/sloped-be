@@ -59,7 +59,7 @@ public class Member extends BaseTimeEntity {
     private String id; // 로컬 계정 Login ID
 
     @Column(length = 255)
-    private String password; // 로컬 계정 Login Password
+    private String password; // 로컬 계정 Login Password //암호화 예정
 
     @Column(length = 50)
     private String socialAuthCode; // 소셜 로그인 Auth Code

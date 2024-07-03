@@ -8,7 +8,6 @@ import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 
 @Service
 @AllArgsConstructor
@@ -47,6 +46,11 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
+	public void deleteMember(String email) {
+		memberRepository.deleteByEmail(email);
+	}
+
+	@Override
 	public Member updateMemberPassword(String email, String verifiedCode, String newPassword) {
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent() && isValidCode(verifiedCode)) {
@@ -56,11 +60,6 @@ public class MemberServiceImpl implements MemberService{
 		} else {
 			throw new IllegalArgumentException("Invalid email or verification code");
 		}
-	}
-
-	@Override
-	public void deleteMember(String email) {
-		memberRepository.deleteByEmail(email);
 	}
 
 	@Override
@@ -76,13 +75,13 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public Member updateMemberInfo(String email, Member updatedInfo) {
+	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
-			existingMember.setNickname(updatedInfo.getNickname());
-			existingMember.setPassword(updatedInfo.getPassword());
-			existingMember.setMemberStatus(updatedInfo.getMemberStatus());
+			existingMember.setNickname(newNickname);
+			existingMember.setPassword(newPassword);
+			existingMember.setDisability(newDisability);
 			return memberRepository.save(existingMember);
 		} else {
 			throw new IllegalArgumentException("Member not found");
