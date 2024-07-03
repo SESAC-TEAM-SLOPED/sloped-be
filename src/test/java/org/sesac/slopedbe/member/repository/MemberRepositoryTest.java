@@ -17,7 +17,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-public class MemberRepositoryTests {
+public class MemberRepositoryTest {
 
 	@Autowired
 	private MemberRepository memberRepository;
