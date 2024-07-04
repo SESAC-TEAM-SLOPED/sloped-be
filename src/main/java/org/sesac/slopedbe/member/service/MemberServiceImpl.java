@@ -57,6 +57,7 @@ public class MemberServiceImpl implements MemberService{
 
 	@Override
 	public Member updateMemberPassword(String email, String verifiedCode, String newPassword) {
+		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent() && isValidCode(verifiedCode)) {
 			Member existingMember = member.get();
@@ -81,6 +82,7 @@ public class MemberServiceImpl implements MemberService{
 
 	@Override
 	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
+		//마이페이지에서 비밀번호 수정
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
