@@ -1,13 +1,11 @@
 package org.sesac.slopedbe.bookmark.service;
 
-import lombok.RequiredArgsConstructor;
-import org.sesac.slopedbe.bookmark.repository.BookmarkRepository;
-import org.springframework.stereotype.Service;
+import java.util.List;
 
-@RequiredArgsConstructor
-@Service
-public class BookmarkService {
+import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 
-    private final BookmarkRepository bookmarkRepository;
-
+public interface BookmarkService {
+	Bookmark addBookmark(String email, Long facilityId);
+	void removeBookmark(String email, Long facilityId);
+	List<Bookmark> getBookmarksByMemberEmail(String email);
 }

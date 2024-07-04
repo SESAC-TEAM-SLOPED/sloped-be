@@ -29,4 +29,11 @@ public class Bookmark extends BaseTimeEntity {
     @ManyToOne
     @JoinColumn(name = "email", nullable = false)
     private Member member;
+
+    public static Bookmark create(Facility facility, Member member) {
+        Bookmark bookmark = new Bookmark();
+        bookmark.facility = facility;
+        bookmark.member = member;
+        return bookmark;
+    }
 }
