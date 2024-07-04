@@ -97,7 +97,7 @@ public class MemberServiceTest {
 		memberService.deleteMember("new@example.com");
 
 		Optional<Member> foundMember = memberRepository.findByEmail("new@example.com");
-		assertFalse(foundMember.isPresent());
+		assertTrue(foundMember.isEmpty());
 	}
 
 	@Test
