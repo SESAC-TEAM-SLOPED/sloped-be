@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
@@ -14,11 +15,15 @@ import lombok.AllArgsConstructor;
 public class MemberServiceImpl implements MemberService{
 
 	private final MemberRepository memberRepository;
+	private final BCryptPasswordEncoder passwordEncoder;
 
 	@Override
 	public Member saveMember(Member member, String verifiedCode) {
 
 		if (isValidCode(verifiedCode)) {
+			if (member.getPassword() != null) {
+				member.setPassword(passwordEncoder.encode(member.getPassword()));
+			}
 			return memberRepository.save(member);
 		} else {
 			throw new IllegalArgumentException("Invalid verification code");
@@ -55,7 +60,7 @@ public class MemberServiceImpl implements MemberService{
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent() && isValidCode(verifiedCode)) {
 			Member existingMember = member.get();
-			existingMember.setPassword(newPassword); // 비밀번호 암호화 로직 추가 필요
+			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			return memberRepository.save(existingMember);
 		} else {
 			throw new IllegalArgumentException("Invalid email or verification code");

@@ -2,7 +2,6 @@ package org.sesac.slopedbe.member.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -10,6 +9,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sesac.slopedbe.config.SecurityConfig;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
@@ -17,11 +17,12 @@ import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@Import(MemberServiceImpl.class)
+@Import({MemberServiceImpl.class, SecurityConfig.class})
 public class MemberServiceTest {
 
 	@Autowired
@@ -29,6 +30,9 @@ public class MemberServiceTest {
 
 	@Autowired
 	private MemberService memberService;
+
+	@Autowired
+	private BCryptPasswordEncoder passwordEncoder;
 
 	private Member testMember;
 
@@ -42,7 +46,7 @@ public class MemberServiceTest {
 		testMember.setCreatedAt(LocalDateTime.now());
 		testMember.setUpdatedAt(LocalDateTime.now());
 		testMember.setId("testId");
-		testMember.setPassword("password"); //암호화 예정
+		testMember.setPassword("plainTextPassword"); //암호화 예정
 		testMember.setDisability(false);
 		memberRepository.save(testMember);
 	}
@@ -110,7 +114,7 @@ public class MemberServiceTest {
 
 		Optional<Member> foundMember = memberRepository.findByEmail(email);
 		assertTrue(foundMember.isPresent());
-		assertThat(foundMember.get().getPassword()).isEqualTo(newPassword);
+		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));
 	}
 
 	@Test
