@@ -46,7 +46,7 @@ public class MemberServiceTest {
 		testMember.setCreatedAt(LocalDateTime.now());
 		testMember.setUpdatedAt(LocalDateTime.now());
 		testMember.setId("testId");
-		testMember.setPassword("plainTextPassword"); //암호화 예정
+		testMember.setPassword("plainTextPassword");
 		testMember.setDisability(false);
 		memberRepository.save(testMember);
 	}
@@ -61,7 +61,7 @@ public class MemberServiceTest {
 		newMember.setCreatedAt(LocalDateTime.now());
 		newMember.setUpdatedAt(LocalDateTime.now());
 
-		Member savedMember = memberService.saveMember(newMember, "test-code");
+		Member savedMember = memberService.registerMember(newMember, "test-code");
 
 		assertThat(savedMember).isNotNull();
 		assertThat(savedMember.getEmail()).isEqualTo("new@example.com");
@@ -69,17 +69,15 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	public void testFindByEmail() {
-		Optional<Member> foundMember = memberService.findByEmail("test@example.com");
-		assertTrue(foundMember.isPresent());
-		assertThat(foundMember.get().getNickname()).isEqualTo("김갑생");
+	public void testCheckDuplicateEmail() {
+		boolean isDuplicated = memberService.checkDuplicateEmail("test@example.com");
+		assertTrue(isDuplicated);
 	}
 
 	@Test
-	public void testFindById() {
-		Optional<Member> foundMember = memberService.findById("testId");
-		assertTrue(foundMember.isPresent());
-		assertThat(foundMember.get().getNickname()).isEqualTo("김갑생");
+	public void testCheckDuplicateId() {
+		boolean isDuplicated = memberService.checkDuplicateId("testId");
+		assertTrue(isDuplicated);
 	}
 
 	@Test

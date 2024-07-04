@@ -18,7 +18,7 @@ public class MemberServiceImpl implements MemberService{
 	private final BCryptPasswordEncoder passwordEncoder;
 
 	@Override
-	public Member saveMember(Member member, String verifiedCode) {
+	public Member registerMember(Member member, String verifiedCode) {
 
 		if (isValidCode(verifiedCode)) {
 			if (member.getPassword() != null) {
@@ -31,13 +31,15 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public Optional<Member> findByEmail(String email) {
-		return memberRepository.findByEmail(email);
+	public boolean checkDuplicateEmail(String email) {
+		//다시 구현
+		return memberRepository.findByEmail(email).isPresent();
 	}
 
 	@Override
-	public Optional<Member> findById(String id) {
-		return memberRepository.findById(id);
+	public boolean checkDuplicateId(String id) {
+		//다시 구현
+		return memberRepository.findById(id).isPresent();
 	}
 
 	@Override
