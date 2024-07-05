@@ -27,12 +27,10 @@ public class VerificationControllerTest {
 	@WithMockUser
 	public void sendVerificationCode() throws Exception {
 		//Service, Controller 상호 작용 테스트, 실제 메일을 보내는 테스트가 아닙니다.
-		String email = "sas1397@naver.com";
+		String email = "test@example.com";
 		String code = "123456";
 
-		when(verificationService.generateVerificationCode()).thenReturn(code);
-		doNothing().when(verificationService).saveVerificationCode(email, code);
-		doNothing().when(verificationService).sendVerificationEmail(email, code);
+		doNothing().when(verificationService).sendVerificationCode(email);
 
 		mockMvc.perform(post("/api/auth/sendCode")
 				.param("email", email)
@@ -40,15 +38,13 @@ public class VerificationControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().string("Verification code sent to " + email));
 
-		verify(verificationService, times(1)).generateVerificationCode();
-		verify(verificationService, times(1)).saveVerificationCode(email, code);
-		verify(verificationService, times(1)).sendVerificationEmail(email, code);
+		verify(verificationService, times(1)).sendVerificationCode(email);
 	}
 
 	@Test
 	@WithMockUser
 	public void verifyCode() throws Exception {
-		String email = "sas1397@naver.com";
+		String email = "test@example.com";
 		String code = "123456";
 
 		when(verificationService.verifyCode(email, code)).thenReturn(true);
@@ -66,7 +62,7 @@ public class VerificationControllerTest {
 	@Test
 	@WithMockUser
 	public void verifyCode_ShouldReturnErrorMessage() throws Exception {
-		String email = "sas1397@naver.com";
+		String email = "test@example.com";
 		String code = "123456";
 
 		when(verificationService.verifyCode(email, code)).thenReturn(false);

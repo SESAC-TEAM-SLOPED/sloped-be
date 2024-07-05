@@ -7,21 +7,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.AllArgsConstructor;
+
 @RestController
 @RequestMapping("/api/auth")
+@AllArgsConstructor
 public class VerificationController {
 
 	private final VerificationService verificationService;
 
-	public VerificationController(VerificationService verificationService) {
-		this.verificationService = verificationService;
-	}
-
 	@PostMapping("/sendCode")
 	public ResponseEntity<String> sendVerificationCode(@RequestParam("email") String email) {
-		String code = verificationService.generateVerificationCode();
-		verificationService.saveVerificationCode(email, code);
-		verificationService.sendVerificationEmail(email, code);
+		verificationService.sendVerificationCode(email);
 		return ResponseEntity.ok("Verification code sent to " + email);
 	}
 
