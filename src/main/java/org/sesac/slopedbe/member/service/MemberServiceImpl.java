@@ -84,7 +84,7 @@ public class MemberServiceImpl implements MemberService{
 
 	@Override
 	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
-		//마이페이지에서 비밀번호 수정
+		//마이페이지에서 회원정보 수정
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent()) {
 			Member existingMember = member.get();

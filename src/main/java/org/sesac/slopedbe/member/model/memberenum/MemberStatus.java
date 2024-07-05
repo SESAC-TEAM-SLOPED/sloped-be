@@ -4,8 +4,8 @@ import lombok.Getter;
 
 @Getter
 public enum MemberStatus {
-	ACTIVE("STATUS_ACTIVE"), //활동 가능 유저
-	BLOCKED("STATUS_BLOCKED"); //블락 유저
+	ACTIVE("STATUS_ACTIVE"),
+	BLOCKED("STATUS_BLOCKED");
 
 	MemberStatus(String value){
 		this.value = value;
