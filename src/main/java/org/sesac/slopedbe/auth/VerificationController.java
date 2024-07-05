@@ -12,23 +12,21 @@ import org.springframework.web.bind.annotation.RestController;
 public class VerificationController {
 
 	private final VerificationService verificationService;
-	private final EmailService emailService;
 
-	public VerificationController(VerificationService verificationService, EmailService emailService) {
+	public VerificationController(VerificationService verificationService) {
 		this.verificationService = verificationService;
-		this.emailService = emailService;
 	}
 
 	@PostMapping("/sendCode")
-	public ResponseEntity<String> sendVerificationCode(@RequestParam String email) {
+	public ResponseEntity<String> sendVerificationCode(@RequestParam("email") String email) {
 		String code = verificationService.generateVerificationCode();
 		verificationService.saveVerificationCode(email, code);
-		emailService.sendVerificationEmail(email, code);
+		verificationService.sendVerificationEmail(email, code);
 		return ResponseEntity.ok("Verification code sent to " + email);
 	}
 
 	@PostMapping("/verifyCode")
-	public ResponseEntity<String> verifyCode(@RequestParam String email, @RequestParam String code) {
+	public ResponseEntity<String> verifyCode(@RequestParam("email") String email, @RequestParam("code") String code) {
 		boolean isVerified = verificationService.verifyCode(email, code);
 		if (isVerified) {
 			return ResponseEntity.ok("Email verified successfully");
@@ -36,5 +34,13 @@ public class VerificationController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification code");
 		}
 	}
+
+	// @GetMapping("/sendTestEmail")
+	// public String sendTestEmail(@RequestParam(name = "email") String email) {
+	// 	// 실제 메일 발송 테스트
+	// 	String code = "123456";
+	// 	verificationService.sendVerificationEmail(email, code);
+	// 	return "Test email sent to " + email;
+	// }
 
 }

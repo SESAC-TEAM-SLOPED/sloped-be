@@ -4,15 +4,20 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
+
 public class VerificationService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
+	private final JavaMailSender emailSender;
 
-	public VerificationService(RedisTemplate<String, Object> redisTemplate) {
+	public VerificationService(RedisTemplate<String, Object> redisTemplate, JavaMailSender emailSender) {
 		this.redisTemplate = redisTemplate;
+		this.emailSender = emailSender;
 	}
 
 	public String generateVerificationCode() {
@@ -26,5 +31,14 @@ public class VerificationService {
 	public boolean verifyCode(String email, String code) {
 		String storedCode = (String) redisTemplate.opsForValue().get(email);
 		return code.equals(storedCode);
+	}
+
+	public void sendVerificationEmail(String to, String code) {
+		SimpleMailMessage message = new SimpleMailMessage();
+		message.setTo(to);
+		message.setSubject("Your Verification Code");
+		message.setText("Your verification code is: " + code);
+		message.setFrom("Together@example.com"); // gmail 설정 상 수정 불가능, 조치예정!
+		emailSender.send(message);
 	}
 }
