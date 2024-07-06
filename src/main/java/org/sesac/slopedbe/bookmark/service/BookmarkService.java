@@ -5,7 +5,8 @@ import java.util.List;
 import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 
 public interface BookmarkService {
-	Bookmark addBookmark(String email, Long facilityId);
+	void addBookmark(String email, Long facilityId);
 	void removeBookmark(String email, Long facilityId);
 	List<Bookmark> getBookmarksByMemberEmail(String email);
+
 }

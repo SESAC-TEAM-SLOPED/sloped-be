@@ -2,8 +2,6 @@ package org.sesac.slopedbe.bookmark.service;
 
 import java.util.List;
 
-import lombok.RequiredArgsConstructor;
-
 import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 import org.sesac.slopedbe.bookmark.model.entity.BookmarkId;
 import org.sesac.slopedbe.bookmark.repository.BookmarkRepository;
@@ -12,6 +10,8 @@ import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
+
+import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Service
@@ -22,27 +22,19 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final FacilityRepository facilityRepository;
 
     @Override
-    public Bookmark addBookmark(String email, Long facilityId) {
-        Member member = memberRepository
-            .findById(1L)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid facility id: " + facilityId));
-        Facility facility = facilityRepository
-            .findById(facilityId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid facility id: " + facilityId));
+    public void addBookmark(String email, Long facilityId) {
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        Facility facility = facilityRepository.findById(facilityId).orElse(null);
 
         Bookmark bookmark = Bookmark.create(facility, member);
 
-        return bookmarkRepository.save(bookmark);
+        bookmarkRepository.save(bookmark);
     }
 
     @Override
     public void removeBookmark(String email, Long facilityId) {
-        Member member = memberRepository
-            .findById(1L)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid facility id: " + facilityId));
-        Facility facility = facilityRepository
-            .findById(facilityId)
-            .orElseThrow(() -> new IllegalArgumentException("Invalid facility id: " + facilityId));
+        Member member = memberRepository.findByEmail(email).orElse(null);
+        Facility facility = facilityRepository.findById(facilityId).orElse(null);
 
         BookmarkId bookmarkId = new BookmarkId(facility, member);
 
