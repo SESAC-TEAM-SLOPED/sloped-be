@@ -1,7 +1,8 @@
 #!/bin/bash
 set -e
-# Create PostGIS extension
-psql --username "$DB_USER" --dbname "$DB_NAME" <<-EOSQL
+
+# Connect to the default database and create the PostGIS extension
+psql --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
     CREATE EXTENSION IF NOT EXISTS postgis;
     CREATE EXTENSION IF NOT EXISTS postgis_topology;
 EOSQL
