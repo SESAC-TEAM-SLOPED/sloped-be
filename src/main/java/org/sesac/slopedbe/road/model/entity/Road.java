@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -32,14 +31,6 @@ public class Road extends BaseTimeEntity {
     @Column()
     private Long id;
 
-    @Transient
-    @Column(nullable = false)
-    private BigDecimal latitude;
-
-    @Transient
-    @Column(nullable = false)
-    private BigDecimal longitude;
-
     @Column(columnDefinition = "geometry(Point, 4326)", nullable = false)
     private Point point;
 
@@ -52,8 +43,6 @@ public class Road extends BaseTimeEntity {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point point = geometryFactory.createPoint(new Coordinate(longitude.doubleValue(), latitude.doubleValue()));
         return Road.builder()
-            .latitude(latitude)
-            .longitude(longitude)
             .point(point)
             .content(content)
             .address(address)
