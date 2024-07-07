@@ -20,7 +20,8 @@ public class VerificationServiceImpl implements VerificationService {
 	private final MemberRepository memberRepository;
 
 	private String generateVerificationCode() {
-		return String.valueOf(new Random().nextInt(900000) + 100000); // 6자리 인증번호 생성
+		return String.valueOf(new Random().nextInt(900000) + 100000);
+		//인증번호는 숫자 6자리로 구현
 	}
 
 	private void saveVerificationCode(String email, String code) {
