@@ -31,14 +31,8 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public boolean checkDuplicateEmail(String email) {
-		//다시 구현
-		return memberRepository.findByEmail(email).isPresent();
-	}
-
-	@Override
 	public boolean checkDuplicateId(String id) {
-		//다시 구현
+		//회원 가입 중복 확인 버튼 누를 때 사용
 		return memberRepository.findById(id).isPresent();
 	}
 
@@ -47,6 +41,16 @@ public class MemberServiceImpl implements MemberService{
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isPresent() && isValidCode(verifiedCode)) {
 			return member.get().getId().toString();
+		} else {
+			throw new IllegalArgumentException("Invalid email or verification code");
+		}
+	}
+
+	@Override
+	public boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode) {
+		Optional<Member> member = memberRepository.findByEmail(email);
+		if (member.isPresent() && isValidCode(verifiedCode)) {
+			return member.get().getId().toString().equals(id);
 		} else {
 			throw new IllegalArgumentException("Invalid email or verification code");
 		}

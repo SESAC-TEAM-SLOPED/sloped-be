@@ -3,6 +3,7 @@ package org.sesac.slopedbe.auth;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -16,6 +17,7 @@ public class VerificationServiceImpl implements VerificationService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final JavaMailSender emailSender;
+	private final MemberRepository memberRepository;
 
 	private String generateVerificationCode() {
 		return String.valueOf(new Random().nextInt(900000) + 100000); // 6자리 인증번호 생성
@@ -40,8 +42,13 @@ public class VerificationServiceImpl implements VerificationService {
 	}
 
 	public void sendVerificationCode(String email) {
-		String code = generateVerificationCode();
-		saveVerificationCode(email, code);
-		sendVerificationEmail(email, code);
+
+		if (memberRepository.findByEmail(email).isEmpty()) {
+			String code = generateVerificationCode();
+			saveVerificationCode(email, code);
+			sendVerificationEmail(email, code);
+		}
+
+
 	}
 }
