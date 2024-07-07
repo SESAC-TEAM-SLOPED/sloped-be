@@ -23,27 +23,16 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    compileOnly 'org.projectlombok:lombok'
 //    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    compileOnly 'org.projectlombok:lombok'
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     runtimeOnly 'org.postgresql:postgresql'
     annotationProcessor 'org.projectlombok:lombok'
-//    testImplementation 'org.springframework.security:spring-security-test'
-    implementation 'org.hibernate:hibernate-core:6.4.0.Final'
-    implementation 'org.hibernate:hibernate-spatial:6.4.0.Final'
-    implementation 'org.locationtech.jts:jts-core:1.18.0'
-
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:testcontainers'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.testcontainers:postgresql'
-
-    implementation 'io.github.cdimascio:dotenv-java:2.2.0'  // 추가된 의존성
-
+//    testImplementation 'org.springframework.security:spring-security-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+    implementation 'com.h2database:h2'
 }
 
-test {
-    useJUnitPlatform()
-}
