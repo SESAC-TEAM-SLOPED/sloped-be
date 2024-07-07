@@ -43,6 +43,6 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public List<Bookmark> getBookmarksByMemberEmail(String email) {
-        return bookmarkRepository.findByEmail(email);
+        return bookmarkRepository.findByMember_Email(email);
     }
 }
