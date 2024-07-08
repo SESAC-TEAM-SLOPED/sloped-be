@@ -39,6 +39,7 @@ public class Member extends BaseTimeEntity {
     private String nickname;
 
     private boolean isDisability;
+    // 1 : normal, 0 : disabled
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -54,11 +55,11 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private MemberOauthType oauthType;
 
-    @Column(length = 255)
+    @Column(length = 255, unique = true)
     private String id;
 
     @Column(length = 255)
-    private String password; // 로컬 계정 Login Password //암호화 예정
+    private String password; // 로컬 계정 Login Password
 
     @Column(length = 50)
     private String socialAuthCode;

@@ -1,13 +1,15 @@
 package org.sesac.slopedbe.member.controller;
 
+import org.sesac.slopedbe.auth.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.VerificationRequest;
+import org.sesac.slopedbe.member.model.DTO.IdRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -26,10 +28,15 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @GetMapping("/duplicate-check/id")
-    public ResponseEntity<Boolean> checkDuplicateId(@RequestParam String id) {
+    @PostMapping("/duplicate-check/id")
+    public ResponseEntity<String> checkDuplicateId(@RequestBody IdRequest idRequest) {
+        String id = idRequest.getId();
         boolean isDuplicated = memberService.checkDuplicateId(id);
-        return ResponseEntity.ok(isDuplicated);
+        if (isDuplicated) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디가 중복됩니다.");
+        } else {
+            return ResponseEntity.ok("사용 가능한 아이디 입니다.");
+        }
     }
 
     @PostMapping("/find-id")
@@ -77,9 +84,15 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Member> register(@RequestBody Member member, @RequestParam String verifiedCode) {
-        Member savedMember = memberService.registerMember(member, verifiedCode);
-        return ResponseEntity.ok(savedMember);
+    public ResponseEntity<Member> register(@RequestBody Member member) {
+        try {
+            Member savedMember = memberService.registerMember(member);
+            return ResponseEntity.ok(savedMember);
+        } catch (MemberAlreadyExistsException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict for existing member
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PutMapping("/request-reset")
@@ -93,6 +106,11 @@ public class MemberController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @ExceptionHandler(MemberAlreadyExistsException.class)
+    public ResponseEntity<String> handleMemberAlreadyExistsException(MemberAlreadyExistsException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
 }

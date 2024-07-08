@@ -57,7 +57,7 @@ public class VerificationServiceImpl implements VerificationService {
 	@Override
 	public void sendFindIdVerificationCode(String email) {
 		if (memberRepository.findByEmail(email).isEmpty()) {
-			throw new MemberNotFoundException("해당 이메일이 조회되지 않습니다.");
+			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
 		}
 
 		String code = generateVerificationCode();

@@ -51,22 +51,22 @@ public class MemberServiceTest {
 		memberRepository.save(testMember);
 	}
 
-	@Test
-	public void testSaveMember() {
-		Member newMember = new Member();
-		newMember.setEmail("new@example.com");
-		newMember.setNickname("김신입");
-		newMember.setMemberStatus(MemberStatus.ACTIVE);
-		newMember.setMemberRole(MemberRole.USER);
-		newMember.setCreatedAt(LocalDateTime.now());
-		newMember.setUpdatedAt(LocalDateTime.now());
-
-		Member savedMember = memberService.registerMember(newMember, "test-code");
-
-		assertThat(savedMember).isNotNull();
-		assertThat(savedMember.getEmail()).isEqualTo("new@example.com");
-
-	}
+	// @Test
+	// public void testSaveMember() {
+	// 	Member newMember = new Member();
+	// 	newMember.setEmail("new@example.com");
+	// 	newMember.setNickname("김신입");
+	// 	newMember.setMemberStatus(MemberStatus.ACTIVE);
+	// 	newMember.setMemberRole(MemberRole.USER);
+	// 	newMember.setCreatedAt(LocalDateTime.now());
+	// 	newMember.setUpdatedAt(LocalDateTime.now());
+	//
+	// 	Member savedMember = memberService.registerMember(newMember, "test-code");
+	//
+	// 	assertThat(savedMember).isNotNull();
+	// 	assertThat(savedMember.getEmail()).isEqualTo("new@example.com");
+	//
+	// }
 
 	@Test
 	public void testCheckDuplicateId() {

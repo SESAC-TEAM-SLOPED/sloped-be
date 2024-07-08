@@ -4,10 +4,9 @@ import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 
 public interface MemberService {
-    Member registerMember(Member member, String verifiedCode);
+    Member registerMember(Member member);
     boolean checkDuplicateId(String id);
     String findIdByEmail(String email);
-    boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode);
     void deleteMember(String email);
     Member updateMemberPassword(String id, String newPassword);
     Member updateMemberStatus(String email, MemberStatus status);
