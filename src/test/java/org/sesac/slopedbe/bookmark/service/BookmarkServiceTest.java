@@ -17,6 +17,8 @@ import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.model.type.FacilityType;
 import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.memberenum.MemberRole;
+import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -42,7 +44,13 @@ public class BookmarkServiceTest {
 	@BeforeEach
 	public void setUp() {
 		System.out.println("setup........");
-		Member member = new Member("example@email.com", LocalDateTime.now(), LocalDateTime.now());
+		Member member = new Member();
+		member.setEmail("example@email.com");
+		member.setNickname("김신입");
+		member.setMemberStatus(MemberStatus.ACTIVE);
+		member.setMemberRole(MemberRole.USER);
+		member.setCreatedAt(LocalDateTime.now());
+		member.setUpdatedAt(LocalDateTime.now());
 		memberRepository.save(member);
 
 		Facility facility = new Facility("", true, true, "", 3D, 3D, "", "", FacilityType.CAFE, "", true);
