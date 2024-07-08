@@ -1,13 +1,15 @@
 package org.sesac.slopedbe.member.service;
 
-import lombok.RequiredArgsConstructor;
-import org.sesac.slopedbe.member.repository.MemberRepository;
-import org.springframework.stereotype.Service;
+import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 
-@RequiredArgsConstructor
-@Service
-public class MemberService {
-
-    private final MemberRepository memberRepository;
-
+public interface MemberService {
+    Member registerMember(Member member, String verifiedCode);
+    boolean checkDuplicateId(String id);
+    String findIdByEmail(String email, String verifiedCode);
+    boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode);
+    void deleteMember(String email);
+    Member updateMemberPassword(String email, String verifiedCode, String newPassword);
+    Member updateMemberStatus(String email, MemberStatus status);
+    Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability);
 }
