@@ -4,6 +4,7 @@ import org.sesac.slopedbe.auth.VerificationRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.service.MemberService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,17 +46,17 @@ public class MemberController {
         }
     }
 
-    // 세션에 저장된 ID 반환
-    @GetMapping("/get-verified-id")
-    public ResponseEntity<String> getVerifiedId(HttpServletRequest request) {
-        HttpSession session = request.getSession();
-        String id = (String) session.getAttribute("verifiedId");
-        if (id != null) {
-            return ResponseEntity.ok(id);
-        } else {
-            return ResponseEntity.badRequest().body("No verified ID found in session");
-        }
-    }
+    // // 세션에 저장된 ID 반환
+    // @GetMapping("/get-verified-id")
+    // public ResponseEntity<String> getVerifiedId(HttpServletRequest request) {
+    //     HttpSession session = request.getSession();
+    //     String id = (String) session.getAttribute("verifiedId");
+    //     if (id != null) {
+    //         return ResponseEntity.ok(id);
+    //     } else {
+    //         return ResponseEntity.badRequest().body("No verified ID found in session");
+    //     }
+    // }
 
     @PutMapping("/:id")
     public ResponseEntity<Member> updateInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
@@ -82,11 +83,16 @@ public class MemberController {
     }
 
     @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestParam String email, @RequestParam String verifiedCode, @RequestParam String newPassword ){
-        Member updatedMember = memberService.updateMemberPassword(email, verifiedCode, newPassword);
-        return ResponseEntity.ok(updatedMember);
+    public ResponseEntity<Member> updatePassword(@RequestBody VerificationRequest verificationRequest ){
+        String id = verificationRequest.getId();
+        String newPassword = verificationRequest.getNewPassword();
+
+        try {
+            Member updatedMember = memberService.updateMemberPassword(id, newPassword);
+            return ResponseEntity.ok(updatedMember);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-
-
 
 }

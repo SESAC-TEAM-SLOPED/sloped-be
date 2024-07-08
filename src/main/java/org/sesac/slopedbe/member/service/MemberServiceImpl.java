@@ -62,10 +62,10 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public Member updateMemberPassword(String email, String verifiedCode, String newPassword) {
+	public Member updateMemberPassword(String id, String newPassword) {
 		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent() && isValidCode(verifiedCode)) {
+		Optional<Member> member = memberRepository.findById(id);
+		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			return memberRepository.save(existingMember);

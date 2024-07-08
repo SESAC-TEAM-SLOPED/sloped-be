@@ -9,7 +9,7 @@ public interface MemberService {
     String findIdByEmail(String email);
     boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode);
     void deleteMember(String email);
-    Member updateMemberPassword(String email, String verifiedCode, String newPassword);
+    Member updateMemberPassword(String id, String newPassword);
     Member updateMemberStatus(String email, MemberStatus status);
     Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability);
 }

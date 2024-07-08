@@ -9,4 +9,5 @@ public class VerificationRequest {
 	private String email;
 	private String code;
 	private String id;
+	private String newPassword;
 }

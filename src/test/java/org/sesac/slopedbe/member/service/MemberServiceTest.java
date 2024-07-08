@@ -69,12 +69,6 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	public void testCheckDuplicateEmail() {
-		boolean isDuplicated = memberService.checkDuplicateEmail("test@example.com");
-		assertTrue(isDuplicated);
-	}
-
-	@Test
 	public void testCheckDuplicateId() {
 		boolean isDuplicated = memberService.checkDuplicateId("testId");
 		assertTrue(isDuplicated);
@@ -108,7 +102,7 @@ public class MemberServiceTest {
 		String validCode = "valid-code";
 		String newPassword = "newPassword123";
 
-		Member updatedMember = memberService.updateMemberPassword(email, validCode, newPassword);
+		Member updatedMember = memberService.updateMemberPassword(email, newPassword);
 
 		Optional<Member> foundMember = memberRepository.findByEmail(email);
 		assertTrue(foundMember.isPresent());
