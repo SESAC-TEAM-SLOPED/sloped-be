@@ -1,5 +1,6 @@
 package org.sesac.slopedbe.member.controller;
 
+import org.sesac.slopedbe.auth.VerificationRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.service.MemberService;
@@ -31,12 +32,14 @@ public class MemberController {
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(HttpServletRequest request, @RequestParam String email, @RequestParam String verifiedCode) {
+    public ResponseEntity<String> findIdByEmail(HttpServletRequest request, @RequestBody VerificationRequest verificationRequest) {
+        String email = verificationRequest.getEmail();
+
         try {
-            String id = memberService.findIdByEmail(email, verifiedCode);
+            String id = memberService.findIdByEmail(email);
             HttpSession session = request.getSession();
             session.setAttribute("verifiedId", id);
-            return ResponseEntity.ok("ok");
+            return ResponseEntity.ok(id);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid email or verification code");
         }

@@ -37,19 +37,42 @@ public class VerificationServiceImpl implements VerificationService {
 		emailSender.send(message);
 	}
 
+	@Override
 	public boolean verifyCode(String email, String code) {
 		String storedCode = (String) redisTemplate.opsForValue().get(email);
 		return code.equals(storedCode);
 	}
 
-	public void sendVerificationCode(String email) {
-
-		if (memberRepository.findByEmail(email).isEmpty()) {
-			String code = generateVerificationCode();
-			saveVerificationCode(email, code);
-			sendVerificationEmail(email, code);
+	@Override
+	public void sendRegisterVerificationCode(String email) {
+		if (memberRepository.findByEmail(email).isPresent()) {
+			throw new MemberAlreadyExistsException("Member with email " + email + " already exists.");
 		}
 
+		String code = generateVerificationCode();
+		saveVerificationCode(email, code);
+		sendVerificationEmail(email, code);
+	}
 
+	@Override
+	public void sendFindIdVerificationCode(String email) {
+		if (memberRepository.findByEmail(email).isEmpty()) {
+			throw new MemberNotFoundException("해당 이메일이 조회되지 않습니다.");
+		}
+
+		String code = generateVerificationCode();
+		saveVerificationCode(email, code);
+		sendVerificationEmail(email, code);
+	}
+
+	@Override
+	public void sendFindPasswordVerificationCode(String id, String email) {
+		//비밀번호 찾기 용도
+		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findById(id).isEmpty()) {
+			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
+		}
+		String code = generateVerificationCode();
+		saveVerificationCode(email, code);
+		sendVerificationEmail(email, code);
 	}
 }

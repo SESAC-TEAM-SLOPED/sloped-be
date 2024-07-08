@@ -8,4 +8,5 @@ import lombok.Setter;
 public class VerificationRequest {
 	private String email;
 	private String code;
+	private String id;
 }

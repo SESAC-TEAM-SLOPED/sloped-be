@@ -6,7 +6,7 @@ import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 public interface MemberService {
     Member registerMember(Member member, String verifiedCode);
     boolean checkDuplicateId(String id);
-    String findIdByEmail(String email, String verifiedCode);
+    String findIdByEmail(String email);
     boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode);
     void deleteMember(String email);
     Member updateMemberPassword(String email, String verifiedCode, String newPassword);

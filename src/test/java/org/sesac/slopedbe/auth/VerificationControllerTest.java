@@ -30,7 +30,7 @@ public class VerificationControllerTest {
 		String email = "test@example.com";
 		String code = "123456";
 
-		doNothing().when(verificationService).sendVerificationCode(email);
+		doNothing().when(verificationService).sendRegisterVerificationCode(email);
 
 		mockMvc.perform(post("/api/auth/sendCode")
 				.param("email", email)
@@ -38,7 +38,7 @@ public class VerificationControllerTest {
 			.andExpect(status().isOk())
 			.andExpect(content().string("Verification code sent to " + email));
 
-		verify(verificationService, times(1)).sendVerificationCode(email);
+		verify(verificationService, times(1)).sendRegisterVerificationCode(email);
 	}
 
 	@Test

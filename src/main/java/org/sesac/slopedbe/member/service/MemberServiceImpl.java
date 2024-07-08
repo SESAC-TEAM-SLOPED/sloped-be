@@ -37,9 +37,9 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public String findIdByEmail(String email, String verifiedCode) {
+	public String findIdByEmail(String email) {
 		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent() && isValidCode(verifiedCode)) {
+		if (member.isPresent()) {
 			return member.get().getId().toString();
 		} else {
 			throw new IllegalArgumentException("Invalid email or verification code");
