@@ -1,6 +1,6 @@
 package org.sesac.slopedbe.road;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 import java.math.BigDecimal;
 
@@ -11,12 +11,14 @@ import org.sesac.slopedbe.road.repository.RoadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
+@SpringBootTest
 @Transactional
 @Rollback(false)
-public class RoadRepositoryTest {
+@ActiveProfiles("test")
+class RoadRepositoryTest {
 
 	@Autowired
 	private RoadRepository roadRepository;
