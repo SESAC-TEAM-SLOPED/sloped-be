@@ -1,7 +1,7 @@
 package org.sesac.slopedbe.member.controller;
 
+import org.sesac.slopedbe.auth.DTO.VerificationRequest;
 import org.sesac.slopedbe.auth.MemberAlreadyExistsException;
-import org.sesac.slopedbe.auth.VerificationRequest;
 import org.sesac.slopedbe.member.model.DTO.IdRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
@@ -65,19 +65,19 @@ public class MemberController {
     //     }
     // }
 
-    @PutMapping("/:id")
-    public ResponseEntity<Member> updateInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
+    @PutMapping("/{id}")
+    public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
         Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
         return ResponseEntity.ok(updatedMember);
     }
 
-    @DeleteMapping("/:id")
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteMember (@RequestParam String email){
         memberService.deleteMember(email);
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/:id/blacklist")
+    @PutMapping("/{id}/blacklist")
     public ResponseEntity<Member> updateStatus(@RequestParam String email, @RequestParam MemberStatus status) {
         Member updatedMember = memberService.updateMemberStatus(email, status);
         return ResponseEntity.ok(updatedMember);

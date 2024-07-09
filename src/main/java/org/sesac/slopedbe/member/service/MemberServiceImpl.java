@@ -1,5 +1,6 @@
 package org.sesac.slopedbe.member.service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.sesac.slopedbe.auth.MemberAlreadyExistsException;
@@ -7,6 +8,8 @@ import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -95,6 +98,13 @@ public class MemberServiceImpl implements MemberService{
 		} else {
 			throw new IllegalArgumentException("Member not found");
 		}
+	}
+
+
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		Member member = memberRepository.findById(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+		return new org.springframework.security.core.userdetails.User(member.getId(), member.getPassword(), new ArrayList<>());
 	}
 
 
