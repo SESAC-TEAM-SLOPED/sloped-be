@@ -10,13 +10,9 @@ import org.sesac.slopedbe.road.model.entity.Road;
 import org.sesac.slopedbe.road.repository.RoadRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
-@Rollback(false)
 @ActiveProfiles("test")
 class RoadRepositoryTest {
 
@@ -44,7 +40,7 @@ class RoadRepositoryTest {
 
 		// 저장된 엔티티 출력
 		System.out.println("Saved Road ID: " + savedRoad.getId());
-		System.out.println("Point: " + savedRoad.getPoint());
+		//System.out.println("Point: " + savedRoad.getPoint());
 		System.out.println("Content: " + savedRoad.getContent());
 		System.out.println("Address: " + savedRoad.getAddress());
 	}
