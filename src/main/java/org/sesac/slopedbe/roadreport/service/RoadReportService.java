@@ -1,13 +1,9 @@
 package org.sesac.slopedbe.roadreport.service;
 
-import lombok.RequiredArgsConstructor;
-import org.sesac.slopedbe.roadreport.repository.RoadReportRepository;
-import org.springframework.stereotype.Service;
+import org.sesac.slopedbe.roadreport.model.dto.RoadReportForm;
+import org.sesac.slopedbe.roadreport.model.entity.RoadReport;
 
-@RequiredArgsConstructor
-@Service
-public class  RoadReportService {
+public interface RoadReportService {
 
-    private final RoadReportRepository roadReportRepository;
-
+	RoadReport addRoadReport(RoadReportForm request);
 }

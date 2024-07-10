@@ -1,16 +1,27 @@
 package org.sesac.slopedbe.roadreport.controller;
 
+import org.sesac.slopedbe.roadreport.model.dto.RoadReportForm;
+import org.sesac.slopedbe.roadreport.model.entity.RoadReport;
 import org.sesac.slopedbe.roadreport.service.RoadReportService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/roads")
+@RequestMapping("/api/roadReport")
 @RestController
 public class RoadReportController {
 
     private final RoadReportService roadReportService;
+    @PostMapping("register")
+    public ResponseEntity<String> addRoadReport(RoadReportForm request) {
+        RoadReport newRoadReport = roadReportService.addRoadReport(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body("통행 불편 제보가 성공적으로 제출되었습니다.");
+    }
+
 
 }
