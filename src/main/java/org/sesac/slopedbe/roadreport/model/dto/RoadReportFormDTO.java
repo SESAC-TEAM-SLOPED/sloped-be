@@ -14,7 +14,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class RoadReportForm {
+public class RoadReportFormDTO {
 	private BigDecimal latitude;
 	private BigDecimal longitude;
 	private String content;
