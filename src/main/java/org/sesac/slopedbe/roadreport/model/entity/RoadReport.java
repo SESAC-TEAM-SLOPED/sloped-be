@@ -1,5 +1,7 @@
 package org.sesac.slopedbe.roadreport.model.entity;
 
+import java.util.List;
+
 import org.sesac.slopedbe.common.entity.BaseTimeEntity;
 import org.sesac.slopedbe.common.type.ReportStatus;
 import org.sesac.slopedbe.road.model.entity.Road;
@@ -13,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -49,9 +52,8 @@ public class RoadReport extends BaseTimeEntity {
     // @JoinColumn(name = "email", nullable = false)
     // private Member member;
 
-    @ManyToOne
-    @JoinColumn(name="")
-
+    @OneToMany(mappedBy = "roadReport")
+    private List<RoadReportImage> roadReportImages;
 
     public static RoadReport createRoadReport(String content, ReportStatus status, String reasonForReject, Road road){
         return RoadReport.builder()
