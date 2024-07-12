@@ -49,6 +49,9 @@ public class RoadReport extends BaseTimeEntity {
     // @JoinColumn(name = "email", nullable = false)
     // private Member member;
 
+    @ManyToOne
+    @JoinColumn(name="")
+
 
     public static RoadReport createRoadReport(String content, ReportStatus status, String reasonForReject, Road road){
         return RoadReport.builder()
