@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth;
+package org.sesac.slopedbe.auth.util;
 
 import java.util.Date;
 

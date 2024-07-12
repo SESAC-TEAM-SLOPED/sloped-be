@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth;
+package org.sesac.slopedbe.auth.service;
 
 import org.springframework.stereotype.Service;
 

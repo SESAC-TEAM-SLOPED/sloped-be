@@ -1,8 +1,10 @@
-package org.sesac.slopedbe.auth;
+package org.sesac.slopedbe.auth.service;
 
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
+import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;

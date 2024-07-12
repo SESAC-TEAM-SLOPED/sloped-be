@@ -1,7 +1,7 @@
-package org.sesac.slopedbe.config;
+package org.sesac.slopedbe.common.config;
 
-import org.sesac.slopedbe.auth.CustomAuthenticationFailureHandler;
-import org.sesac.slopedbe.auth.JwtRequestFilter;
+import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
+import org.sesac.slopedbe.auth.handler.CustomAuthenticationFailureHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;

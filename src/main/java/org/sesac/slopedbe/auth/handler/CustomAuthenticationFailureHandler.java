@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth;
+package org.sesac.slopedbe.auth.handler;
 
 import java.io.IOException;
 
@@ -15,7 +15,6 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
-		// 로그인 실패 시 에러 메시지를 쿼리 파라미터로 전달
 		response.sendRedirect("/login/local?error=true");
 	}
 }

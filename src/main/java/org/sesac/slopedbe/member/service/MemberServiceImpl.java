@@ -3,7 +3,7 @@ package org.sesac.slopedbe.member.service;
 import java.util.ArrayList;
 import java.util.Optional;
 
-import org.sesac.slopedbe.auth.MemberAlreadyExistsException;
+import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;

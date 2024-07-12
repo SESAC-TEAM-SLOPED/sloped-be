@@ -1,8 +1,9 @@
 package org.sesac.slopedbe.member.controller;
 
-import org.sesac.slopedbe.auth.DTO.VerificationRequest;
-import org.sesac.slopedbe.auth.MemberAlreadyExistsException;
+import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
+import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
 import org.sesac.slopedbe.member.model.DTO.IdRequest;
+import org.sesac.slopedbe.member.model.DTO.UpdateRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.service.MemberService;
@@ -40,8 +41,8 @@ public class MemberController {
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(HttpServletRequest request, @RequestBody VerificationRequest verificationRequest) {
-        String email = verificationRequest.getEmail();
+    public ResponseEntity<String> findIdByEmail(HttpServletRequest request, @RequestBody MailVerificationRequest mailVerificationRequest) {
+        String email = mailVerificationRequest.getEmail();
 
         try {
             String id = memberService.findIdByEmail(email);
@@ -96,9 +97,9 @@ public class MemberController {
     }
 
     @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestBody VerificationRequest verificationRequest ){
-        String id = verificationRequest.getId();
-        String newPassword = verificationRequest.getNewPassword();
+    public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
+        String id = updateRequest.getId();
+        String newPassword = updateRequest.getNewPassword();
 
         try {
             Member updatedMember = memberService.updateMemberPassword(id, newPassword);

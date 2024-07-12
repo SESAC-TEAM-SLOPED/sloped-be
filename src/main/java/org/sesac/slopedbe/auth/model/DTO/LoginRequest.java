@@ -1,11 +1,11 @@
-package org.sesac.slopedbe.auth.DTO;
+package org.sesac.slopedbe.auth.model.DTO;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class AuthRequest {
+public class LoginRequest {
 	private String id;
 	private String password;
 }

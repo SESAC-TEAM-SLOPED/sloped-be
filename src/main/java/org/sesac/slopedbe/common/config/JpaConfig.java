@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.config;
+package org.sesac.slopedbe.common.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

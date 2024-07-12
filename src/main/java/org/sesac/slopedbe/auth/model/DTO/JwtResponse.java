@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth.DTO;
+package org.sesac.slopedbe.auth.model.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
+public class JwtResponse {
 
 	private String jwt;
 }
