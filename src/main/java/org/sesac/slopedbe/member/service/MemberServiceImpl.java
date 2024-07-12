@@ -11,16 +11,21 @@ import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
-
 @Service
-@AllArgsConstructor
+
 public class MemberServiceImpl implements MemberService{
 
 	private final MemberRepository memberRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
+
+	public MemberServiceImpl (MemberRepository memberRepository){
+		this.memberRepository = memberRepository;
+		this.passwordEncoder = new BCryptPasswordEncoder();
+	}
+
 
 	@Override
 	public Member registerMember(Member member) {

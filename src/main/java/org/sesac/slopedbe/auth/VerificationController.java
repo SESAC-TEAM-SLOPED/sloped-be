@@ -1,6 +1,7 @@
 package org.sesac.slopedbe.auth;
 
 import org.sesac.slopedbe.auth.DTO.VerificationRequest;
+import org.sesac.slopedbe.config.SecurityConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -18,7 +19,8 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class VerificationController {
 
-	private static final Logger log = LoggerFactory.getLogger(VerificationController.class);
+	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
+
 	private final VerificationService verificationService;
 
 	@PostMapping("/sendCode/register")
