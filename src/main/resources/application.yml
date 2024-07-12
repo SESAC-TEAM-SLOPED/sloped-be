@@ -17,6 +17,18 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+cloud:
+  aws:
+    stack:
+      auto: false
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_ACCESSKEY}
+      secretKey: ${S3_SECRETKEY}
+    region:
+      static: ${S3_REGION_STATIC}
+
 ---
 
 spring:

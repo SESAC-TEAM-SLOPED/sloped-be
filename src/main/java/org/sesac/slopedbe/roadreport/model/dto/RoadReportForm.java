@@ -1,6 +1,9 @@
 package org.sesac.slopedbe.roadreport.model.dto;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,12 +15,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class RoadReportForm {
-	//private byte[] data;
-	//private MultipartFile file;
 	private BigDecimal latitude;
 	private BigDecimal longitude;
 	private String content;
 	private String address;
-
-
+	private List<MultipartFile> files;
 }
