@@ -28,6 +28,7 @@ public class SecurityConfig  {
 	public SecurityConfig(JwtRequestFilter jwtRequestFilter, CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
 		this.jwtRequestFilter = jwtRequestFilter;
 		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
+
 	}
 
 	@Bean
@@ -62,7 +63,6 @@ public class SecurityConfig  {
 
 		return http.build();
 	}
-
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
