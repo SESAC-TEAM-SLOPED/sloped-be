@@ -12,6 +12,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -47,6 +48,12 @@ public class Road extends BaseTimeEntity {
             .content(content)
             .address(address)
             .build();
+    }
+
+    @PostLoad
+    private void postLoad() {
+        this.latitude = BigDecimal.valueOf(point.getY());
+        this.longitude = BigDecimal.valueOf(point.getX());
     }
 
 }

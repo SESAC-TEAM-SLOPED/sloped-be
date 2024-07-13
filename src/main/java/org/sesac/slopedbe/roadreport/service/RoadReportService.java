@@ -1,13 +1,17 @@
 package org.sesac.slopedbe.roadreport.service;
 
-import lombok.RequiredArgsConstructor;
-import org.sesac.slopedbe.roadreport.repository.RoadReportRepository;
-import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 
-@RequiredArgsConstructor
-@Service
-public class  RoadReportService {
+import org.sesac.slopedbe.road.model.entity.Road;
+import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
+import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
+import org.sesac.slopedbe.roadreport.model.dto.RoadReportImageDTO;
+import org.sesac.slopedbe.roadreport.model.entity.RoadReport;
+import org.sesac.slopedbe.roadreport.model.entity.RoadReportImage;
 
-    private final RoadReportRepository roadReportRepository;
-
+public interface RoadReportService {
+	Road createAndSaveRoad(BigDecimal latitude, BigDecimal longitude, String address);
+	RoadReport addRoadReport(RoadReportFormDTO request);
+	RoadReportImage createRoadReportImage(RoadReportImageDTO roadReportImageDTO);
+	ReportModalInfoDTO getReportInfo(Long roadId);
 }
