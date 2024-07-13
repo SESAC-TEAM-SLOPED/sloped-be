@@ -6,5 +6,4 @@ import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 
 public interface RoadService {
     List<RoadMarkerInfoDTO> getApprovedRoadPoints();
-    //Optional<Road> findClosestRoad(BigDecimal latitude, BigDecimal longitude);
 }

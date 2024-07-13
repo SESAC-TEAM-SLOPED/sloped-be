@@ -6,6 +6,7 @@ import java.util.UUID;
 
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.road.service.RoadKoreaCityService;
+import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCallTaxiDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCenterDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
@@ -20,6 +21,7 @@ import org.sesac.slopedbe.roadreport.service.RoadReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -116,6 +118,7 @@ public class RoadReportController {
         }
 
     }
+
     @Operation(summary = "콜택시 연결", description = "통행불편 마커 위치에서 가장 가까운 콜택시를 반환합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "가장 가까운 콜택시 정보 반환 성공"),
@@ -157,4 +160,12 @@ public class RoadReportController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
         }
     }
+
+
+	@GetMapping("/info/{roadId}")
+	public ResponseEntity<ReportModalInfoDTO> getReportInfo(@PathVariable Long roadId) {
+		ReportModalInfoDTO reportInfo = roadReportService.getReportInfo(roadId);
+		return new ResponseEntity<>(reportInfo, HttpStatus.OK);
+	}
+
 }

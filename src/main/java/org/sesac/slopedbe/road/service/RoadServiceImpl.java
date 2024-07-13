@@ -26,7 +26,7 @@ public class RoadServiceImpl implements RoadService{
 			.map(report -> {
 				Road road = report.getRoad();
 				return new RoadMarkerInfoDTO(
-					//road.getId(),
+					road.getId(),
 					road.getLatitude(),
 					road.getLongitude(),
 					road.getAddress()
