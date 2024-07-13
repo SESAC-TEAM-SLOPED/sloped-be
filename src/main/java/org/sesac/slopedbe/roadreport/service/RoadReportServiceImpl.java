@@ -4,10 +4,10 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.Point;
 import org.sesac.slopedbe.common.type.ReportStatus;
 import org.sesac.slopedbe.road.model.entity.Road;
 import org.sesac.slopedbe.road.repository.RoadRepository;
+import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportImageDTO;
 import org.sesac.slopedbe.roadreport.model.entity.RoadReport;
@@ -60,13 +60,32 @@ public class RoadReportServiceImpl implements RoadReportService {
 
 		return roadReportImageRepository.save(roadReportImage);
 	}
+	@Transactional
+	public ReportModalInfoDTO getReportInfo(Long roadId) {
+		RoadReport roadReport = roadReportRepository.findByRoadId(roadId)
+			.orElseThrow(() -> new RuntimeException("해당 마커 정보를 찾을 수 없습니다."));
 
-	@Override
-	public List<Point> getApprovedRoadPoints() {
-		List<RoadReport> approvedReports = roadReportRepository.findByStatus(ReportStatus.APPROVED);
-		return approvedReports.stream()
-			.map(report -> report.getRoad().getPoint())
+		List<RoadReportImage> reportImages = roadReportImageRepository.findByRoadReportId(roadReport.getId())
+			.orElseThrow(() -> new RuntimeException("해당 마커 이미지를 찾을 수 없습니다."));
+
+		List<RoadReportImageDTO> reportImageDTOs = reportImages.stream()
+			.map(this::convertToDTO)
 			.collect(Collectors.toList());
+
+
+		return ReportModalInfoDTO.builder()
+			.id(roadReport.getId())
+			.reportImageList(reportImageDTOs)
+			.content(roadReport.getContent())
+			.build();
+	}
+
+	private RoadReportImageDTO convertToDTO(RoadReportImage roadReportImage) {
+		return RoadReportImageDTO.builder()
+			.url(roadReportImage.getUrl())
+			.fileName(roadReportImage.getFileName())
+			.uploadOrder(roadReportImage.getUploadOrder())
+			.build();
 	}
 
 }
