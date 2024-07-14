@@ -5,18 +5,22 @@ import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.auth.model.DTO.JwtResponse;
 import org.sesac.slopedbe.auth.model.DTO.LoginRequest;
 import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
+import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.common.config.SecurityConfig;
-import org.sesac.slopedbe.member.service.MemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -37,18 +41,26 @@ public class AuthController {
 	private final VerificationService verificationService;
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
-	private final MemberService memberService;
+	private final LoginServiceImpl memberService;
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) throws Exception {
+
+		log.info("Login attempt for user: {}", loginRequest.getId());
 
 		try {
 			Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getId(), loginRequest.getPassword())
 			);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-		} catch (Exception e) {
-			throw new Exception("INVALID_CREDENTIALS", e);
+		} catch (BadCredentialsException e) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+		} catch (LockedException e) {
+			return ResponseEntity.status(HttpStatus.LOCKED).body("Account locked");
+		} catch (DisabledException e) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account disabled");
+		} catch (AuthenticationException e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
 		}
 
 		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getId());

@@ -1,6 +1,5 @@
 package org.sesac.slopedbe.member.service;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
@@ -8,24 +7,17 @@ import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@Service
+import lombok.AllArgsConstructor;
 
-public class MemberServiceImpl implements MemberService{
+@Service
+@AllArgsConstructor
+public class MemberServiceImpl implements MemberService {
 
 	private final MemberRepository memberRepository;
 	private final PasswordEncoder passwordEncoder;
-
-	public MemberServiceImpl (MemberRepository memberRepository){
-		this.memberRepository = memberRepository;
-		this.passwordEncoder = new BCryptPasswordEncoder();
-	}
-
 
 	@Override
 	public Member registerMember(Member member) {
@@ -58,7 +50,6 @@ public class MemberServiceImpl implements MemberService{
 			throw new IllegalArgumentException("Invalid email or verification code");
 		}
 	}
-
 
 	@Override
 	public void deleteMember(String email) {
@@ -97,21 +88,12 @@ public class MemberServiceImpl implements MemberService{
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setNickname(newNickname);
-			existingMember.setPassword(newPassword);
+			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			existingMember.setDisability(newDisability);
 			return memberRepository.save(existingMember);
 		} else {
 			throw new IllegalArgumentException("Member not found");
 		}
 	}
-
-
-	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Member member = memberRepository.findById(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		return new org.springframework.security.core.userdetails.User(member.getId(), member.getPassword(), new ArrayList<>());
-	}
-
-
 
 }

@@ -54,18 +54,6 @@ public class MemberController {
         }
     }
 
-    // // 세션에 저장된 ID 반환
-    // @GetMapping("/get-verified-id")
-    // public ResponseEntity<String> getVerifiedId(HttpServletRequest request) {
-    //     HttpSession session = request.getSession();
-    //     String id = (String) session.getAttribute("verifiedId");
-    //     if (id != null) {
-    //         return ResponseEntity.ok(id);
-    //     } else {
-    //         return ResponseEntity.badRequest().body("No verified ID found in session");
-    //     }
-    // }
-
     @PutMapping("/{id}")
     public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
         Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);

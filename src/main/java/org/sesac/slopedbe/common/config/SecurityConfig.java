@@ -16,8 +16,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import lombok.AllArgsConstructor;
+
 @Configuration
 @EnableWebSecurity
+@AllArgsConstructor
 public class SecurityConfig  {
 
 	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
@@ -25,26 +28,20 @@ public class SecurityConfig  {
 	private final JwtRequestFilter jwtRequestFilter;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
 
-	public SecurityConfig(JwtRequestFilter jwtRequestFilter, CustomAuthenticationFailureHandler customAuthenticationFailureHandler) {
-		this.jwtRequestFilter = jwtRequestFilter;
-		this.customAuthenticationFailureHandler = customAuthenticationFailureHandler;
-
-	}
-
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.csrf(csrf -> csrf.disable())  // CSRF 보호 비활성화
 			.authorizeRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/login", "/error").permitAll()
-					.anyRequest().authenticated()  // 모든 요청에 대해 인증을 요구
+					.requestMatchers("/login", "/error","/register/**", "/api/auth/**","/api/users/**" ).permitAll()
+					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
-				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)  // 세션을 사용하지 않음
+				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			);
 
-		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);  // JWT 필터 추가
+		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		if (jwtRequestFilter != null) {
 			http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
@@ -53,7 +50,6 @@ public class SecurityConfig  {
 			throw new IllegalStateException("JwtRequestFilter cannot be null");
 		}
 
-		// Form login configuration
 		http.formLogin(formLogin -> formLogin
 			.loginPage("/login/local")
 			.permitAll()
@@ -70,7 +66,7 @@ public class SecurityConfig  {
 	}
 
 	@Bean
-	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws  Exception {
+	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
 

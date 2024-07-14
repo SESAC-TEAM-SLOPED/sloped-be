@@ -23,7 +23,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
-@Setter // 테스트용
+@Setter
 @NoArgsConstructor
 @Table(name = "member")
 @Entity
@@ -39,7 +39,7 @@ public class Member extends BaseTimeEntity {
     private String nickname;
 
     private boolean isDisability;
-    // 1 : normal, 0 : disabled
+    // 1 : normal, 0 : disabled 사용 예정
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

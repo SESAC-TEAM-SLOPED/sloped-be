@@ -2,9 +2,8 @@ package org.sesac.slopedbe.member.service;
 
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
-public interface MemberService extends UserDetailsService {
+public interface MemberService {
     Member registerMember(Member member);
 
     boolean checkDuplicateId(String id);

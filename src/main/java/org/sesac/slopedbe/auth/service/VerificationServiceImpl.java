@@ -27,7 +27,7 @@ public class VerificationServiceImpl implements VerificationService {
 	}
 
 	private void saveVerificationCode(String email, String code) {
-		redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES); // 5분 유효
+		redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
 	}
 
 	private void sendVerificationEmail(String to, String code) {
@@ -35,7 +35,7 @@ public class VerificationServiceImpl implements VerificationService {
 		message.setTo(to);
 		message.setSubject("Your Verification Code");
 		message.setText("Your verification code is: " + code);
-		message.setFrom("Together@example.com"); // gmail 설정 상 수정 불가능, 조치예정!
+		message.setFrom("Together@example.com"); // gmail 설정 상 보낸 사람 수정 불가능, 조치예정!
 		emailSender.send(message);
 	}
 
