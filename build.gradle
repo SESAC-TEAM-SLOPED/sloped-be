@@ -38,7 +38,10 @@ dependencies {
     implementation 'org.locationtech.jts:jts-core:1.18.0'
     testImplementation 'org.postgresql:postgresql'
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
     implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+
 }
 
 
