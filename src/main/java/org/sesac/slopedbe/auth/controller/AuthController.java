@@ -2,9 +2,9 @@ package org.sesac.slopedbe.auth.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
-import org.sesac.slopedbe.auth.model.vo.JwtResponse;
-import org.sesac.slopedbe.auth.model.vo.LoginRequest;
-import org.sesac.slopedbe.auth.model.vo.MailVerificationRequest;
+import org.sesac.slopedbe.auth.model.dto.JwtResponse;
+import org.sesac.slopedbe.auth.model.dto.LoginRequest;
+import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;
@@ -100,15 +100,7 @@ public class AuthController {
 
 	@PostMapping("/verify-code")
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
-		String email = request.email();
-		String code = request.code();
-
-		boolean isVerified = verificationService.verifyCode(email, code);
-
-		if (isVerified) {
-			return ResponseEntity.ok("Email verified successfully");
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification code");
-		}
+		verificationService.verifyCode(request.email(), request.code());
+		return ResponseEntity.ok("Email verified successfully");
 	}
 }
