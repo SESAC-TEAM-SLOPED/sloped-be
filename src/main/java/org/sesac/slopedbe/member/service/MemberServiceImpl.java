@@ -25,7 +25,7 @@ public class MemberServiceImpl implements MemberService {
 		String email = registerMemberRequest.email();
 
 		if (memberRepository.findByEmail(email).isPresent()) {
-			throw new MemberException(MemberErrorCode.MEMBER_ALREADY_EXISTS);
+			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 
 		return memberRepository.save(new Member(
@@ -39,9 +39,10 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public boolean checkDuplicateId(String id) {
-		//회원 가입 중복 확인 버튼 누를 때 사용
-		return memberRepository.findById(id).isPresent();
+	public void checkDuplicateId(String id) {
+		if(memberRepository.findById(id).isPresent()) {
+			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
+		}
 	}
 
 	@Override

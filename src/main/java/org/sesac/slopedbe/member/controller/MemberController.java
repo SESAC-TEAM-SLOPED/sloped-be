@@ -30,14 +30,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/duplicate-check/id")
-    public ResponseEntity<String> checkDuplicateId(@RequestBody org.sesac.slopedbe.member.model.DTO.IdRequest idRequest) {
-        String id = idRequest.getId();
-        boolean isDuplicated = memberService.checkDuplicateId(id);
-        if (isDuplicated) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("아이디가 중복됩니다.");
-        } else {
-            return ResponseEntity.ok("사용 가능한 아이디 입니다.");
-        }
+    public ResponseEntity<String> checkDuplicateId(@RequestBody String userId) {
+        memberService.checkDuplicateId(userId);
+        return ResponseEntity.ok("사용 가능한 아이디 입니다.");
     }
 
     @PostMapping("/find-id")

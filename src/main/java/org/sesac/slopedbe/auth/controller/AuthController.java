@@ -2,9 +2,9 @@ package org.sesac.slopedbe.auth.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
-import org.sesac.slopedbe.auth.model.DTO.JwtResponse;
-import org.sesac.slopedbe.auth.model.DTO.LoginRequest;
-import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
+import org.sesac.slopedbe.auth.model.vo.JwtResponse;
+import org.sesac.slopedbe.auth.model.vo.LoginRequest;
+import org.sesac.slopedbe.auth.model.vo.MailVerificationRequest;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;

@@ -7,7 +7,7 @@ import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 public interface MemberService {
     Member registerMember(RegisterMemberRequest registerMemberRequest);
 
-    boolean checkDuplicateId(String id);
+    void checkDuplicateId(String id);
 
     String findIdByEmail(String email);
 
