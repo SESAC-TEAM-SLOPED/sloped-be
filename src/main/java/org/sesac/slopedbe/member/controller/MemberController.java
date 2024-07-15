@@ -1,9 +1,9 @@
 package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
-import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
-import org.sesac.slopedbe.member.model.DTO.IdRequest;
-import org.sesac.slopedbe.member.model.DTO.UpdateRequest;
+import org.sesac.slopedbe.auth.model.vo.MailVerificationRequest;
+import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.service.MemberService;
@@ -30,7 +30,7 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/duplicate-check/id")
-    public ResponseEntity<String> checkDuplicateId(@RequestBody IdRequest idRequest) {
+    public ResponseEntity<String> checkDuplicateId(@RequestBody org.sesac.slopedbe.member.model.DTO.IdRequest idRequest) {
         String id = idRequest.getId();
         boolean isDuplicated = memberService.checkDuplicateId(id);
         if (isDuplicated) {
@@ -61,7 +61,7 @@ public class MemberController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMember (@RequestParam String email){
+    public ResponseEntity<Void> deleteMember(@RequestParam String email) {
         memberService.deleteMember(email);
         return ResponseEntity.noContent().build();
     }
@@ -73,19 +73,13 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<Member> register(@RequestBody Member member) {
-        try {
-            Member savedMember = memberService.registerMember(member);
-            return ResponseEntity.ok(savedMember);
-        } catch (MemberAlreadyExistsException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null); // 409 Conflict for existing member
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
+    public ResponseEntity<RegisterMemberResponse> register(@RequestBody RegisterMemberRequest request) {
+        Member savedMember = memberService.registerMember(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
     }
 
     @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
+    public ResponseEntity<Member> updatePassword(@RequestBody org.sesac.slopedbe.member.model.DTO.UpdateRequest updateRequest){
         String id = updateRequest.getId();
         String newPassword = updateRequest.getNewPassword();
 

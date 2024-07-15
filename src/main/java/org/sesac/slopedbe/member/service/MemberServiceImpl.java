@@ -2,9 +2,10 @@ package org.sesac.slopedbe.member.service;
 
 import java.util.Optional;
 
-import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
+import org.sesac.slopedbe.member.exception.MemberErrorCode;
+import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,18 +21,20 @@ public class MemberServiceImpl implements MemberService {
 	private final PasswordEncoder passwordEncoder;
 
 	@Override
-	public Member registerMember(Member member) {
-		String email = member.getEmail();
+	public Member registerMember(RegisterMemberRequest registerMemberRequest) {
+		String email = registerMemberRequest.email();
 
 		if (memberRepository.findByEmail(email).isPresent()) {
-			throw new MemberAlreadyExistsException("해당 이메일이 이미 존재합니다.");
+			throw new MemberException(MemberErrorCode.MEMBER_ALREADY_EXISTS);
 		}
 
-		member.setPassword(passwordEncoder.encode(member.getPassword()));
-		member.setMemberStatus(MemberStatus.ACTIVE); // Default status
-		member.setMemberRole(MemberRole.USER); // Default role
-
-		return memberRepository.save(member);
+		return memberRepository.save(new Member(
+				registerMemberRequest.userId(),
+				passwordEncoder.encode(registerMemberRequest.password()),
+				registerMemberRequest.email(),
+				registerMemberRequest.nickname(),
+				registerMemberRequest.isDisabled()
+		));
 
 	}
 

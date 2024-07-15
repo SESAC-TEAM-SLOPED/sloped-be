@@ -25,7 +25,7 @@ import lombok.Setter;
 @Entity
 public class Member extends BaseTimeEntity {
 
-    @Id //기본 키
+    @Id
     @Column(nullable = false, unique = true, length = 200)
     @Email
     private String email;
@@ -43,17 +43,17 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private MemberRole memberRole;
 
-    @Column(length = 255)
+    @Column()
     private String refreshToken;
 
     @Enumerated(EnumType.STRING)
     private MemberOauthType oauthType;
 
-    @Column(length = 255, unique = true)
+    @Column(unique = true)
     private String id;
 
-    @Column(length = 255)
-    private String password; // 로컬 계정 Login Password
+    @Column()
+    private String password;
 
     @Column(length = 50)
     private String socialAuthCode;
@@ -61,4 +61,13 @@ public class Member extends BaseTimeEntity {
     @Column(length = 50)
     private String socialOauthType;
 
+    public Member(String userId, String password, String email, String nickname, Boolean isDisabled) {
+        this.id = userId;
+        this.password = password;
+        this.email = email;
+        this.nickname = nickname;
+        this.isDisability = isDisabled;
+        this.memberRole = MemberRole.USER;
+        this.memberStatus = MemberStatus.ACTIVE;
+    }
 }

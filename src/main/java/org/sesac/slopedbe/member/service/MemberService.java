@@ -1,10 +1,11 @@
 package org.sesac.slopedbe.member.service;
 
+import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 
 public interface MemberService {
-    Member registerMember(Member member);
+    Member registerMember(RegisterMemberRequest registerMemberRequest);
 
     boolean checkDuplicateId(String id);
 
