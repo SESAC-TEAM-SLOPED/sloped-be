@@ -56,9 +56,7 @@ public class MemberServiceTest {
 
 	@Test
 	public void testCheckDuplicateId() {
-		assertThrows(MemberException.class, () -> {
-			memberService.checkDuplicateId("testId");
-		});
+		assertThrows(MemberException.class, () -> memberService.checkDuplicateId("testId"));
 	}
 
 	@Test
