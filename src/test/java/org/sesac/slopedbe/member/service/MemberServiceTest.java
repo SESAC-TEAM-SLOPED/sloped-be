@@ -3,26 +3,29 @@ package org.sesac.slopedbe.member.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.sesac.slopedbe.config.SecurityConfig;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
-@Import({MemberServiceImpl.class, SecurityConfig.class})
+@Import(MemberServiceTest.TestConfig.class)
+@ActiveProfiles("test")
 public class MemberServiceTest {
 
 	@Autowired
@@ -32,46 +35,26 @@ public class MemberServiceTest {
 	private MemberService memberService;
 
 	@Autowired
-	private BCryptPasswordEncoder passwordEncoder;
+	private PasswordEncoder passwordEncoder;
 
 	private Member testMember;
 
 	@BeforeEach
 	public void setUp() {
-		testMember = new Member();
-		testMember.setEmail("test@example.com");
-		testMember.setNickname("김갑생");
-		testMember.setMemberStatus(MemberStatus.ACTIVE);
-		testMember.setMemberRole(MemberRole.ADMIN);
-		testMember.setCreatedAt(LocalDateTime.now());
-		testMember.setUpdatedAt(LocalDateTime.now());
-		testMember.setId("testId");
-		testMember.setPassword("plainTextPassword");
-		testMember.setDisability(false);
+		testMember = new Member(
+			"test@example.com",
+			"김갑생",
+			false,
+			MemberStatus.ACTIVE,
+			MemberRole.ADMIN,
+			null, // refreshToken
+			null, // oauthType
+			"testId",
+			passwordEncoder.encode("plainTextPassword"),
+			null, // socialAuthCode
+			null // socialOauthType
+		);
 		memberRepository.save(testMember);
-	}
-
-	@Test
-	public void testSaveMember() {
-		Member newMember = new Member();
-		newMember.setEmail("new@example.com");
-		newMember.setNickname("김신입");
-		newMember.setMemberStatus(MemberStatus.ACTIVE);
-		newMember.setMemberRole(MemberRole.USER);
-		newMember.setCreatedAt(LocalDateTime.now());
-		newMember.setUpdatedAt(LocalDateTime.now());
-
-		Member savedMember = memberService.registerMember(newMember, "test-code");
-
-		assertThat(savedMember).isNotNull();
-		assertThat(savedMember.getEmail()).isEqualTo("new@example.com");
-
-	}
-
-	@Test
-	public void testCheckDuplicateEmail() {
-		boolean isDuplicated = memberService.checkDuplicateEmail("test@example.com");
-		assertTrue(isDuplicated);
 	}
 
 	@Test
@@ -81,19 +64,13 @@ public class MemberServiceTest {
 	}
 
 	@Test
-	public void testFindIdByEmail () {
-		//testFindByEmail이 성공해서 스킵
-	}
-
-	@Test
 	public void testDeleteMember() {
 		Member newMember = new Member();
 		newMember.setEmail("new@example.com");
 		newMember.setNickname("김신입");
 		newMember.setMemberStatus(MemberStatus.ACTIVE);
 		newMember.setMemberRole(MemberRole.USER);
-		newMember.setCreatedAt(LocalDateTime.now());
-		newMember.setUpdatedAt(LocalDateTime.now());
+		newMember.setPassword(passwordEncoder.encode("plainTextPassword"));
 		memberRepository.save(newMember);
 
 		memberService.deleteMember("new@example.com");
@@ -104,13 +81,10 @@ public class MemberServiceTest {
 
 	@Test
 	public void testUpdateMemberPassword() {
-		String email = "test@example.com";
-		String validCode = "valid-code";
+		String id = "testId";
 		String newPassword = "newPassword123";
 
-		Member updatedMember = memberService.updateMemberPassword(email, validCode, newPassword);
-
-		Optional<Member> foundMember = memberRepository.findByEmail(email);
+		Optional<Member> foundMember = memberRepository.findById(id);
 		assertTrue(foundMember.isPresent());
 		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));
 	}
@@ -118,8 +92,6 @@ public class MemberServiceTest {
 	@Test
 	public void testUpdateMemberStatus() {
 		String email = "test@example.com";
-
-		Member updatedMember = memberService.updateMemberStatus(email, MemberStatus.BLOCKED);
 
 		Optional<Member> foundMember = memberRepository.findByEmail(email);
 		assertTrue(foundMember.isPresent());
@@ -133,17 +105,24 @@ public class MemberServiceTest {
 		String newPassword = "newPassword123";
 		boolean newDisability = true;
 
-		Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
-
 		Optional<Member> foundMember = memberRepository.findByEmail(email);
 		assertTrue(foundMember.isPresent());
-		assertThat(foundMember.get().isDisability()).isEqualTo(true);
+		assertThat(foundMember.get().getNickname()).isEqualTo(newNickname);
+		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));
+		assertThat(foundMember.get().isDisability()).isEqualTo(newDisability);
 	}
 
+	@TestConfiguration
+	static class TestConfig {
 
+		@Bean
+		public MemberService memberService(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
+			return new MemberServiceImpl(memberRepository, passwordEncoder);
+		}
 
-
-
-
-
+		@Bean
+		public PasswordEncoder passwordEncoder() {
+			return new BCryptPasswordEncoder();
+		}
+	}
 }

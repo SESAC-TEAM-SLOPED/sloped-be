@@ -2,32 +2,37 @@ package org.sesac.slopedbe.member.service;
 
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
 
 @Service
 @AllArgsConstructor
-public class MemberServiceImpl implements MemberService{
+public class MemberServiceImpl implements MemberService {
 
 	private final MemberRepository memberRepository;
-	private final BCryptPasswordEncoder passwordEncoder;
+	private final PasswordEncoder passwordEncoder;
 
 	@Override
-	public Member registerMember(Member member, String verifiedCode) {
+	public Member registerMember(Member member) {
+		String email = member.getEmail();
 
-		if (isValidCode(verifiedCode)) {
-			if (member.getPassword() != null) {
-				member.setPassword(passwordEncoder.encode(member.getPassword()));
-			}
-			return memberRepository.save(member);
-		} else {
-			throw new IllegalArgumentException("Invalid verification code");
+		if (memberRepository.findByEmail(email).isPresent()) {
+			throw new MemberAlreadyExistsException("해당 이메일이 이미 존재합니다.");
 		}
+
+		member.setPassword(passwordEncoder.encode(member.getPassword()));
+		member.setMemberStatus(MemberStatus.ACTIVE); // Default status
+		member.setMemberRole(MemberRole.USER); // Default role
+
+		return memberRepository.save(member);
+
 	}
 
 	@Override
@@ -37,20 +42,10 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public String findIdByEmail(String email, String verifiedCode) {
+	public String findIdByEmail(String email) {
 		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent() && isValidCode(verifiedCode)) {
+		if (member.isPresent()) {
 			return member.get().getId().toString();
-		} else {
-			throw new IllegalArgumentException("Invalid email or verification code");
-		}
-	}
-
-	@Override
-	public boolean checkPasswordByEmailAndId(String email, String id, String verifiedCode) {
-		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent() && isValidCode(verifiedCode)) {
-			return member.get().getId().toString().equals(id);
 		} else {
 			throw new IllegalArgumentException("Invalid email or verification code");
 		}
@@ -62,10 +57,10 @@ public class MemberServiceImpl implements MemberService{
 	}
 
 	@Override
-	public Member updateMemberPassword(String email, String verifiedCode, String newPassword) {
+	public Member updateMemberPassword(String id, String newPassword) {
 		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent() && isValidCode(verifiedCode)) {
+		Optional<Member> member = memberRepository.findById(id);
+		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			return memberRepository.save(existingMember);
@@ -93,19 +88,12 @@ public class MemberServiceImpl implements MemberService{
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setNickname(newNickname);
-			existingMember.setPassword(newPassword);
+			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			existingMember.setDisability(newDisability);
 			return memberRepository.save(existingMember);
 		} else {
 			throw new IllegalArgumentException("Member not found");
 		}
 	}
-
-	private boolean isValidCode(String code) {
-		// 인증 코드 확인 로직 작성 예정!
-		// 예시: Redis에서 인증 코드를 조회하여 유효성을 검사
-		return true; // 실제 로직으로 대체 필요
-	}
-
 
 }

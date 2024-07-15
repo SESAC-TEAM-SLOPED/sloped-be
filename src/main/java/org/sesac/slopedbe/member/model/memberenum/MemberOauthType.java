@@ -1,11 +1,13 @@
 package org.sesac.slopedbe.member.model.memberenum;
 
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+
+@Getter
+@RequiredArgsConstructor
 public enum MemberOauthType {
 	NAVER("TYPE_NAVER"),
-	KAKAO("TYPE_KAKAO");
+	GOOGLE("TYPE_GOOGLE");
 
-	MemberOauthType(String Value) {
-		this.value = value;
-	}
-	private String value;
+	private final String value;
 }
