@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.common.config;
+package org.sesac.slopedbe.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

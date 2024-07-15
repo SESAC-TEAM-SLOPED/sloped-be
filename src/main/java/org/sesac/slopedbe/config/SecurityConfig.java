@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.common.config;
+package org.sesac.slopedbe.config;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
 import org.sesac.slopedbe.auth.handler.CustomAuthenticationFailureHandler;
