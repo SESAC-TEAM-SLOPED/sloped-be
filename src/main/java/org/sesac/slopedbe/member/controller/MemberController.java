@@ -2,12 +2,12 @@ package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.model.vo.MailVerificationRequest;
+import org.sesac.slopedbe.member.model.dto.UpdateRequest;
+import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
+import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
-import org.sesac.slopedbe.member.model.vo.UpdateRequest;
-import org.sesac.slopedbe.member.model.vo.request.CheckDuplicateIdRequest;
-import org.sesac.slopedbe.member.model.vo.request.RegisterMemberRequest;
-import org.sesac.slopedbe.member.model.vo.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
