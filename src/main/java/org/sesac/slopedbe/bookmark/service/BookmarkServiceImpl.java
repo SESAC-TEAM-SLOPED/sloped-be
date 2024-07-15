@@ -1,7 +1,11 @@
 package org.sesac.slopedbe.bookmark.service;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
+import org.sesac.slopedbe.bookmark.model.dto.BookmarkRequestDTO;
+import org.sesac.slopedbe.bookmark.model.dto.BookmarkResponseDTO;
 import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 import org.sesac.slopedbe.bookmark.model.entity.BookmarkId;
 import org.sesac.slopedbe.bookmark.repository.BookmarkRepository;
@@ -22,9 +26,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final FacilityRepository facilityRepository;
 
     @Override
-    public void addBookmark(String email, Long facilityId) {
-        Member member = memberRepository.findByEmail(email).orElse(null);
-        Facility facility = facilityRepository.findById(facilityId).orElse(null);
+    public void addBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) throws IOException {
+        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow();
 
         Bookmark bookmark = Bookmark.create(facility, member);
 
@@ -32,9 +36,9 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void removeBookmark(String email, Long facilityId) {
+    public void removeBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) {
         Member member = memberRepository.findByEmail(email).orElse(null);
-        Facility facility = facilityRepository.findById(facilityId).orElse(null);
+        Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElse(null);
 
         BookmarkId bookmarkId = new BookmarkId(facility, member);
 
@@ -42,7 +46,14 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public List<Bookmark> getBookmarksByMemberEmail(String email) {
-        return bookmarkRepository.findByMember_Email(email);
+    public List<BookmarkResponseDTO> getBookmarksByMemberEmail(String email) {
+        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMember_Email(email);
+        List<BookmarkResponseDTO> bookmarks = new ArrayList<>();
+
+        for (Bookmark bookmarkEntity : bookmarkEntities) {
+            bookmarks.add(BookmarkResponseDTO.toBookmarkDTO(bookmarkEntity));
+        }
+
+        return bookmarks;
     }
 }
