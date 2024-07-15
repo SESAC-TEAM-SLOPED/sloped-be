@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberRole;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
@@ -17,12 +18,14 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
+@EnableJpaAuditing
 @DataJpaTest
 @Import(MemberServiceTest.TestConfig.class)
 @ActiveProfiles("test")
@@ -42,25 +45,20 @@ public class MemberServiceTest {
 	@BeforeEach
 	public void setUp() {
 		testMember = new Member(
-			"test@example.com",
-			"김갑생",
-			false,
-			MemberStatus.ACTIVE,
-			MemberRole.ADMIN,
-			null, // refreshToken
-			null, // oauthType
 			"testId",
 			passwordEncoder.encode("plainTextPassword"),
-			null, // socialAuthCode
-			null // socialOauthType
+			"test@example.com",
+			"김갑생",
+			false
 		);
 		memberRepository.save(testMember);
 	}
 
 	@Test
 	public void testCheckDuplicateId() {
-		boolean isDuplicated = memberService.checkDuplicateId("testId");
-		assertTrue(isDuplicated);
+		assertThrows(MemberException.class, () -> {
+			memberService.checkDuplicateId("testId");
+		});
 	}
 
 	@Test
