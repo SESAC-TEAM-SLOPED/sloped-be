@@ -3,7 +3,6 @@ package org.sesac.slopedbe.member.service;
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -42,16 +41,19 @@ public class MemberServiceTest {
 
 	@BeforeEach
 	public void setUp() {
-		testMember = new Member();
-		testMember.setEmail("test@example.com");
-		testMember.setNickname("김갑생");
-		testMember.setMemberStatus(MemberStatus.ACTIVE);
-		testMember.setMemberRole(MemberRole.ADMIN);
-		testMember.setCreatedAt(LocalDateTime.now());
-		testMember.setUpdatedAt(LocalDateTime.now());
-		testMember.setId("testId");
-		testMember.setPassword(passwordEncoder.encode("plainTextPassword"));
-		testMember.setDisability(false);
+		testMember = new Member(
+			"test@example.com",
+			"김갑생",
+			false,
+			MemberStatus.ACTIVE,
+			MemberRole.ADMIN,
+			null, // refreshToken
+			null, // oauthType
+			"testId",
+			passwordEncoder.encode("plainTextPassword"),
+			null, // socialAuthCode
+			null // socialOauthType
+		);
 		memberRepository.save(testMember);
 	}
 
@@ -68,8 +70,6 @@ public class MemberServiceTest {
 		newMember.setNickname("김신입");
 		newMember.setMemberStatus(MemberStatus.ACTIVE);
 		newMember.setMemberRole(MemberRole.USER);
-		newMember.setCreatedAt(LocalDateTime.now());
-		newMember.setUpdatedAt(LocalDateTime.now());
 		newMember.setPassword(passwordEncoder.encode("plainTextPassword"));
 		memberRepository.save(newMember);
 

@@ -8,9 +8,6 @@ import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;
-import org.sesac.slopedbe.common.config.SecurityConfig;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -30,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
+@Slf4j
 public class AuthController {
-
-	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
 	private final VerificationService verificationService;
 	private final AuthenticationManager authenticationManager;
@@ -70,7 +67,7 @@ public class AuthController {
 		return ResponseEntity.ok(new JwtResponse(jwt));
 	}
 
-	@PostMapping("/sendCode/register")
+	@PostMapping("/send-code/verification-code")
 	public ResponseEntity<String> sendRegisterVerificationCode(@RequestBody MailVerificationRequest request) {
 		String email = request.getEmail();
 
@@ -78,13 +75,13 @@ public class AuthController {
 
 		try {
 			verificationService.sendRegisterVerificationCode(email);
-			return ResponseEntity.ok("Verification code sent to " + email);
+			return ResponseEntity.status(HttpStatus.CREATED).body("Verification code sent to " + email);
 		} catch (MemberAlreadyExistsException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
 		}
 	}
 
-	@PostMapping("/sendCode/findMember")
+	@PostMapping("/send-code/recovery-code")
 	public ResponseEntity<String> sendFindMemberVerificationCode(@RequestBody MailVerificationRequest request) {
 		String email = request.getEmail();
 		String id = request.getId();
@@ -96,13 +93,13 @@ public class AuthController {
 				verificationService.sendFindIdVerificationCode(email);
 			}
 			log.info("Received request to send verification code to: {}", email);
-			return ResponseEntity.ok("Verification code sent to " + email);
+			return ResponseEntity.status(HttpStatus.CREATED).body("Verification code sent to " + email);
 		} catch (MemberNotFoundException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
 		}
 	}
 
-	@PostMapping("/verifyCode")
+	@PostMapping("/verify-code")
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
 		String email = request.getEmail();
 		String code = request.getCode();

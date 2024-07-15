@@ -2,8 +2,6 @@ package org.sesac.slopedbe.common.config;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
 import org.sesac.slopedbe.auth.handler.CustomAuthenticationFailureHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,13 +15,13 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
 @EnableWebSecurity
 @AllArgsConstructor
+@Slf4j
 public class SecurityConfig  {
-
-	private static final Logger log = LoggerFactory.getLogger(SecurityConfig.class);
 
 	private final JwtRequestFilter jwtRequestFilter;
 	private final CustomAuthenticationFailureHandler customAuthenticationFailureHandler;
@@ -42,13 +40,6 @@ public class SecurityConfig  {
 			);
 
 		http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-
-		if (jwtRequestFilter != null) {
-			http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
-		} else {
-			log.error("jwtRequestFilter is null");
-			throw new IllegalStateException("JwtRequestFilter cannot be null");
-		}
 
 		http.formLogin(formLogin -> formLogin
 			.loginPage("/login/local")
@@ -71,3 +62,4 @@ public class SecurityConfig  {
 	}
 
 }
+

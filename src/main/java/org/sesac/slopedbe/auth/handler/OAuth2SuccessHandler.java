@@ -4,8 +4,6 @@ import java.io.IOException;
 
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
@@ -15,12 +13,12 @@ import org.springframework.stereotype.Component;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
 @AllArgsConstructor
+@Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
-
-	private static final Logger log = LoggerFactory.getLogger(OAuth2SuccessHandler.class);
 
 	private final JwtUtil jwtUtil;
 	private final LoginServiceImpl memberService;
