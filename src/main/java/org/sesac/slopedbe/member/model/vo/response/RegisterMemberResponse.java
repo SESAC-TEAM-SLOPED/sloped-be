@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.dto.response;
+package org.sesac.slopedbe.member.model.vo.response;
 
 public record RegisterMemberResponse(String email) {
 }
