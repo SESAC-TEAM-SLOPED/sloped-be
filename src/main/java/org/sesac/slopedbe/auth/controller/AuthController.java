@@ -20,7 +20,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +40,7 @@ public class AuthController {
 	private final LoginServiceImpl memberService;
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) {
 
 		log.info("Login attempt for user: {}", loginRequest.getId());
 
@@ -112,15 +111,4 @@ public class AuthController {
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification code");
 		}
 	}
-
-	@ExceptionHandler(MemberAlreadyExistsException.class)
-	public ResponseEntity<String> handleMemberAlreadyExistsException(MemberAlreadyExistsException ex) {
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-	}
-
-	@ExceptionHandler(MemberNotFoundException.class)
-	public ResponseEntity<String> handleMemberNotFoundException(MemberNotFoundException ex) {
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-	}
-
 }
