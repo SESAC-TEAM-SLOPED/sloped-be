@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth.model.vo;
+package org.sesac.slopedbe.auth.model.dto;
 
 import lombok.Getter;
 
