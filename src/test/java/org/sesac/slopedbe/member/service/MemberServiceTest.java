@@ -82,7 +82,7 @@ public class MemberServiceTest {
 		String id = "testId";
 		String newPassword = "newPassword123";
 
-		Optional<Member> foundMember = memberRepository.findById(id);
+		Optional<Member> foundMember = memberRepository.findByMemberId(id);
 		assertTrue(foundMember.isPresent());
 		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));
 	}

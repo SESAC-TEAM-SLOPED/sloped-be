@@ -70,7 +70,7 @@ public class VerificationServiceImpl implements VerificationService {
 	@Override
 	public void sendFindPasswordVerificationCode(String id, String email) {
 		//비밀번호 찾기 용도
-		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findById(id).isEmpty()) {
+		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
 			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
 		}
 		String code = generateVerificationCode();

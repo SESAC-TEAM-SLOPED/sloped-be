@@ -19,8 +19,8 @@ public class LoginServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		Member member = memberRepository.findById(username)
+		Member member = memberRepository.findByMemberId(username)
 			.orElseThrow(() -> new UsernameNotFoundException("User not found"));
-		return new org.springframework.security.core.userdetails.User(member.getId(), member.getPassword(), new ArrayList<>());
+		return new org.springframework.security.core.userdetails.User(member.getMemberId(), member.getPassword(), new ArrayList<>());
 	}
 }
