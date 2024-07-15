@@ -2,7 +2,7 @@ package org.sesac.slopedbe.member.service;
 
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberStatus;
 
 public interface MemberService {
     Member registerMember(RegisterMemberRequest registerMemberRequest);

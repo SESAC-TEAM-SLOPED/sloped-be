@@ -6,7 +6,7 @@ import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -31,8 +31,9 @@ public class MemberServiceImpl implements MemberService {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 
-		return memberRepository.save(new Member(
-				registerMemberRequest.userId(),
+		return memberRepository.save(
+			new Member(
+				registerMemberRequest.id(),
 				passwordEncoder.encode(registerMemberRequest.password()),
 				registerMemberRequest.email(),
 				registerMemberRequest.nickname(),
@@ -71,35 +72,35 @@ public class MemberServiceImpl implements MemberService {
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
 			return memberRepository.save(existingMember);
 		} else {
-			throw new IllegalArgumentException("Invalid email or verification code");
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 	}
 
 	@Override
 	public Member updateMemberStatus(String email, MemberStatus status) {
 		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent()) {
-			Member existingMember = member.get();
-			existingMember.setMemberStatus(status);
-			return memberRepository.save(existingMember);
-		} else {
-			throw new IllegalArgumentException("Member not found");
+		if (member.isEmpty()) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
+
+		Member existingMember = member.get();
+		existingMember.setMemberStatus(status);
+		return memberRepository.save(existingMember);
 	}
 
 	@Override
 	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
 		//마이페이지에서 회원정보 수정
 		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent()) {
-			Member existingMember = member.get();
-			existingMember.setNickname(newNickname);
-			existingMember.setPassword(passwordEncoder.encode(newPassword));
-			existingMember.setDisability(newDisability);
-			return memberRepository.save(existingMember);
-		} else {
-			throw new IllegalArgumentException("Member not found");
+		if (member.isEmpty()) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
+
+		Member existingMember = member.get();
+		existingMember.setNickname(newNickname);
+		existingMember.setPassword(passwordEncoder.encode(newPassword));
+		existingMember.setDisability(newDisability);
+		return memberRepository.save(existingMember);
 	}
 
 }
