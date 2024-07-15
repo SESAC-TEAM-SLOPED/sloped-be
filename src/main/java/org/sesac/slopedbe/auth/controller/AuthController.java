@@ -69,7 +69,7 @@ public class AuthController {
 
 	@PostMapping("/send-code/verification-code")
 	public ResponseEntity<String> sendRegisterVerificationCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
+		String email = request.email();
 
 		log.info("Received request to send verification code to: {}", email);
 
@@ -83,8 +83,8 @@ public class AuthController {
 
 	@PostMapping("/send-code/recovery-code")
 	public ResponseEntity<String> sendFindMemberVerificationCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
-		String id = request.getId();
+		String email = request.email();
+		String id = request.id();
 
 		try {
 			if (id != null && !id.isEmpty()) {
@@ -101,8 +101,8 @@ public class AuthController {
 
 	@PostMapping("/verify-code")
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
-		String code = request.getCode();
+		String email = request.email();
+		String code = request.code();
 
 		boolean isVerified = verificationService.verifyCode(email, code);
 

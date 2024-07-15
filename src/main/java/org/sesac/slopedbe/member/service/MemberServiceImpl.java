@@ -4,7 +4,7 @@ import java.util.Optional;
 
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.vo.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
@@ -12,8 +12,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 
 @Service
+@Slf4j
 @AllArgsConstructor
 public class MemberServiceImpl implements MemberService {
 
@@ -40,19 +43,18 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void checkDuplicateId(String id) {
-		if(memberRepository.findById(id).isPresent()) {
+		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(id));
+
+		if(memberRepository.existsByMemberId(id)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
 	}
 
 	@Override
 	public String findIdByEmail(String email) {
-		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isPresent()) {
-			return member.get().getId().toString();
-		} else {
-			throw new IllegalArgumentException("Invalid email or verification code");
-		}
+		Member member = memberRepository.findByEmail(email)
+			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
+		return member.getMemberId();
 	}
 
 	@Override
@@ -63,7 +65,7 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public Member updateMemberPassword(String id, String newPassword) {
 		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findById(id);
+		Optional<Member> member = memberRepository.findByMemberId(id);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));

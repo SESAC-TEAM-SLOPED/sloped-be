@@ -2,10 +2,12 @@ package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.model.vo.MailVerificationRequest;
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
-import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
+import org.sesac.slopedbe.member.model.vo.UpdateRequest;
+import org.sesac.slopedbe.member.model.vo.request.CheckDuplicateIdRequest;
+import org.sesac.slopedbe.member.model.vo.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.vo.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,8 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 
 @RequestMapping("/api/users")
@@ -30,19 +31,17 @@ public class MemberController {
     private final MemberService memberService;
 
     @PostMapping("/duplicate-check/id")
-    public ResponseEntity<String> checkDuplicateId(@RequestBody String userId) {
-        memberService.checkDuplicateId(userId);
-        return ResponseEntity.ok("사용 가능한 아이디 입니다.");
+    public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
+        memberService.checkDuplicateId(checkDuplicateIdRequest.id());
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(HttpServletRequest request, @RequestBody MailVerificationRequest mailVerificationRequest) {
-        String email = mailVerificationRequest.getEmail();
+    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody MailVerificationRequest mailVerificationRequest) {
+        String email = mailVerificationRequest.email();
 
         try {
             String id = memberService.findIdByEmail(email);
-            HttpSession session = request.getSession();
-            session.setAttribute("verifiedId", id);
             return ResponseEntity.ok(id);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body("Invalid email or verification code");
@@ -68,13 +67,13 @@ public class MemberController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterMemberResponse> register(@RequestBody RegisterMemberRequest request) {
+    public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
         Member savedMember = memberService.registerMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
     }
 
     @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestBody org.sesac.slopedbe.member.model.DTO.UpdateRequest updateRequest){
+    public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
         String id = updateRequest.getId();
         String newPassword = updateRequest.getNewPassword();
 
