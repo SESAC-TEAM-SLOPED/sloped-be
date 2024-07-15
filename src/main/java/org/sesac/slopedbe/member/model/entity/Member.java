@@ -1,9 +1,9 @@
 package org.sesac.slopedbe.member.model.entity;
 
 import org.sesac.slopedbe.common.entity.BaseTimeEntity;
-import org.sesac.slopedbe.member.model.memberenum.MemberOauthType;
-import org.sesac.slopedbe.member.model.memberenum.MemberRole;
-import org.sesac.slopedbe.member.model.memberenum.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
+import org.sesac.slopedbe.member.model.type.MemberRole;
+import org.sesac.slopedbe.member.model.type.MemberStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
