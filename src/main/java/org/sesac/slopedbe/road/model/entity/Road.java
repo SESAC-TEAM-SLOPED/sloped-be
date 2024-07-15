@@ -1,17 +1,20 @@
 package org.sesac.slopedbe.road.model.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.sesac.slopedbe.common.entity.BaseTimeEntity;
+import org.sesac.slopedbe.roadreport.model.entity.RoadReportCallTaxi;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -42,11 +45,9 @@ public class Road extends BaseTimeEntity {
     private String address;
 
     @Transient
-    @Column(nullable = false)
     private BigDecimal latitude;
 
     @Transient
-    @Column(nullable = false)
     private BigDecimal longitude;
 
 
@@ -66,4 +67,6 @@ public class Road extends BaseTimeEntity {
         this.longitude = BigDecimal.valueOf(point.getX());
     }
 
+    @OneToMany(mappedBy = "road")
+    private List<RoadReportCallTaxi> callTaxis;
 }

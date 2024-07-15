@@ -12,4 +12,5 @@ import lombok.RequiredArgsConstructor;
 public class RoadController {
 
     private final RoadService roadService;
+
 }

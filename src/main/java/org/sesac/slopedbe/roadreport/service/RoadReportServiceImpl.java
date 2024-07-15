@@ -1,10 +1,7 @@
 package org.sesac.slopedbe.roadreport.service;
 
 import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.Point;
 import org.sesac.slopedbe.common.type.ReportStatus;
 import org.sesac.slopedbe.road.model.entity.Road;
 import org.sesac.slopedbe.road.repository.RoadRepository;
@@ -61,12 +58,5 @@ public class RoadReportServiceImpl implements RoadReportService {
 		return roadReportImageRepository.save(roadReportImage);
 	}
 
-	@Override
-	public List<Point> getApprovedRoadPoints() {
-		List<RoadReport> approvedReports = roadReportRepository.findByStatus(ReportStatus.APPROVED);
-		return approvedReports.stream()
-			.map(report -> report.getRoad().getPoint())
-			.collect(Collectors.toList());
-	}
 
 }
