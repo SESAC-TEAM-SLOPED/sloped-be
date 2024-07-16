@@ -8,6 +8,7 @@ import org.sesac.slopedbe.common.exception.GlobalErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -31,6 +32,11 @@ public class GlobalExceptionHandler {
 		return ResponseEntity
 			.status(GlobalErrorCode.BAD_REQUEST.getStatus())
 			.body(errorMessage);
+	}
+
+	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+	public ResponseEntity<String> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException ex) {
+		return ResponseEntity.status(GlobalErrorCode.METHOD_NOT_ALLOWED.getStatus()).body(ex.getMessage());
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
