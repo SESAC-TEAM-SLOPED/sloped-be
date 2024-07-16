@@ -16,6 +16,27 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USER}
+    password: ${MAIL_PW}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  jwt:
+    access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
+    prefix: ${JWT_PREFIX}
+    secret-key: ${JWT_SECRET_KEY}
 
 ---
 
@@ -36,6 +57,7 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
 
 logging:
   level:
