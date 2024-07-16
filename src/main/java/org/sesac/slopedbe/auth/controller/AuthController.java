@@ -2,6 +2,7 @@ package org.sesac.slopedbe.auth.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
+import org.sesac.slopedbe.auth.model.CustomUserDetails;
 import org.sesac.slopedbe.auth.model.dto.JwtResponse;
 import org.sesac.slopedbe.auth.model.dto.LoginRequest;
 import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
@@ -60,7 +61,7 @@ public class AuthController {
 		}
 
 		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getId());
-		final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+		final String jwt = jwtUtil.generateToken((CustomUserDetails)userDetails);
 
 		log.info("JWT generated for user {}: {}", loginRequest.getId(), jwt);
 		return ResponseEntity.ok(new JwtResponse(jwt));
