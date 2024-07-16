@@ -33,6 +33,11 @@ spring:
       host: localhost
       port: 6379
 
+  jwt:
+    access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
+    prefix: ${JWT_PREFIX}
+    secret-key: ${JWT_SECRET_KEY}
+
 ---
 
 spring:
