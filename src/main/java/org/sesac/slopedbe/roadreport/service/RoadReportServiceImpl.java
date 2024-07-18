@@ -1,10 +1,13 @@
 package org.sesac.slopedbe.roadreport.service;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.type.ReportStatus;
 import org.sesac.slopedbe.road.model.entity.Road;
 import org.sesac.slopedbe.road.repository.RoadRepository;
+import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportImageDTO;
 import org.sesac.slopedbe.roadreport.model.entity.RoadReport;
@@ -15,9 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class RoadReportServiceImpl implements RoadReportService {
 	private final RoadRepository roadRepository;
 	private final RoadReportRepository roadReportRepository;
@@ -72,6 +77,39 @@ public class RoadReportServiceImpl implements RoadReportService {
 		}
 	}
 
+	@Transactional
+	public ReportModalInfoDTO getReportInfo(Long roadId) {
+		log.info("통행제보 전체 조회 - roadId: {}", roadId);
 
+		RoadReport roadReport = roadReportRepository.findByRoadId(roadId)
+			.orElseThrow(() -> new RuntimeException("해당 마커 정보를 찾을 수 없습니다."));
+
+		List<RoadReportImage> reportImages = roadReportImageRepository.findByRoadReportId(roadReport.getId())
+			.orElseThrow(() -> {
+				log.error("해당 마커 이미지를 찾을 수 없습니다 - roadReportId: {}", roadReport.getId());
+				return new RuntimeException("해당 마커 이미지를 찾을 수 없습니다.");
+			});
+
+		List<RoadReportImageDTO> reportImageDTOs = reportImages.stream()
+			.map(this::convertToDTO)
+			.collect(Collectors.toList());
+		log.info("통행불편 제보 정보와 이미지를 성공적으로 불러왔습니다 - roadReportId: {}", roadReport.getId());
+
+		// ReportModalInfoDTO 객체 생성 및 반환
+		return ReportModalInfoDTO.builder()
+			.id(roadReport.getId())
+			.reportImageList(reportImageDTOs)
+			.content(roadReport.getContent())
+			.build();
+	}
+
+	private RoadReportImageDTO convertToDTO(RoadReportImage roadReportImage) {
+		// RoadReportImage를 RoadReportImageDTO로 변환
+		return RoadReportImageDTO.builder()
+			.url(roadReportImage.getUrl())
+			.fileName(roadReportImage.getFileName())
+			.uploadOrder(roadReportImage.getUploadOrder())
+			.build();
+	}
 
 }
