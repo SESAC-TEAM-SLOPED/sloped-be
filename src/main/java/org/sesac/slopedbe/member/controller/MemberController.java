@@ -1,9 +1,9 @@
 package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
-import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
 import org.sesac.slopedbe.member.model.dto.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
+import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -38,13 +38,6 @@ public class MemberController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody MailVerificationRequest mailVerificationRequest) {
-        String email = mailVerificationRequest.email();
-        String id = memberService.findIdByEmail(email);
-        return ResponseEntity.ok(id);
-    }
-
     @PutMapping("")
     public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
         Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
@@ -69,6 +62,13 @@ public class MemberController {
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
         Member savedMember = memberService.registerMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
+    }
+
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
+        String email = emailRequest.email();
+        String id = memberService.findIdByEmail(email);
+        return ResponseEntity.ok(id);
     }
 
     @PutMapping("/request-reset")

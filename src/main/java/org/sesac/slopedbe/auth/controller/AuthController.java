@@ -21,6 +21,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,11 +44,11 @@ public class AuthController {
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) {
 
-		log.info("Login attempt for user: {}", loginRequest.getId());
+		log.info("Login attempt for user: {}", loginRequest.getMemberId());
 
 		try {
 			Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginRequest.getId(), loginRequest.getPassword())
+				new UsernamePasswordAuthenticationToken(loginRequest.getMemberId(), loginRequest.getPassword())
 			);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (BadCredentialsException e) {
@@ -60,10 +61,10 @@ public class AuthController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
 		}
 
-		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getId());
+		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getMemberId());
 		final String jwt = jwtUtil.generateToken((CustomUserDetails)userDetails);
 
-		log.info("JWT generated for user {}: {}", loginRequest.getId(), jwt);
+		log.info("JWT generated for user {}: {}", loginRequest.getMemberId(), jwt);
 		return ResponseEntity.ok(new JwtResponse(jwt));
 	}
 
@@ -103,5 +104,10 @@ public class AuthController {
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
 		verificationService.verifyCode(request.email(), request.code());
 		return ResponseEntity.ok("Email verified successfully");
+	}
+
+	@GetMapping("/login/kakao")
+	public String redirectToKakao(){
+		return "redirect:/oauth2/authorization/kakao";
 	}
 }
