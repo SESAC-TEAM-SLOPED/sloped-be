@@ -34,12 +34,17 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/login",  "/api/auth/**","/api/users/**" ).permitAll()
+					.requestMatchers("/joinpage", "/login/**",  "/api/auth/**","/api/users/**" ).permitAll()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
 				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-			);
+			)
+			// .oauth2Login(oauth2 ->
+			// 	oauth2.loginPage("/joinpage")
+			// )
+		;
+
 
 		return http.build();
 	}
