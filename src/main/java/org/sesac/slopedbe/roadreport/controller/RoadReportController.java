@@ -1,6 +1,7 @@
 package org.sesac.slopedbe.roadreport.controller;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -167,5 +168,12 @@ public class RoadReportController {
 		ReportModalInfoDTO reportInfo = roadReportService.getReportInfo(roadId);
 		return new ResponseEntity<>(reportInfo, HttpStatus.OK);
 	}
+
+    @GetMapping("/get-centerList")
+    public ResponseEntity<List<RoadReportCenterDTO>> getCenterListInfo() {
+        List<RoadReportCenterDTO> centerList = roadReportCenterService.getComplaintCenterList();
+        return ResponseEntity.ok(centerList);
+    }
+
 
 }

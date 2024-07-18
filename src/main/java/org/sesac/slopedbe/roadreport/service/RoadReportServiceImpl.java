@@ -52,7 +52,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 
 			return roadReportRepository.save(roadReport);
 		} catch (Exception e) {
-			throw new RuntimeException("도로 보고서 생성 중 오류가 발생했습니다.", e);
+			throw new RuntimeException("통행 불편 제보 생성 중 오류가 발생했습니다.", e);
 		}
 	}
 

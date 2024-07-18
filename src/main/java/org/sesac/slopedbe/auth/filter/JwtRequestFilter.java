@@ -37,6 +37,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		return path.startsWith("/api/auth/")
 			|| "/api/users/register".equals(path)
 			|| path.startsWith("/api/roadReport")
+			|| path.startsWith("/api/roads")
 			|| path.startsWith("/swagger-ui/")
 			|| path.startsWith("/v3/api-docs")
 			|| path.startsWith("/swagger-resources")
