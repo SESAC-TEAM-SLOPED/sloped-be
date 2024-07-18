@@ -7,13 +7,13 @@ import org.sesac.slopedbe.member.model.type.MemberStatus;
 public interface MemberService {
     Member registerMember(RegisterMemberRequest registerMemberRequest);
 
-    void checkDuplicateId(String id);
+    void checkDuplicateId(String memberId);
 
     String findIdByEmail(String email);
 
     void deleteMember(String email);
 
-    Member updateMemberPassword(String id, String newPassword);
+    Member updateMemberPassword(String memberId, String newPassword);
 
     Member updateMemberStatus(String email, MemberStatus status);
 

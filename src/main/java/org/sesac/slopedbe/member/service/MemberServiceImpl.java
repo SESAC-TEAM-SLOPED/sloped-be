@@ -43,10 +43,10 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public void checkDuplicateId(String id) {
-		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(id));
+	public void checkDuplicateId(String memberId) {
+		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
 
-		if(memberRepository.existsByMemberId(id)) {
+		if(memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
 	}
@@ -64,9 +64,9 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public Member updateMemberPassword(String id, String newPassword) {
+	public Member updateMemberPassword(String memberId, String newPassword) {
 		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findByMemberId(id);
+		Optional<Member> member = memberRepository.findByMemberId(memberId);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
