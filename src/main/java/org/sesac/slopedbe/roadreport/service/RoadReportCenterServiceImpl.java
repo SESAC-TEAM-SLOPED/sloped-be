@@ -18,8 +18,8 @@ public class RoadReportCenterServiceImpl implements RoadReportCenterService{
 		return roadReportCenterRepository.findByRoadId(roadId);
 	}
 
-	public Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude) {
-		return roadReportCenterRepository.findClosestCenter(latitude, longitude);
-	}
+	public Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String mappingCity) {
 
+		return roadReportCenterRepository.findClosestCenter(latitude, longitude, mappingCity);
+	}
 }

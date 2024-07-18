@@ -1,6 +1,7 @@
 package org.sesac.slopedbe.roadreport.model.entity;
 
 import org.sesac.slopedbe.road.model.entity.Road;
+import org.sesac.slopedbe.road.model.entity.RoadKoreaCity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +23,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Table(name ="road_report_center")
 public class RoadReportCenter {
+	//지역,기관명,전화번호,주소,위도,경도
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false)
@@ -36,5 +38,9 @@ public class RoadReportCenter {
 	@ManyToOne
 	@JoinColumn(name = "road_id", nullable = false)
 	private Road road;
+
+	@ManyToOne
+	@JoinColumn(name = "city_id", nullable = false)
+	private RoadKoreaCity city;
 
 }

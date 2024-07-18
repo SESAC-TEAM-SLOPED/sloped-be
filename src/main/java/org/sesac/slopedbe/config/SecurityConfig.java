@@ -27,14 +27,13 @@ public class SecurityConfig {
 
 	private final LoginServiceImpl memberService;
 	private final JwtUtil jwtUtil;
-
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/login",  "/api/auth/**","/api/users/**" ).permitAll()
+					.requestMatchers("/api/roadReport/*","/login",  "/api/auth/**","/api/users/**" ).permitAll()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->

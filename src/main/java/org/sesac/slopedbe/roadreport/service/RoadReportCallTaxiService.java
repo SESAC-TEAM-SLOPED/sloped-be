@@ -7,5 +7,5 @@ import org.sesac.slopedbe.roadreport.model.entity.RoadReportCallTaxi;
 
 public interface RoadReportCallTaxiService {
 
-	Optional<RoadReportCallTaxi> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude);
+	Optional<RoadReportCallTaxi> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude, String cityName);
 }

@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class RoadReportCallTaxiServiceImpl implements RoadReportCallTaxiService{
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
-	public Optional<RoadReportCallTaxi> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude) {
-		return roadReportCallTaxiRepository.findClosestCallTaxi(latitude, longitude);
+	public Optional<RoadReportCallTaxi> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude, String cityName) {
+		return roadReportCallTaxiRepository.findClosestCallTaxi(latitude, longitude, cityName);
 	}
 }

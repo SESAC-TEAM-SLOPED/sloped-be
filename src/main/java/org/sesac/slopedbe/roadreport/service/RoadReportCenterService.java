@@ -7,5 +7,5 @@ import org.sesac.slopedbe.roadreport.model.entity.RoadReportCenter;
 
 public interface RoadReportCenterService {
 
-	Optional<RoadReportCenter> findClosestCenter(BigDecimal longitude, BigDecimal latitude);
+	Optional<RoadReportCenter> findClosestCenter(BigDecimal longitude, BigDecimal latitude, String mappingCity);
 }

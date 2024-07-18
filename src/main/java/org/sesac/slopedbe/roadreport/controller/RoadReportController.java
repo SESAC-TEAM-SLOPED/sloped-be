@@ -5,7 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
-import org.sesac.slopedbe.road.service.RoadService;
+import org.sesac.slopedbe.road.service.RoadKoreaCityService;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCallTaxiDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCenterDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
@@ -33,11 +33,11 @@ public class RoadReportController {
     private final S3UploadImages s3UploadImages;
     private final RoadReportService roadReportService;
     private final RoadReportCenterService roadReportCenterService;
-    private final RoadService roadService;
+    private final RoadKoreaCityService cityService;
     private final RoadReportCallTaxiService roadReportCallTaxiService;
     private final String roadReportDir = "road_report";
 
-    @PostMapping("register")
+    @PostMapping("upload")
     public ResponseEntity<String> addRoadReport(RoadReportFormDTO request) throws IOException {
 
         RoadReport newRoadReport = roadReportService.addRoadReport(request);
@@ -64,30 +64,58 @@ public class RoadReportController {
         return ResponseEntity.status(HttpStatus.CREATED).body("통행 불편 제보가 성공적으로 제출되었습니다.");
     }
 
-    @GetMapping("/closest-center")
+
+    @GetMapping("/connect-center")
     public ResponseEntity<RoadReportCenterDTO> getClosestRoad(RoadMarkerInfoDTO request) {
-        Optional<RoadReportCenter> reportCenter = roadReportCenterService.findClosestCenter(request.getLatitude(), request.getLongitude());
+        String cityName = request.getAddress().split(" ")[0];
 
-        RoadReportCenterDTO reportCenterDTO = RoadReportCenterDTO.builder()
-            .id(reportCenter.get().getId())
-            .centerName(reportCenter.get().getCenterName())
-            .centerContact(reportCenter.get().getCenterContact()).build();
+        String mappingCity = cityService.findMappingCity(cityName);
+        Optional<RoadReportCenter> reportCenter = roadReportCenterService.findClosestCenter(request.getLatitude(), request.getLongitude(), mappingCity);
 
-        return ResponseEntity.status(HttpStatus.OK).body(reportCenterDTO);
+        if (reportCenter.isPresent()) {
+            RoadReportCenterDTO reportCenterDTO = RoadReportCenterDTO.builder()
+                .id(reportCenter.get().getId())
+                .centerName(reportCenter.get().getCenterName())
+                .centerContact(reportCenter.get().getCenterContact())
+                .build();
+            return ResponseEntity.status(HttpStatus.OK).body(reportCenterDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+
     }
 
-    @GetMapping("/closest-callTaxi")
+    @GetMapping("/connect-callTaxi")
     public ResponseEntity<RoadReportCallTaxiDTO> getClosestCallTaxi(RoadMarkerInfoDTO request) {
-        Optional<RoadReportCallTaxi> reportCallTaxi = roadReportCallTaxiService.findClosestCallTaxi(request.getLatitude(), request.getLongitude());
+        String cityName = null;
 
-        RoadReportCallTaxi callTaxi = reportCallTaxi.get();
-        RoadReportCallTaxiDTO callTaxiDTO = RoadReportCallTaxiDTO.builder()
-            .callTaxiName(callTaxi.getCallTaxiName())
-            .callTaxiContact(callTaxi.getCallTaxiContact())
-            .homePage(callTaxi.getHomePage())
-            .canOnlineReserve(callTaxi.isCanOnlineReserve())
-            .build();
+        switch (request.getAddress()) {
+            case "경남":
+                cityName = "경상남도";
+                break;
+            case "경북":
+                cityName = "경상북도";
+                break;
+            case "전남":
+                cityName = "전라남도";
+                break;
+            default:
+                cityName = request.getAddress().split(" ")[0];
+        }
 
-        return ResponseEntity.status(HttpStatus.OK).body(callTaxiDTO);
+        Optional<RoadReportCallTaxi> reportCallTaxi = roadReportCallTaxiService.findClosestCallTaxi(request.getLatitude(), request.getLongitude(), cityName);
+
+        if (reportCallTaxi.isPresent()) {
+            RoadReportCallTaxi callTaxi = reportCallTaxi.get();
+            RoadReportCallTaxiDTO callTaxiDTO = RoadReportCallTaxiDTO.builder()
+                .callTaxiName(callTaxi.getCallTaxiName())
+                .callTaxiContact(callTaxi.getCallTaxiContact())
+                .homePage(callTaxi.getHomePage())
+                .canOnlineReserve(callTaxi.isCanOnlineReserve())
+                .build();
+            return ResponseEntity.status(HttpStatus.OK).body(callTaxiDTO);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 }

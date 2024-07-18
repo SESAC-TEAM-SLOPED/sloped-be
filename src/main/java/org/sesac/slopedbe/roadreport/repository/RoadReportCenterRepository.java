@@ -14,12 +14,13 @@ public interface RoadReportCenterRepository extends JpaRepository<RoadReportCent
 	Optional<RoadReportCenter> findByRoadId(Long roadId);
 
 
-	@Query(value = "SELECT rrc.*, " +
-		"ST_Distance(ST_SetSRID(ST_MakePoint(CAST(:longitude AS DOUBLE PRECISION), CAST(:latitude AS DOUBLE PRECISION)), 4326)::geography, r.point::geography) / 1000 AS distance_km " +
+	@Query(value = "SELECT rrc.* " +
 		"FROM road_report_center rrc " +
 		"JOIN road r ON rrc.road_id = r.id " +
-		"ORDER BY distance_km " +
+		"JOIN road_korea_city c ON rrc.city_id = c.id " +
+		"WHERE c.city_name LIKE CONCAT('%', :mappingCity, '%') " +
+		"ORDER BY ST_Distance(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, r.point::geography) / 1000 ASC " +
 		"LIMIT 1", nativeQuery = true)
-	Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude);
+	Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String mappingCity);
 
 }

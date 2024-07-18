@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoadReportCallTaxiDTO {
-	private Long id;
 	private String callTaxiContact;
 	private String callTaxiName;
 	private String homePage;

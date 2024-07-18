@@ -1,8 +1,6 @@
 package org.sesac.slopedbe.road.service;
 
-import java.math.BigDecimal;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.type.ReportStatus;
@@ -21,7 +19,6 @@ public class RoadServiceImpl implements RoadService{
 	private final RoadReportRepository roadReportRepository;
 	private final RoadRepository roadRepository;
 
-	@Override
 	public List<RoadMarkerInfoDTO> getApprovedRoadPoints() {
 		List<RoadReport> approvedReports = roadReportRepository.findByStatus(ReportStatus.APPROVED);
 
@@ -29,16 +26,12 @@ public class RoadServiceImpl implements RoadService{
 			.map(report -> {
 				Road road = report.getRoad();
 				return new RoadMarkerInfoDTO(
-					road.getId(),
+					//road.getId(),
 					road.getLatitude(),
-					road.getLongitude()
+					road.getLongitude(),
+					road.getAddress()
 				);
 			})
 			.collect(Collectors.toList());
 	}
-
-	public Optional<Road> findClosestRoad(BigDecimal latitude, BigDecimal longitude) {
-		return roadRepository.findClosestRoad(latitude, longitude);
-	}
-
 }

@@ -12,7 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class RoadMarkerInfoDTO {
-	private Long id;
+	// private Long id;
 	private BigDecimal latitude;
 	private BigDecimal longitude;
+	private String address;
 }
