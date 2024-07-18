@@ -24,12 +24,12 @@ import org.springframework.stereotype.Service;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class RoadReportCsvDataLoader {
-
-	//로그 설정 완료하면 다시 주석 해제하겠습니다 private static final Logger LOGGER = Logger.getLogger(RoadReportCsvDataLoader.class.getName());
 
 	private final RoadRepository roadRepository;
 	private final RoadReportCenterRepository roadReportCenterRepository;
@@ -44,6 +44,7 @@ public class RoadReportCsvDataLoader {
 
 
 	public void loadCenterCsvData() {
+		log.info("민원기관 CSV 파일 로딩 시작");
 		try (
 			Reader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("road_trouble_center_list.csv").getInputStream(), "UTF-8"));
 			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())
@@ -58,7 +59,7 @@ public class RoadReportCsvDataLoader {
 
 					RoadKoreaCity koreaCity = cityRepository.findByRegionName(csvRecord.values()[0]);
 					if (koreaCity == null) {
-						throw new IllegalArgumentException("도시명을 찾을 수 없습니다: " + csvRecord.values()[0]);
+						throw new IllegalArgumentException("시/도명을 찾을 수 없습니다: " + csvRecord.values()[0]);
 					}
 
 					RoadReportCenter roadReportCenter = RoadReportCenter.builder()
@@ -70,25 +71,21 @@ public class RoadReportCsvDataLoader {
 
 					roadReportCenterRepository.save(roadReportCenter);
 
-					// LOGGER.info("DB에 저장된 민원기관 레코드: " + roadReportCenter.getCenterName());
+					log.info("DB에 저장된 민원기관 레코드: " + roadReportCenter.getCenterName());
 				} catch (Exception e) {
-					// LOGGER.log(Level.SEVERE, "해당 데이터 레코드 에러: " + csvRecord, e);
-					e.printStackTrace(); // 에러 내용을 콘솔에 출력
+					log.error("해당 민원기관 데이터 레코드 에러: " + csvRecord, e);
 				}
 			}
 		} catch (IOException e) {
-			// LOGGER.log(Level.SEVERE, "CSV 파일을 읽는 중 예외 발생", e);
-			e.printStackTrace(); // 에러 내용을 콘솔에 출력
+			log.error("민원기관 CSV 파일을 읽는 중 예외 발생", e);
 		}
 
-		// LOGGER.info("CSV 데이터 업로드 완료");
+		log.info("민원기관 CSV 데이터 업로드 완료");
 	}
 
 
-
-
 	public void loadTaxiCsvData() {
-		//LOGGER.info("CSV 파일 로딩 시작");
+		log.info("콜택시 CSV 파일 로딩 시작");
 
 		try (
 			Reader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("road_callTaxi.csv").getInputStream(), "UTF-8"));
@@ -117,25 +114,28 @@ public class RoadReportCsvDataLoader {
 
 					roadReportCallTaxiRepository.save(roadReportCallTaxi);
 
-					//LOGGER.info("DB에 저장된 민원기관 레코드: " + roadReportCenter.getCenterName());
+					log.info("DB에 저장된 콜택시 레코드: " + roadReportCallTaxi.getCallTaxiName());
 				} catch (Exception e) {
-					//LOGGER.log(Level.SEVERE, "해당 데이터 레코드 에러: " + csvRecord, e);
+					log.error("해당 콜택시 데이터 레코드 에러: " + csvRecord, e);
 				}
 			}
 		} catch (IOException e) {
-			//LOGGER.log(Level.SEVERE, "CSV 파일을 읽는 중 예외 발생", e);
+			log.error("콜택시 CSV 파일을 읽는 중 예외 발생", e);
 		}
 
-		//LOGGER.info("CSV 데이터 업로드 완료");
+		log.info("콜택시 CSV 데이터 업로드 완료");
 	}
 
 
 	public void saveCitiesFromCsv() {
+		log.info("지역 정보 CSV 파일 로딩 시작");
+
 		try (
 			Reader reader = new BufferedReader(new InputStreamReader(new ClassPathResource("korea_citylist.csv").getInputStream(), "UTF-8"));
 			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())
 		){
 			List<RoadKoreaCity> cities = new ArrayList<>();
+			int recordCount = 0;
 
 			for (CSVRecord csvRecord : csvParser) {
 				String cityName = csvRecord.values()[0];
@@ -149,13 +149,17 @@ public class RoadReportCsvDataLoader {
 					.build();
 
 				cities.add(city);
+				recordCount++;
+				log.debug("CSV 레코드 처리: {}, {}, {}", cityName, regionName, complaintRegion);
+
 			}
 
 			cityRepository.saveAll(cities);
+			log.info("총 {}개의 지역 정보가 데이터베이스에 저장되었습니다.", recordCount);
 
-			// System.out.println("CSV 파일에서 읽어온 데이터를 데이터베이스에 저장했습니다.");
+
 		} catch(IOException e){
-			e.printStackTrace();
+			log.error("전국 시/도 지역정보 CSV 파일을 읽는 중 예외 발생", e);
 		}
 	}
 }
