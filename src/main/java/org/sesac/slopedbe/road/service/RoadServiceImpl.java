@@ -1,9 +1,12 @@
 package org.sesac.slopedbe.road.service;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.locationtech.jts.geom.Point;
 import org.sesac.slopedbe.common.type.ReportStatus;
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.road.model.entity.Road;
@@ -55,5 +58,25 @@ public class RoadServiceImpl implements RoadService{
 			log.error("승인된 통행 불편 제보를 불러오는 중 오류가 발생했습니다.", e);
 			throw new RuntimeException("승인된 통행 불편 제보를 불러오는 중 오류가 발생했습니다.", e);
 		}
+	}
+
+	@Transactional
+	public RoadMarkerInfoDTO findByRoaId(Long roadId) {
+		Optional<Road> roadOptional = roadReportRepository.findRoadByRoadId(roadId);
+		if (roadOptional.isPresent()) {
+			Road road = roadOptional.get();
+			Point point = road.getPoint(); // Point 객체 가져오기
+			BigDecimal latitude = BigDecimal.valueOf(point.getY()); // 위도
+			BigDecimal longitude = BigDecimal.valueOf(point.getX()); // 경도
+
+			RoadMarkerInfoDTO roadInfo =  RoadMarkerInfoDTO.builder()
+				.id(road.getId())
+				.latitude(latitude)
+				.longitude(longitude)
+				.address(road.getAddress())
+				.build();
+			return roadInfo;
+		}
+		return null;
 	}
 }

@@ -6,6 +6,7 @@ import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.road.service.RoadService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,4 +24,9 @@ public class RoadController {
         return ResponseEntity.ok(approvedPoints);
     }
 
+    @GetMapping("/{roadId}")
+    public RoadMarkerInfoDTO getRoadInfo(@PathVariable Long roadId) {
+        RoadMarkerInfoDTO roadDTO = roadService.findByRoaId(roadId);
+        return roadDTO;
+    }
 }

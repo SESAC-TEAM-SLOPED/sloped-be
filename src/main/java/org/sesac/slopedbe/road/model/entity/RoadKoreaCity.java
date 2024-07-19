@@ -24,6 +24,7 @@ import lombok.NoArgsConstructor;
 @Table(name ="road_korea_city")
 public class RoadKoreaCity {
 	//시도, 지역명, 민원기관지역
+	//경기도,수원,서울
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(nullable = false)

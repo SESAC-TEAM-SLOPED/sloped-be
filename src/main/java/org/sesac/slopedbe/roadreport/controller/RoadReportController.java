@@ -24,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -97,13 +98,15 @@ public class RoadReportController {
         @ApiResponse(responseCode = "200", description = "가장 가까운 민원기관 정보 반환 성공"),
         @ApiResponse(responseCode = "404", description = "가까운 기관을 찾을 수 없음")
     })
-    @GetMapping("/connect-center")
-    public ResponseEntity<RoadReportCenterDTO> getClosestRoad(RoadMarkerInfoDTO request) {
+    @PostMapping("/connect-center")
+    public ResponseEntity<RoadReportCenterDTO> getClosestRoad(@RequestBody RoadMarkerInfoDTO request) {
         String cityName = request.getAddress().split(" ")[0];
         log.info("민원기관 연결 요청 - 도시명: {}", cityName);
+        Double latitude = request.getLatitude().doubleValue();
+        Double longitude = request.getLongitude().doubleValue();
 
         String mappingCity = cityService.findMappingCity(cityName);
-        Optional<RoadReportCenter> reportCenter = roadReportCenterService.findClosestCenter(request.getLatitude(), request.getLongitude(), mappingCity);
+        Optional<RoadReportCenter> reportCenter = roadReportCenterService.findClosestCenter(latitude, longitude, mappingCity);
 
         if (reportCenter.isPresent()) {
             RoadReportCenterDTO reportCenterDTO = RoadReportCenterDTO.builder()
@@ -163,9 +166,9 @@ public class RoadReportController {
     }
 
 
-	@GetMapping("/info/{roadId}")
-	public ResponseEntity<ReportModalInfoDTO> getReportInfo(@PathVariable Long roadId) {
-		ReportModalInfoDTO reportInfo = roadReportService.getReportInfo(roadId);
+	@GetMapping("/info/{roadReportId}")
+	public ResponseEntity<ReportModalInfoDTO> getReportInfo(@PathVariable Long roadReportId) {
+		ReportModalInfoDTO reportInfo = roadReportService.getReportInfo(roadReportId);
 		return new ResponseEntity<>(reportInfo, HttpStatus.OK);
 	}
 

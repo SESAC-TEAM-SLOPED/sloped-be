@@ -1,6 +1,5 @@
 package org.sesac.slopedbe.roadreport.service;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -44,7 +43,7 @@ public class RoadReportCenterServiceImpl implements RoadReportCenterService{
 	}
 
 
-	public Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String mappingCity) {
+	public Optional<RoadReportCenter> findClosestCenter(Double latitude, Double longitude, String mappingCity) {
 		return roadReportCenterRepository.findClosestCenter(latitude, longitude, mappingCity);
 	}
 }

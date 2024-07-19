@@ -23,8 +23,10 @@ public class RoadKoreaCityServiceImpl  implements RoadKoreaCityService{
 			case "전남":
 				mappedCity = "전라남도";
 				break;
+			default:
+				mappedCity = address;
 		}
 
-		return cityRepository.findComplaintRegionByCityName(address);
+		return cityRepository.findComplaintRegionByCityName(mappedCity);
 	}
 }
