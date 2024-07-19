@@ -34,17 +34,21 @@ public class SecurityConfig {
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/joinpage", "/login/**",  "/api/auth/**","/api/users/**" ).permitAll()
+					.requestMatchers("/joinpage", "/login/**",  "/api/auth/**","/api/users/**"
+					,"/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/webjars/**").permitAll()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
 				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			// .oauth2Login(oauth2 ->
-			// 	oauth2.loginPage("/joinpage")
-			// )
+			.oauth2Login(oauth2 ->
+				oauth2
+					.loginPage("http://localhost:3000/joinpage")
+					.defaultSuccessUrl("http://localhost:3000/")
+					.failureUrl("http://localhost:3000/login?error=true")
+					// .successHandler(successHandler())
+			)
 		;
-
 
 		return http.build();
 	}
@@ -66,6 +70,17 @@ public class SecurityConfig {
 	public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
 		return authenticationConfiguration.getAuthenticationManager();
 	}
+
+	// @Bean
+	// //테스트용!!
+	// public SimpleUrlAuthenticationSuccessHandler successHandler() {
+	// 	SimpleUrlAuthenticationSuccessHandler handler = new SimpleUrlAuthenticationSuccessHandler();
+	// 	log.info("소셜 로그인 성공!");
+	// 	handler.setDefaultTargetUrl("http://localhost:3000/joinpage");  // 성공 후 리다이렉트 URL 설정
+	// 	return handler;
+	// }
+
+
 
 }
 

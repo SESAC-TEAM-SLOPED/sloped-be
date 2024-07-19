@@ -3,9 +3,9 @@ package org.sesac.slopedbe.auth.controller;
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
-import org.sesac.slopedbe.auth.model.dto.JwtResponse;
-import org.sesac.slopedbe.auth.model.dto.LoginRequest;
-import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
+import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
+import org.sesac.slopedbe.auth.model.dto.request.MailVerificationRequest;
+import org.sesac.slopedbe.auth.model.dto.response.JwtResponse;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;
@@ -21,6 +21,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -40,6 +42,7 @@ public class AuthController {
 	private final AuthenticationManager authenticationManager;
 	private final JwtUtil jwtUtil;
 	private final LoginServiceImpl memberService;
+	private final OAuth2AuthorizedClientService authorizedClientService;
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) {
@@ -108,6 +111,15 @@ public class AuthController {
 
 	@GetMapping("/login/kakao")
 	public String redirectToKakao(){
-		return "redirect:/oauth2/authorization/kakao";
+		return "redirect:http://localhost:3000/oauth2/authorization/kakao\"";
 	}
+
+	@GetMapping("/login/oauth2/code/kakao")
+	public String getLoginInfo(OAuth2AuthenticationToken authentication) {
+		// 인증 성공 후 처리 로직
+		// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
+		log.info("카카오 소셜 로그인 성공이요~");
+		return "redirect:/";
+	}
+
 }
