@@ -52,7 +52,7 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public String findIdByEmail(String email) {
+	public String findMemberIdByEmail(String email) {
 		Member member = memberRepository.findByEmail(email)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
 		return member.getMemberId();

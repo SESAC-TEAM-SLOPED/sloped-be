@@ -9,7 +9,7 @@ public interface MemberService {
 
     void checkDuplicateId(String memberId);
 
-    String findIdByEmail(String email);
+    String findMemberIdByEmail(String email);
 
     void deleteMember(String email);
 

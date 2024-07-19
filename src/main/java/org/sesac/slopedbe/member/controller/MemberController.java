@@ -1,10 +1,10 @@
 package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
-import org.sesac.slopedbe.member.model.dto.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
 import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.request.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
@@ -67,13 +67,13 @@ public class MemberController {
     @PostMapping("/find-id")
     public ResponseEntity<String> findIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
         String email = emailRequest.email();
-        String id = memberService.findIdByEmail(email);
-        return ResponseEntity.ok(id);
+        String memberId = memberService.findMemberIdByEmail(email);
+        return ResponseEntity.ok(memberId);
     }
 
     @PutMapping("/request-reset")
     public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
-        Member updatedMember = memberService.updateMemberPassword(updateRequest.getId(), updateRequest.getNewPassword());
+        Member updatedMember = memberService.updateMemberPassword(updateRequest.getMemberId(), updateRequest.getNewPassword());
         return ResponseEntity.ok(updatedMember);
     }
 }
