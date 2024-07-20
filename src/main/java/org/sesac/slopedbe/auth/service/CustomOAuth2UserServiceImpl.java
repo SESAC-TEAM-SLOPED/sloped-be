@@ -33,7 +33,7 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 		Optional<Member> memberOpt = memberRepository.findByEmail(email);
 		if (memberOpt.isEmpty()) {
 			//소셜 로그인 가입
-
+			log.info("소셜 아이디 가입 필요");
 		}
 
 		return oAuth2User;

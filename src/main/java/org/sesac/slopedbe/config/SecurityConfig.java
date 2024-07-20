@@ -44,11 +44,10 @@ public class SecurityConfig {
 			.oauth2Login(oauth2 ->
 				oauth2
 					.loginPage("http://localhost:3000/joinpage")
-					.defaultSuccessUrl("http://localhost:3000/")
+					.defaultSuccessUrl("/api/auth/login/oauth2/code/kakao")
 					.failureUrl("http://localhost:3000/login?error=true")
 					// .successHandler(successHandler())
-			)
-		;
+			);
 
 		return http.build();
 	}

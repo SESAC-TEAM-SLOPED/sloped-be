@@ -1,5 +1,7 @@
 package org.sesac.slopedbe.auth.controller;
 
+import java.io.IOException;
+
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
@@ -29,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -109,17 +112,33 @@ public class AuthController {
 		return ResponseEntity.ok("Email verified successfully");
 	}
 
+	// @GetMapping("/login/kakao")
+	// public String redirectToKakao(){
+	// 	return "redirect:http://localhost:8080/oauth2/authorization/kakao";
+	// }
+
+	// @GetMapping("/login/oauth2/code/kakao")
+	// public String getLoginInfo(OAuth2AuthenticationToken authentication) {
+	// 	// 인증 성공 후 처리 로직
+	// 	// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
+	// 	log.info("카카오 소셜 로그인 성공이요~");
+	// 	return "redirect:/";
+	// }
+
 	@GetMapping("/login/kakao")
-	public String redirectToKakao(){
-		return "redirect:http://localhost:3000/oauth2/authorization/kakao\"";
+	public void redirectToKakao(HttpServletResponse response) throws IOException {
+		response.sendRedirect("http://localhost:8080/oauth2/authorization/kakao");
 	}
 
+
 	@GetMapping("/login/oauth2/code/kakao")
-	public String getLoginInfo(OAuth2AuthenticationToken authentication) {
+	public void getLoginInfo(OAuth2AuthenticationToken authentication, HttpServletResponse response) throws
+		IOException {
 		// 인증 성공 후 처리 로직
 		// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
 		log.info("카카오 소셜 로그인 성공이요~");
-		return "redirect:/";
-	}
 
+		// 리다이렉트 처리
+		response.sendRedirect("http://localhost:3000/");
+	}
 }
