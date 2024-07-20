@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.memberenum;
+package org.sesac.slopedbe.member.model.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

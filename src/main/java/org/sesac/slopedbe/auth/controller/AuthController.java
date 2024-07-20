@@ -2,9 +2,10 @@ package org.sesac.slopedbe.auth.controller;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
-import org.sesac.slopedbe.auth.model.DTO.JwtResponse;
-import org.sesac.slopedbe.auth.model.DTO.LoginRequest;
-import org.sesac.slopedbe.auth.model.DTO.MailVerificationRequest;
+import org.sesac.slopedbe.auth.model.CustomUserDetails;
+import org.sesac.slopedbe.auth.model.dto.JwtResponse;
+import org.sesac.slopedbe.auth.model.dto.LoginRequest;
+import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.service.VerificationService;
 import org.sesac.slopedbe.auth.util.JwtUtil;
@@ -20,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,7 +41,7 @@ public class AuthController {
 	private final LoginServiceImpl memberService;
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) throws Exception {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) {
 
 		log.info("Login attempt for user: {}", loginRequest.getId());
 
@@ -61,7 +61,7 @@ public class AuthController {
 		}
 
 		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getId());
-		final String jwt = jwtUtil.generateToken(userDetails.getUsername());
+		final String jwt = jwtUtil.generateToken((CustomUserDetails)userDetails);
 
 		log.info("JWT generated for user {}: {}", loginRequest.getId(), jwt);
 		return ResponseEntity.ok(new JwtResponse(jwt));
@@ -69,7 +69,7 @@ public class AuthController {
 
 	@PostMapping("/send-code/verification-code")
 	public ResponseEntity<String> sendRegisterVerificationCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
+		String email = request.email();
 
 		log.info("Received request to send verification code to: {}", email);
 
@@ -83,8 +83,8 @@ public class AuthController {
 
 	@PostMapping("/send-code/recovery-code")
 	public ResponseEntity<String> sendFindMemberVerificationCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
-		String id = request.getId();
+		String email = request.email();
+		String id = request.id();
 
 		try {
 			if (id != null && !id.isEmpty()) {
@@ -101,26 +101,7 @@ public class AuthController {
 
 	@PostMapping("/verify-code")
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
-		String email = request.getEmail();
-		String code = request.getCode();
-
-		boolean isVerified = verificationService.verifyCode(email, code);
-
-		if (isVerified) {
-			return ResponseEntity.ok("Email verified successfully");
-		} else {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid verification code");
-		}
+		verificationService.verifyCode(request.email(), request.code());
+		return ResponseEntity.ok("Email verified successfully");
 	}
-
-	@ExceptionHandler(MemberAlreadyExistsException.class)
-	public ResponseEntity<String> handleMemberAlreadyExistsException(MemberAlreadyExistsException ex) {
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.CONFLICT);
-	}
-
-	@ExceptionHandler(MemberNotFoundException.class)
-	public ResponseEntity<String> handleMemberNotFoundException(MemberNotFoundException ex) {
-		return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-	}
-
 }

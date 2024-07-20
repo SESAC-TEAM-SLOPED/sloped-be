@@ -1,14 +1,12 @@
 package org.sesac.slopedbe.bookmark.service;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.sesac.slopedbe.bookmark.model.dto.BookmarkRequestDTO;
-import org.sesac.slopedbe.bookmark.model.dto.BookmarkResponseDTO;
+import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 
 public interface BookmarkService {
-	void addBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) throws IOException;
-	void removeBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO);
-	List<BookmarkResponseDTO> getBookmarksByMemberEmail(String email);
+	void addBookmark(String email, Long facilityId);
+	void removeBookmark(String email, Long facilityId);
+	List<Bookmark> getBookmarksByEmail(String email);
 
 }

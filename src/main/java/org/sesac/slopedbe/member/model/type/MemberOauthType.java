@@ -1,14 +1,13 @@
-package org.sesac.slopedbe.member.model.memberenum;
+package org.sesac.slopedbe.member.model.type;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MemberRole {
-	ADMIN("ROLE_ADMIN"),
-	USER("ROLE_USER");
-
+public enum MemberOauthType {
+	NAVER("TYPE_NAVER"),
+	GOOGLE("TYPE_GOOGLE");
 
 	private final String value;
 }

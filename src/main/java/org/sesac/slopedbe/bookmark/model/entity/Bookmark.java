@@ -1,9 +1,14 @@
 package org.sesac.slopedbe.bookmark.model.entity;
 
+import java.time.LocalDateTime;
+
 import org.sesac.slopedbe.common.entity.BaseTimeEntity;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
@@ -13,10 +18,8 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @IdClass(BookmarkId.class)
 @Table(name = "bookmark")
@@ -33,10 +36,9 @@ public class Bookmark extends BaseTimeEntity {
     private Member member;
 
     public static Bookmark create(Facility facility, Member member) {
-        Bookmark bookmarkEntity = new Bookmark();
-        bookmarkEntity.facility = facility;
-        bookmarkEntity.member = member;
-
-        return bookmarkEntity;
+        Bookmark bookmark = new Bookmark();
+        bookmark.facility = facility;
+        bookmark.member = member;
+        return bookmark;
     }
 }

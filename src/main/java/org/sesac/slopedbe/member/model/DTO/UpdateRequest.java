@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.DTO;
+package org.sesac.slopedbe.member.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;

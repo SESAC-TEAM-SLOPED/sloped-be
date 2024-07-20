@@ -3,8 +3,11 @@ package org.sesac.slopedbe.auth.service;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
+import org.sesac.slopedbe.auth.exception.AuthErrorCode;
+import org.sesac.slopedbe.auth.exception.AuthException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
+import org.sesac.slopedbe.member.exception.MemberErrorCode;
+import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -23,7 +26,6 @@ public class VerificationServiceImpl implements VerificationService {
 
 	private String generateVerificationCode() {
 		return String.valueOf(new Random().nextInt(900000) + 100000);
-		//인증번호는 숫자 6자리로 구현
 	}
 
 	private void saveVerificationCode(String email, String code) {
@@ -40,15 +42,17 @@ public class VerificationServiceImpl implements VerificationService {
 	}
 
 	@Override
-	public boolean verifyCode(String email, String code) {
+	public void verifyCode(String email, String code) {
 		String storedCode = (String) redisTemplate.opsForValue().get(email);
-		return code.equals(storedCode);
+		if (!code.equals(storedCode)) {
+			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED);
+		}
 	}
 
 	@Override
 	public void sendRegisterVerificationCode(String email) {
-		if (memberRepository.findByEmail(email).isPresent()) {
-			throw new MemberAlreadyExistsException("Member with email " + email + " already exists.");
+		if (memberRepository.existsByEmail(email)) {
+			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 
 		String code = generateVerificationCode();
@@ -70,7 +74,7 @@ public class VerificationServiceImpl implements VerificationService {
 	@Override
 	public void sendFindPasswordVerificationCode(String id, String email) {
 		//비밀번호 찾기 용도
-		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findById(id).isEmpty()) {
+		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
 			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
 		}
 		String code = generateVerificationCode();
