@@ -1,11 +1,13 @@
 package org.sesac.slopedbe.auth.service;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import org.sesac.slopedbe.auth.exception.AuthErrorCode;
 import org.sesac.slopedbe.auth.exception.AuthException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
+import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
@@ -14,8 +16,11 @@ import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 
 @Service
@@ -93,6 +98,32 @@ public class VerificationServiceImpl implements VerificationService {
 		saveVerificationCode(email, code);
 		// 인증 코드 전송
 		sendVerificationEmail(email, code);
+	}
+
+	@Override
+	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
+		IOException {
+
+		// 소셜 회원 가입을 위해 email, OAuthType 데이터 보내는 메서드
+
+		response.setContentType("application/json");
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+		if (exception.getCause() instanceof SocialMemberNotExistsException) {
+			String email = (String)request.getAttribute("email");
+			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
+
+			//소셜 회원가입에 전달할 Response
+			if (email != null && oauthType != null) {
+
+				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
+
+				response.sendRedirect(redirectUrl);
+			} else {
+				response.sendRedirect("http://localhost:3000/login?error=true");
+			}
+		}
+
 	}
 
 

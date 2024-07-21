@@ -6,6 +6,7 @@ import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.request.RegisterSocialMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
@@ -42,13 +43,37 @@ public class MemberServiceImpl implements MemberService {
 			passwordEncoder.encode(registerMemberRequest.password()),
 			registerMemberRequest.email(),
 			registerMemberRequest.nickname(),
-			registerMemberRequest.isDisabled()
+			registerMemberRequest.isDisabled(),
+			oauthType
 		);
 
 		member.setOauthType(MemberOauthType.LOCAL);
 
 		return memberRepository.save(member);
 	}
+
+	@Override
+	public Member registerSocialMember(RegisterSocialMemberRequest registerSocialMemberRequest) {
+		// 회원 가입 DB 저장
+		String email = registerSocialMemberRequest.email();
+		MemberOauthType oauthType = registerSocialMemberRequest.oauthType();
+
+		// email과 oauthType 기준, DB에 중복 검증
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
+			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
+		}
+
+		Member member = new Member(
+			registerSocialMemberRequest.email(),
+			registerSocialMemberRequest.nickname(),
+			registerSocialMemberRequest.isDisabled(),
+			registerSocialMemberRequest.oauthType()
+		);
+
+		return memberRepository.save(member);
+	}
+
+
 
 	@Override
 	public void checkDuplicateId(String memberId) {
@@ -135,5 +160,7 @@ public class MemberServiceImpl implements MemberService {
 		existingMember.setDisability(newDisability);
 		return memberRepository.save(existingMember);
 	}
+
+
 
 }

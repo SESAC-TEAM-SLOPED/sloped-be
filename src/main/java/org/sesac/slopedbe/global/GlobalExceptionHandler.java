@@ -62,4 +62,5 @@ public class GlobalExceptionHandler {
 			.status(GlobalErrorCode.INTERNAL_SERVER_ERROR.getStatus())
 			.body(GlobalErrorCode.INTERNAL_SERVER_ERROR.getMessage());
 	}
+
 }

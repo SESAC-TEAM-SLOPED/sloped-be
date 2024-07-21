@@ -62,17 +62,23 @@ public class Member extends BaseTimeEntity {
     @Column(length = 50)
     private String socialAuthCode;
 
-    @Column(length = 50)
-    private String socialOauthType;
-
-    public Member(String memberId, String password, String email, String nickname, Boolean isDisabled) {
+    public Member(String memberId, String password, String email, String nickname, Boolean isDisabled, MemberOauthType memberOauthType ) {
+        this.email = email;
         this.memberId = memberId;
         this.password = password;
+        this.nickname = nickname;
+        this.isDisability = isDisabled;
+        this.memberRole = MemberRole.USER;
+        this.memberStatus = MemberStatus.ACTIVE;
+        this.oauthType = memberOauthType;
+    }
+
+    public Member(String email, String nickname, Boolean isDisabled, MemberOauthType memberOauthType) {
         this.email = email;
         this.nickname = nickname;
         this.isDisability = isDisabled;
         this.memberRole = MemberRole.USER;
         this.memberStatus = MemberStatus.ACTIVE;
-        this.oauthType = MemberOauthType.LOCAL;
+        this.oauthType = memberOauthType;
     }
 }

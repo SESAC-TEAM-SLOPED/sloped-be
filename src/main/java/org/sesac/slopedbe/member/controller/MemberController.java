@@ -5,6 +5,7 @@ import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
 import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
 import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.request.RegisterSocialMemberRequest;
 import org.sesac.slopedbe.member.model.dto.request.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -83,5 +84,12 @@ public class MemberController {
         // 비밀 번호 찾기, 비밀 번호 재설정 method
         Member updatedMember = memberService.updateMemberPassword(updateRequest.getMemberId(), updateRequest.getNewPassword());
         return ResponseEntity.ok(updatedMember);
+    }
+
+    @PostMapping("/register/social")
+    public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterSocialMemberRequest request) {
+        // 회원 가입
+        Member savedMember = memberService.registerSocialMember(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
     }
 }
