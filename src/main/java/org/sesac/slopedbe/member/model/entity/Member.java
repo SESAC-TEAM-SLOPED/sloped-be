@@ -10,6 +10,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
@@ -23,12 +24,18 @@ import lombok.Setter;
 @AllArgsConstructor
 @Table(name = "member")
 @Entity
+@IdClass(MemberCompositeKey.class)
 public class Member extends BaseTimeEntity {
 
     @Id
     @Column(nullable = false, unique = true, length = 200)
     @Email
     private String email;
+
+    @Id
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private MemberOauthType oauthType;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -45,9 +52,6 @@ public class Member extends BaseTimeEntity {
 
     @Column()
     private String refreshToken;
-
-    @Enumerated(EnumType.STRING)
-    private MemberOauthType oauthType;
 
     @Column(unique = true)
     private String memberId;
@@ -69,5 +73,6 @@ public class Member extends BaseTimeEntity {
         this.isDisability = isDisabled;
         this.memberRole = MemberRole.USER;
         this.memberStatus = MemberStatus.ACTIVE;
+        this.oauthType = MemberOauthType.LOCAL;
     }
 }

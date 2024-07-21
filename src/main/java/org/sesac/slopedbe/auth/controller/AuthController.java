@@ -105,11 +105,7 @@ public class AuthController {
 		String id = request.id();
 
 		try {
-			if (id != null && !id.isEmpty()) {
-				verificationService.sendFindPasswordVerificationCode(id, email);
-			} else {
-				verificationService.sendFindIdVerificationCode(email);
-			}
+			verificationService.sendFindIdVerificationCode(email);
 			log.info("Received request to send verification code to: {}", email);
 			return ResponseEntity.status(HttpStatus.CREATED).body("Verification code sent to " + email);
 		} catch (MemberNotFoundException e) {

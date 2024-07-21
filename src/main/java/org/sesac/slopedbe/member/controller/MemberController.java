@@ -3,6 +3,7 @@ package org.sesac.slopedbe.member.controller;
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
 import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
 import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
+import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.dto.request.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
@@ -40,25 +41,25 @@ public class MemberController {
     }
 
     @PutMapping("")
-    public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
+    public ResponseEntity<Member> updateMemberInfo(@RequestParam IdRequest idRequest, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
         // 마이페이지에서 회원 정보 수정 기능 용도
-        Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
+        Member updatedMember = memberService.updateMemberInfo(idRequest, newNickname, newPassword, newDisability);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("")
-    public ResponseEntity<Void> deleteMember(@RequestParam String email) {
+    public ResponseEntity<Void> deleteMember(@RequestParam IdRequest idRequest) {
         // 마이 페이지, 회원 탈퇴 용도
-        memberService.deleteMember(email);
+        memberService.deleteMember(idRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/blacklist")
-    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam String email, @RequestParam MemberStatus status) {
+    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam IdRequest idRequest, @RequestParam MemberStatus status) {
         // 관리자 페이지, Status를 수정해 회원 정지 용도
-        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), email, status);
+        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), idRequest, status);
 
-        Member updatedMember = memberService.updateMemberStatus(email, status);
+        Member updatedMember = memberService.updateMemberStatus(idRequest, status);
         return ResponseEntity.ok(updatedMember);
     }
 
@@ -70,7 +71,7 @@ public class MemberController {
     }
 
     @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
+    public ResponseEntity<String> findMemberIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
         // 아이디 찾기
         String email = emailRequest.email();
         String memberId = memberService.findMemberIdByEmail(email);

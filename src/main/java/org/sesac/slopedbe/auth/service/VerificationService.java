@@ -9,5 +9,4 @@ public interface VerificationService {
 	void verifyCode(String email, String code);
 	void sendRegisterVerificationCode(String email);
 	void sendFindIdVerificationCode(String email);
-	void sendFindPasswordVerificationCode(String id, String email);
 }

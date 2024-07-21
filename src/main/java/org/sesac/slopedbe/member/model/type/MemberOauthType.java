@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum MemberOauthType {
+	LOCAL("TYPE_LOCAL"),
+	NAVER("TYPE_NAVER"),
 	KAKAO("TYPE_KAKAO"),
 	GOOGLE("TYPE_GOOGLE");
 

@@ -9,7 +9,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.model.type.MemberRole;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
@@ -51,6 +54,7 @@ public class MemberServiceTest {
 			"김갑생",
 			false
 		);
+		testMember.setOauthType(MemberOauthType.LOCAL);
 		memberRepository.save(testMember);
 	}
 
@@ -67,11 +71,13 @@ public class MemberServiceTest {
 		newMember.setMemberStatus(MemberStatus.ACTIVE);
 		newMember.setMemberRole(MemberRole.USER);
 		newMember.setPassword(passwordEncoder.encode("plainTextPassword"));
+		newMember.setOauthType(MemberOauthType.LOCAL);
 		memberRepository.save(newMember);
 
-		memberService.deleteMember("new@example.com");
+		IdRequest idRequest = new IdRequest("new@example.com", MemberOauthType.LOCAL);
+		memberService.deleteMember(idRequest);
 
-		Optional<Member> foundMember = memberRepository.findByEmail("new@example.com");
+		Optional<Member> foundMember = memberRepository.findById(new MemberCompositeKey("new@example.com", MemberOauthType.LOCAL));
 		assertTrue(foundMember.isEmpty());
 	}
 
@@ -80,6 +86,8 @@ public class MemberServiceTest {
 		String id = "testId";
 		String newPassword = "newPassword123";
 
+		memberService.updateMemberPassword(id, newPassword);
+
 		Optional<Member> foundMember = memberRepository.findByMemberId(id);
 		assertTrue(foundMember.isPresent());
 		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));
@@ -87,21 +95,24 @@ public class MemberServiceTest {
 
 	@Test
 	public void testUpdateMemberStatus() {
-		String email = "test@example.com";
+		IdRequest idRequest = new IdRequest("test@example.com", MemberOauthType.LOCAL);
+		memberService.updateMemberStatus(idRequest, MemberStatus.BLOCKED);
 
-		Optional<Member> foundMember = memberRepository.findByEmail(email);
+		Optional<Member> foundMember = memberRepository.findById(new MemberCompositeKey("test@example.com", MemberOauthType.LOCAL));
 		assertTrue(foundMember.isPresent());
 		assertThat(foundMember.get().getMemberStatus()).isEqualTo(MemberStatus.BLOCKED);
 	}
 
 	@Test
 	public void testUpdateMemberInfo() {
-		String email = "test@example.com";
+		IdRequest idRequest = new IdRequest("test@example.com", MemberOauthType.LOCAL);
 		String newNickname = "김갑돌";
 		String newPassword = "newPassword123";
 		boolean newDisability = true;
 
-		Optional<Member> foundMember = memberRepository.findByEmail(email);
+		memberService.updateMemberInfo(idRequest, newNickname, newPassword, newDisability);
+
+		Optional<Member> foundMember = memberRepository.findById(new MemberCompositeKey("test@example.com", MemberOauthType.LOCAL));
 		assertTrue(foundMember.isPresent());
 		assertThat(foundMember.get().getNickname()).isEqualTo(newNickname);
 		assertTrue(passwordEncoder.matches(newPassword, foundMember.get().getPassword()));

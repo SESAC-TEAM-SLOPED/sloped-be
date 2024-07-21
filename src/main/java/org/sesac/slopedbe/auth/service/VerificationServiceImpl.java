@@ -8,6 +8,8 @@ import org.sesac.slopedbe.auth.exception.AuthException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -60,8 +62,10 @@ public class VerificationServiceImpl implements VerificationService {
 	public void sendRegisterVerificationCode(String email) {
 		// 회원 가입용 인증 코드 포함, 인증 메일 전송 method
 
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
 		// 이메일 이미 존재하면 오류
-		if (memberRepository.existsByEmail(email)) {
+		if (memberRepository.existsById(new MemberCompositeKey(email, oauthType))) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 		// 인증 코드 생성
@@ -76,8 +80,10 @@ public class VerificationServiceImpl implements VerificationService {
 	public void sendFindIdVerificationCode(String email) {
 		// 아이디 찾기 용 인증 코드 포함, 인증 메일 전송 method
 
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
 		// 이메일 존재하지 않으면 오류
-		if (memberRepository.findByEmail(email).isEmpty()) {
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isEmpty()) {
 			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
 		}
 
@@ -90,16 +96,16 @@ public class VerificationServiceImpl implements VerificationService {
 	}
 
 
-	@Override
-	public void sendFindPasswordVerificationCode(String id, String email) {
-		//비밀번호 찾기 용도
-		//이 메서드는 Id 찾기 sendFindIdVerificationCode method와 병합 예정
-
-		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
-			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
-		}
-		String code = generateVerificationCode();
-		saveVerificationCode(email, code);
-		sendVerificationEmail(email, code);
-	}
+	// @Override
+	// public void sendFindPasswordVerificationCode(String id, String email) {
+	// 	//비밀번호 찾기 용도
+	// 	//이 메서드는 Id 찾기 sendFindIdVerificationCode method와 병합 예정
+	//
+	// 	if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
+	// 		throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
+	// 	}
+	// 	String code = generateVerificationCode();
+	// 	saveVerificationCode(email, code);
+	// 	sendVerificationEmail(email, code);
+	// }
 }

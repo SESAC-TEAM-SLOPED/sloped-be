@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -30,10 +32,12 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 		String email = getkakaoEmail(paramMap);
 		log.info("Extracted email:"+ email);
 
-		Optional<Member> memberOpt = memberRepository.findByEmail(email);
+		MemberOauthType oauthType = MemberOauthType.KAKAO;
+
+		Optional<Member> memberOpt = memberRepository.findById(new MemberCompositeKey(email,oauthType));
 		if (memberOpt.isEmpty()) {
 			//소셜 로그인 가입
-			log.info("소셜 아이디 가입 필요");
+			log.info("소셜 아이디 가입 필요(카카오)");
 		}
 
 		return oAuth2User;
