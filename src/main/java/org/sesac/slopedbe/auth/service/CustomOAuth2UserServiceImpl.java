@@ -46,6 +46,7 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 			email = getNaverEmail(paramMap);
 		} else if ("google".equals(registrationId)) {
 			oauthType = MemberOauthType.GOOGLE;
+			email = getGoogleEmail(paramMap);
 		} else {
 			throw new OAuth2AuthenticationException("Unsupported OAuth2 provider");
 		}
@@ -87,6 +88,15 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 		String email = (String) response.get("email");
 
 		log.info("NAVER email: " + email);
+		return email;
+	}
+
+	@Override
+	public String getGoogleEmail(Map<String, Object> paramMap) {
+		// Response에서 email 구하는 method
+
+		String email = (String)paramMap.get("email");
+		log.info("Google email: " + email);
 		return email;
 	}
 

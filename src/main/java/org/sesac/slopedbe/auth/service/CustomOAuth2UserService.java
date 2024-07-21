@@ -11,4 +11,5 @@ public interface CustomOAuth2UserService extends OAuth2UserService<OAuth2UserReq
 	// OAuth2User loadUser(OAuth2UserRequest userRequest);
 	String getkakaoEmail(Map<String, Object> paramMap);
 	String getNaverEmail(Map<String, Object> paramMap);
+	String getGoogleEmail(Map<String, Object> paramMap);
 }
