@@ -1,6 +1,8 @@
 package org.sesac.slopedbe.config;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
+import org.sesac.slopedbe.auth.handler.SocialAuthenticationFailureHandler;
+import org.sesac.slopedbe.auth.handler.SocialAuthenticationSuccessHandler;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -27,15 +29,16 @@ public class SecurityConfig {
 
 	private final LoginServiceImpl memberService;
 	private final JwtUtil jwtUtil;
+	private final SocialAuthenticationFailureHandler socialAuthenticationFailureHandler;
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http,
+		SocialAuthenticationSuccessHandler socialAuthenticationSuccessHandler) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/joinpage", "/login/**",  "/api/auth/**","/api/users/**"
-					,"/swagger-ui/**", "/swagger-resources/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+					.requestMatchers("/**").permitAll()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
@@ -44,8 +47,8 @@ public class SecurityConfig {
 			.oauth2Login(oauth2 ->
 				oauth2
 					.loginPage("http://localhost:3000/joinpage")
-					.defaultSuccessUrl("/api/auth/login/oauth2/code/kakao")
-					.failureUrl("http://localhost:3000/login?error=true")
+					.successHandler(socialAuthenticationSuccessHandler)
+					.failureHandler(socialAuthenticationFailureHandler)
 					// .successHandler(successHandler())
 			);
 

@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.auth.exception;
+package org.sesac.slopedbe.auth.handler;
 
 import java.io.IOException;
 

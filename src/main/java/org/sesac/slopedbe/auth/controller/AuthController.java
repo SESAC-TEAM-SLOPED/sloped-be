@@ -24,7 +24,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
-import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -126,15 +125,35 @@ public class AuthController {
 		response.sendRedirect("http://localhost:8080/oauth2/authorization/kakao");
 	}
 
-
-	@GetMapping("/login/oauth2/code/kakao")
-	public void getLoginInfo(OAuth2AuthenticationToken authentication, HttpServletResponse response) throws
-		IOException {
-		// 인증 성공 후 처리 로직
-		// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
-		log.info("카카오 소셜 로그인 성공이요~");
-
-		// 리다이렉트 처리
-		response.sendRedirect("http://localhost:3000/");
+	@GetMapping("/login/naver")
+	public void redirectToNaver(HttpServletResponse response) throws IOException {
+		// 네이버 로그인 페이지 전달
+		response.sendRedirect("http://localhost:8080/oauth2/authorization/naver");
 	}
+
+	// @GetMapping("/login/oauth2/code/kakao")
+	// public void getLoginInfo(OAuth2AuthenticationToken authentication, HttpServletResponse response) throws
+	// 	IOException {
+	// 	// 인증 성공 후 처리 로직
+	// 	// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
+	// 	log.info("카카오 소셜 로그인 성공이요~");
+	//
+	// 	// 리다이렉트 처리
+	// 	response.sendRedirect("http://localhost:3000/");
+	// }
+
+	// @GetMapping("/login/oauth2/code/naver")
+	// public String naverCallback(@RequestParam String code, @RequestParam String state) {
+	// 	// 받은 code와 state를 사용하여 액세스 토큰을 요청합니다.
+	// 	String accessToken = getAccessToken(code, state);
+	//
+	// 	// 액세스 토큰을 사용하여 사용자 정보를 요청합니다.
+	// 	Map<String, Object> userInfo = getUserInfo(accessToken);
+	//
+	// 	// // 사용자 정보를 사용하여 로그인 처리를 합니다.
+	// 	// processUserLogin(userInfo);
+	//
+	// 	return "redirect:/home";  // 로그인 후 리다이렉트할 페이지
+	// }
+
 }
