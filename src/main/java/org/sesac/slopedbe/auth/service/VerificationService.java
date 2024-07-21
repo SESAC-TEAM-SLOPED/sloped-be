@@ -6,8 +6,7 @@ import org.springframework.stereotype.Service;
 
 public interface VerificationService {
 
-	public void verifyCode(String email, String code);
+	void verifyCode(String email, String code);
 	void sendRegisterVerificationCode(String email);
 	void sendFindIdVerificationCode(String email);
-	void sendFindPasswordVerificationCode(String id, String email);
 }

@@ -1,5 +1,6 @@
 package org.sesac.slopedbe.member.service;
 
+import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
@@ -7,15 +8,15 @@ import org.sesac.slopedbe.member.model.type.MemberStatus;
 public interface MemberService {
     Member registerMember(RegisterMemberRequest registerMemberRequest);
 
-    void checkDuplicateId(String id);
+    void checkDuplicateId(String memberId);
 
-    String findIdByEmail(String email);
+    String findMemberIdByEmail(String email);
 
-    void deleteMember(String email);
+    void deleteMember(IdRequest idRequest);
 
-    Member updateMemberPassword(String id, String newPassword);
+    Member updateMemberPassword(String memberId, String newPassword);
 
-    Member updateMemberStatus(String email, MemberStatus status);
+    Member updateMemberStatus(IdRequest idRequest, MemberStatus status);
 
-    Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability);
+    Member updateMemberInfo(IdRequest idRequest, String newNickname, String newPassword, boolean newDisability);
 }

@@ -1,10 +1,11 @@
 package org.sesac.slopedbe.member.controller;
 
 import org.sesac.slopedbe.auth.model.CustomUserDetails;
-import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
-import org.sesac.slopedbe.member.model.dto.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
+import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
+import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.request.UpdateRequest;
 import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
@@ -34,46 +35,53 @@ public class MemberController {
 
     @PostMapping("/duplicate-check/id")
     public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
+        // 회원 가입, 아이디 찾기 시 중복 아이디 검사 용도
         memberService.checkDuplicateId(checkDuplicateIdRequest.id());
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody MailVerificationRequest mailVerificationRequest) {
-        String email = mailVerificationRequest.email();
-        String id = memberService.findIdByEmail(email);
-        return ResponseEntity.ok(id);
-    }
-
     @PutMapping("")
-    public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
-        Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
+    public ResponseEntity<Member> updateMemberInfo(@RequestParam IdRequest idRequest, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
+        // 마이페이지에서 회원 정보 수정 기능 용도
+        Member updatedMember = memberService.updateMemberInfo(idRequest, newNickname, newPassword, newDisability);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("")
-    public ResponseEntity<Void> deleteMember(@RequestParam String email) {
-        memberService.deleteMember(email);
+    public ResponseEntity<Void> deleteMember(@RequestParam IdRequest idRequest) {
+        // 마이 페이지, 회원 탈퇴 용도
+        memberService.deleteMember(idRequest);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/blacklist")
-    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam String email, @RequestParam MemberStatus status) {
-        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), email, status);
+    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam IdRequest idRequest, @RequestParam MemberStatus status) {
+        // 관리자 페이지, Status를 수정해 회원 정지 용도
+        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), idRequest, status);
 
-        Member updatedMember = memberService.updateMemberStatus(email, status);
+        Member updatedMember = memberService.updateMemberStatus(idRequest, status);
         return ResponseEntity.ok(updatedMember);
     }
 
     @PostMapping("/register")
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
+        // 회원 가입
         Member savedMember = memberService.registerMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
     }
 
+    @PostMapping("/find-id")
+    public ResponseEntity<String> findMemberIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
+        // 아이디 찾기
+        String email = emailRequest.email();
+        String memberId = memberService.findMemberIdByEmail(email);
+        return ResponseEntity.ok(memberId);
+    }
+
     @PutMapping("/request-reset")
     public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
-        Member updatedMember = memberService.updateMemberPassword(updateRequest.getId(), updateRequest.getNewPassword());
+        // 비밀 번호 찾기, 비밀 번호 재설정 method
+        Member updatedMember = memberService.updateMemberPassword(updateRequest.getMemberId(), updateRequest.getNewPassword());
         return ResponseEntity.ok(updatedMember);
     }
 }

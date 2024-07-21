@@ -4,8 +4,11 @@ import java.util.Optional;
 
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.dto.request.IdRequest;
 import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,48 +28,69 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member registerMember(RegisterMemberRequest registerMemberRequest) {
+		// 회원 가입 DB 저장
 		String email = registerMemberRequest.email();
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
-		if (memberRepository.findByEmail(email).isPresent()) {
+		// email과 oauthType 기준, DB에 중복 검증
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 
-		return memberRepository.save(
-			new Member(
-				registerMemberRequest.id(),
-				passwordEncoder.encode(registerMemberRequest.password()),
-				registerMemberRequest.email(),
-				registerMemberRequest.nickname(),
-				registerMemberRequest.isDisabled()
-		));
+		Member member = new Member(
+			registerMemberRequest.id(),
+			passwordEncoder.encode(registerMemberRequest.password()),
+			registerMemberRequest.email(),
+			registerMemberRequest.nickname(),
+			registerMemberRequest.isDisabled()
+		);
 
+		member.setOauthType(MemberOauthType.LOCAL);
+
+		return memberRepository.save(member);
 	}
 
 	@Override
-	public void checkDuplicateId(String id) {
-		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(id));
+	public void checkDuplicateId(String memberId) {
+		// MemberId DB에서 검색, 중복 여부 확인
 
-		if(memberRepository.existsByMemberId(id)) {
+		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
+
+		// 중복이면 errorCode 발생
+		if(memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
 	}
 
 	@Override
-	public String findIdByEmail(String email) {
-		Member member = memberRepository.findByEmail(email)
+	public String findMemberIdByEmail(String email) {
+		// email로 검색 후, MemberId 반환
+
+		// MemberId 찾는 method로, Type은 Local로 지정
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+		Member member = memberRepository.findById(compositeKey)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
 		return member.getMemberId();
 	}
 
 	@Override
-	public void deleteMember(String email) {
-		memberRepository.deleteByEmail(email);
+	public void deleteMember(IdRequest idRequest) {
+		// 마이페이지, 관리자 페이지 회원 정보 삭제
+
+		String email = idRequest.email();
+		MemberOauthType oauthType = idRequest.oauthType();
+
+		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+
+		memberRepository.deleteById(compositeKey);
 	}
 
 	@Override
-	public Member updateMemberPassword(String id, String newPassword) {
-		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findByMemberId(id);
+	public Member updateMemberPassword(String memberId, String newPassword) {
+		//비밀번호 찾기, 메일 인증 후, 비밀번호 변경
+		Optional<Member> member = memberRepository.findByMemberId(memberId);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
@@ -77,8 +101,13 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public Member updateMemberStatus(String email, MemberStatus status) {
-		Optional<Member> member = memberRepository.findByEmail(email);
+	public Member updateMemberStatus(IdRequest idRequest, MemberStatus status) {
+		// 관리자 페이지, member status 변경
+
+		String email = idRequest.email();
+		MemberOauthType oauthType = idRequest.oauthType();
+
+		Optional<Member> member = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
@@ -89,9 +118,13 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
-		//마이페이지에서 회원정보 수정
-		Optional<Member> member = memberRepository.findByEmail(email);
+	public Member updateMemberInfo(IdRequest idRequest, String newNickname, String newPassword, boolean newDisability) {
+		//마이페이지, 회원정보 수정
+
+		String email = idRequest.email();
+		MemberOauthType oauthType = idRequest.oauthType();
+
+		Optional<Member> member = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
