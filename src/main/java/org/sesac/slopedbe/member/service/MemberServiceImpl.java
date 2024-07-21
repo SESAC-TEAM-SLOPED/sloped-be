@@ -25,8 +25,10 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member registerMember(RegisterMemberRequest registerMemberRequest) {
+		// 회원 가입 DB 저장
 		String email = registerMemberRequest.email();
 
+		// email 기준, DB에 중복 이메일 검증
 		if (memberRepository.findByEmail(email).isPresent()) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
@@ -44,8 +46,11 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void checkDuplicateId(String memberId) {
+		// Id DB에서 검색, 중복 여부 확인
+
 		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
 
+		// 중복이면 errorCode 발생
 		if(memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
@@ -53,6 +58,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public String findMemberIdByEmail(String email) {
+		// email로 검색 후, MemberId 반환
 		Member member = memberRepository.findByEmail(email)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
 		return member.getMemberId();
@@ -60,12 +66,13 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void deleteMember(String email) {
+		// DB에서 email 기준, 회원 정보 삭제
 		memberRepository.deleteByEmail(email);
 	}
 
 	@Override
 	public Member updateMemberPassword(String memberId, String newPassword) {
-		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
+		//비밀번호 찾기, 메일 인증 후, 비밀번호 변경
 		Optional<Member> member = memberRepository.findByMemberId(memberId);
 		if (member.isPresent()) {
 			Member existingMember = member.get();
@@ -78,6 +85,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member updateMemberStatus(String email, MemberStatus status) {
+		// 관리자 페이지, member status 변경
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
@@ -90,7 +98,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
-		//마이페이지에서 회원정보 수정
+		//마이페이지, 회원정보 수정
 		Optional<Member> member = memberRepository.findByEmail(email);
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);

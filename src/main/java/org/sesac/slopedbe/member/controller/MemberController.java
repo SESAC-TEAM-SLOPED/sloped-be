@@ -34,24 +34,28 @@ public class MemberController {
 
     @PostMapping("/duplicate-check/id")
     public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
+        // 회원 가입, 아이디 찾기 시 중복 아이디 검사 용도
         memberService.checkDuplicateId(checkDuplicateIdRequest.id());
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("")
     public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
+        // 마이페이지에서 회원 정보 수정 기능 용도
         Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
         return ResponseEntity.ok(updatedMember);
     }
 
     @DeleteMapping("")
     public ResponseEntity<Void> deleteMember(@RequestParam String email) {
+        // 마이 페이지, 회원 탈퇴 용도
         memberService.deleteMember(email);
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/blacklist")
     public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam String email, @RequestParam MemberStatus status) {
+        // 관리자 페이지, Status를 수정해 회원 정지 용도
         log.info("User {} updated status of member {} to {}", userDetails.getUsername(), email, status);
 
         Member updatedMember = memberService.updateMemberStatus(email, status);
@@ -60,12 +64,14 @@ public class MemberController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
+        // 회원 가입
         Member savedMember = memberService.registerMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
     }
 
     @PostMapping("/find-id")
     public ResponseEntity<String> findIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
+        // 아이디 찾기
         String email = emailRequest.email();
         String memberId = memberService.findMemberIdByEmail(email);
         return ResponseEntity.ok(memberId);
@@ -73,6 +79,7 @@ public class MemberController {
 
     @PutMapping("/request-reset")
     public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
+        // 비밀 번호 찾기, 비밀 번호 재설정 method
         Member updatedMember = memberService.updateMemberPassword(updateRequest.getMemberId(), updateRequest.getNewPassword());
         return ResponseEntity.ok(updatedMember);
     }

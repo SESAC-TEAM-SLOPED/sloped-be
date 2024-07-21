@@ -39,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Slf4j
+
 public class AuthController {
 
 	private final VerificationService verificationService;
@@ -49,9 +50,12 @@ public class AuthController {
 
 	@PostMapping(value="/login", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody LoginRequest loginRequest) {
+		//Local Login용 method, memberId, password 받아 로그인 진행
+
 
 		log.info("Login attempt for user: {}", loginRequest.getMemberId());
 
+		// 로그인 - 실패시 error 별로 try-catch 문 진행
 		try {
 			Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginRequest.getMemberId(), loginRequest.getPassword())
@@ -76,6 +80,10 @@ public class AuthController {
 
 	@PostMapping("/send-code/verification-code")
 	public ResponseEntity<String> sendRegisterVerificationCode(@RequestBody MailVerificationRequest request) {
+		// Client에서 회원가입 중 이메일 인증 요청이 오면 메일로 인증코드 전송 (gmail 활용)
+		// 실제 전송 기능은 sendRegisterVerificationCode 에 포함, 여기선 성공, 실패 응답 반환
+		// email 전송할 때, 해당 이메일이 존재하면 실패 응답 반환
+
 		String email = request.email();
 
 		log.info("Received request to send verification code to: {}", email);
@@ -90,6 +98,9 @@ public class AuthController {
 
 	@PostMapping("/send-code/recovery-code")
 	public ResponseEntity<String> sendFindMemberVerificationCode(@RequestBody MailVerificationRequest request) {
+		// Client에서 아이디 찾기, 비밀번호 찾기 중 이메일 인증 요청이 오면 메일로 인증코드 전송 (gmail 활용)
+		// email 전송할 때, 해당 이메일이 존재하면 성공 응답 반환
+
 		String email = request.email();
 		String id = request.id();
 
@@ -108,25 +119,14 @@ public class AuthController {
 
 	@PostMapping("/verify-code")
 	public ResponseEntity<String> verifyCode(@RequestBody MailVerificationRequest request) {
+		// 저장된 인증 코드와 request 코드 검증 method
 		verificationService.verifyCode(request.email(), request.code());
 		return ResponseEntity.ok("Email verified successfully");
 	}
 
-	// @GetMapping("/login/kakao")
-	// public String redirectToKakao(){
-	// 	return "redirect:http://localhost:8080/oauth2/authorization/kakao";
-	// }
-
-	// @GetMapping("/login/oauth2/code/kakao")
-	// public String getLoginInfo(OAuth2AuthenticationToken authentication) {
-	// 	// 인증 성공 후 처리 로직
-	// 	// Access Token을 이용해 사용자 정보를 가져오거나 추가 처리를 수행
-	// 	log.info("카카오 소셜 로그인 성공이요~");
-	// 	return "redirect:/";
-	// }
-
 	@GetMapping("/login/kakao")
 	public void redirectToKakao(HttpServletResponse response) throws IOException {
+		// 카카오 로그인 페이지 전달
 		response.sendRedirect("http://localhost:8080/oauth2/authorization/kakao");
 	}
 

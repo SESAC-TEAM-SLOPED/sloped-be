@@ -25,14 +25,19 @@ public class VerificationServiceImpl implements VerificationService {
 	private final MemberRepository memberRepository;
 
 	private String generateVerificationCode() {
+		// 6자리 랜덤 인증코드 생성
 		return String.valueOf(new Random().nextInt(900000) + 100000);
 	}
 
 	private void saveVerificationCode(String email, String code) {
+		// 인증 코드 메일 발송 전 Redis에 5분간 저장
+		// email 과 code 함께 저장, 중복 방지
 		redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
 	}
 
 	private void sendVerificationEmail(String to, String code) {
+		// 인증 메일 양식
+
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
 		message.setSubject("Your Verification Code");
@@ -43,6 +48,8 @@ public class VerificationServiceImpl implements VerificationService {
 
 	@Override
 	public void verifyCode(String email, String code) {
+		//redis에 저장된 인증 번호와 입력된 인증 번호 비교
+
 		String storedCode = (String) redisTemplate.opsForValue().get(email);
 		if (!code.equals(storedCode)) {
 			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED);
@@ -51,29 +58,43 @@ public class VerificationServiceImpl implements VerificationService {
 
 	@Override
 	public void sendRegisterVerificationCode(String email) {
+		// 회원 가입용 인증 코드 포함, 인증 메일 전송 method
+
+		// 이메일 이미 존재하면 오류
 		if (memberRepository.existsByEmail(email)) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
-
+		// 인증 코드 생성
 		String code = generateVerificationCode();
+		// 인증 코드 Redis에 비교용으로 저장
 		saveVerificationCode(email, code);
+		// 인증 코드 전송
 		sendVerificationEmail(email, code);
 	}
 
 	@Override
 	public void sendFindIdVerificationCode(String email) {
+		// 아이디 찾기 용 인증 코드 포함, 인증 메일 전송 method
+
+		// 이메일 존재하지 않으면 오류
 		if (memberRepository.findByEmail(email).isEmpty()) {
 			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
 		}
 
+		// 인증 코드 생성
 		String code = generateVerificationCode();
+		// 인증 코드 Redis에 비교용으로 저장
 		saveVerificationCode(email, code);
+		// 인증 코드 전송
 		sendVerificationEmail(email, code);
 	}
+
 
 	@Override
 	public void sendFindPasswordVerificationCode(String id, String email) {
 		//비밀번호 찾기 용도
+		//이 메서드는 Id 찾기 sendFindIdVerificationCode method와 병합 예정
+
 		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
 			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
 		}
