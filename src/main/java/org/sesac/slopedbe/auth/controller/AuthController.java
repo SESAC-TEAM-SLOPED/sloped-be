@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.sesac.slopedbe.auth.exception.MemberAlreadyExistsException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
-import org.sesac.slopedbe.auth.model.CustomUserDetails;
+import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
 import org.sesac.slopedbe.auth.model.dto.request.MailVerificationRequest;
 import org.sesac.slopedbe.auth.model.dto.response.JwtResponse;
@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/auth")
 @AllArgsConstructor
 @Slf4j
-
 public class AuthController {
 
 	private final VerificationService verificationService;
@@ -71,7 +70,7 @@ public class AuthController {
 		}
 
 		final UserDetails userDetails = memberService.loadUserByUsername(loginRequest.getMemberId());
-		final String jwt = jwtUtil.generateToken((CustomUserDetails)userDetails);
+		final String jwt = jwtUtil.generateToken((GeneralUserDetails)userDetails);
 
 		log.info("JWT generated for user {}: {}", loginRequest.getMemberId(), jwt);
 		return ResponseEntity.ok(new JwtResponse(jwt));
@@ -117,6 +116,12 @@ public class AuthController {
 		// 저장된 인증 코드와 request 코드 검증 method
 		verificationService.verifyCode(request.email(), request.code());
 		return ResponseEntity.ok("Email verified successfully");
+	}
+
+	@GetMapping("/login-success")
+	public void loginSuccess(HttpServletResponse response) throws IOException {
+		log.info("JWT Client 전달");
+		response.sendRedirect("http://localhost:3000/get-jwt");
 	}
 
 	@GetMapping("/login/kakao")

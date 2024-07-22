@@ -3,7 +3,7 @@ package org.sesac.slopedbe.auth.service;
 import java.util.Collection;
 import java.util.List;
 
-import org.sesac.slopedbe.auth.model.CustomUserDetails;
+import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -28,7 +28,7 @@ public class LoginServiceImpl implements UserDetailsService {
 
 		Member member = memberRepository.findByMemberId(userId)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
-		return new CustomUserDetails(member, getAuthorities(member));
+		return new GeneralUserDetails(member, getAuthorities(member), null); //Local user 검색, attribute는 null
 	}
 
 	private Collection<? extends GrantedAuthority> getAuthorities(Member member) {

@@ -1,6 +1,6 @@
 package org.sesac.slopedbe.member.controller;
 
-import org.sesac.slopedbe.auth.model.CustomUserDetails;
+import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
 import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
 import org.sesac.slopedbe.member.model.dto.request.IdRequest;
@@ -56,7 +56,7 @@ public class MemberController {
     }
 
     @PutMapping("/blacklist")
-    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam IdRequest idRequest, @RequestParam MemberStatus status) {
+    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal GeneralUserDetails userDetails, @RequestParam IdRequest idRequest, @RequestParam MemberStatus status) {
         // 관리자 페이지, Status를 수정해 회원 정지 용도
         log.info("User {} updated status of member {} to {}", userDetails.getUsername(), idRequest, status);
 

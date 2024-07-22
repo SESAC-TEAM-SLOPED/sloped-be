@@ -7,7 +7,7 @@ import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
-import org.sesac.slopedbe.auth.model.CustomUserDetails;
+import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -28,14 +28,15 @@ public class JwtUtil {
 		this.expirationTime = expirationTime;
 	}
 
-	public String generateToken(CustomUserDetails userDetails) {
+	//Local User
+	public String generateToken(GeneralUserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("email", userDetails.getMember().getEmail());
 		claims.put("nickname", userDetails.getMember().getNickname());
+		claims.put("oauthType", userDetails.getUserOauthType());
 
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername())
+			.setSubject(userDetails.getUsername()) //email 주소 포함
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + expirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
