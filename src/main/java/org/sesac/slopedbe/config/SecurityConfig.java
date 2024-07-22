@@ -49,7 +49,6 @@ public class SecurityConfig {
 					.loginPage("http://localhost:3000/joinpage")
 					.successHandler(socialAuthenticationSuccessHandler)
 					.failureHandler(socialAuthenticationFailureHandler)
-					// .successHandler(successHandler())
 			);
 
 		return http.build();

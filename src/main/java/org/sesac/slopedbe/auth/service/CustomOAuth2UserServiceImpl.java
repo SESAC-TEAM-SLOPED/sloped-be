@@ -66,39 +66,32 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 		return oAuth2User;
 	}
 
-	@Override
-	public String getkakaoEmail(Map<String, Object> paramMap) {
+	//아래 email 구하는 함수는 외부에서 사용하지 않아 private으로 구현
+	private String getkakaoEmail(Map<String, Object> paramMap) {
 		// Response에서 email 구하는 method
 		Object value = paramMap.get("kakao_account");
 
 		LinkedHashMap accountMap = (LinkedHashMap) value;
 		String email = (String)accountMap.get("email");
 
-		log.info("KAKAO email :" + email);
-
 		return email;
 	}
 
-	@Override
-	public String getNaverEmail(Map<String, Object> paramMap) {
+	private String getNaverEmail(Map<String, Object> paramMap) {
 		// Response에서 email 구하는 method
 		// KAKAO랑 Response 응답 형태가 달라서 method 차이 발생
 
 		LinkedHashMap response = (LinkedHashMap) paramMap.get("response");
 		String email = (String) response.get("email");
 
-		log.info("NAVER email: " + email);
 		return email;
 	}
 
-	@Override
-	public String getGoogleEmail(Map<String, Object> paramMap) {
+	private String getGoogleEmail(Map<String, Object> paramMap) {
 		// Response에서 email 구하는 method
-
+		// KAKAO랑 Response 응답 형태가 달라서 method 차이 발생
 		String email = (String)paramMap.get("email");
-		log.info("Google email: " + email);
 		return email;
 	}
-
 
 }
