@@ -1,5 +1,6 @@
 package org.sesac.slopedbe.facility.controller;
 
+import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
 import org.sesac.slopedbe.facility.service.FacilityService;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +23,11 @@ public class FacilityController {
     @GetMapping("/{id}")
     public ResponseEntity<FacilitySimpleResponse> getFacilityById(@PathVariable Long id) {
         return ResponseEntity.ok(facilityService.getFacility(id));
+    }
+
+    @GetMapping("/{id}/detail")
+    public ResponseEntity<FacilityDetailResponse> getFacilityDetailById(@PathVariable Long id) {
+        return ResponseEntity.ok(facilityService.getFacilityDetail(id));
     }
 
 }
