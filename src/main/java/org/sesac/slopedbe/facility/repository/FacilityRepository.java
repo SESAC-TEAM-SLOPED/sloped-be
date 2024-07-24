@@ -2,7 +2,7 @@ package org.sesac.slopedbe.facility.repository;
 
 import java.util.Optional;
 
-import org.sesac.slopedbe.facility.model.dto.response.FacilityDto;
+import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -24,6 +24,6 @@ public interface FacilityRepository extends CrudRepository<Facility, Long> {
 		"FROM facility f " +
 		"WHERE f.id = :facilityId",
 		nativeQuery = true)
-	Optional<FacilityDto> findFacilityDtoById(@Param("facilityId") Long facilityId);
+	Optional<FacilityVO> findFacilityDtoById(@Param("facilityId") Long facilityId);
 
 }

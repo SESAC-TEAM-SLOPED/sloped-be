@@ -1,8 +1,8 @@
-package org.sesac.slopedbe.facility.model.dto.response;
+package org.sesac.slopedbe.facility.model.dto.vo;
 
 import java.math.BigDecimal;
 
-public interface FacilityDto {
+public interface FacilityVO {
 	Long getId();
 	String getName();
 	String getAddress();
