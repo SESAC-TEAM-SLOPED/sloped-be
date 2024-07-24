@@ -39,8 +39,8 @@ public class FacilityService {
         return new FacilityDetailResponse(facility);
     }
 
-    public List<FacilityResponse> getNearbyFacilities(double latitude, double longitude, double distanceInMeters, int limit) {
-        List<FacilityVO> facilities = facilityRepository.findNearbyFacilities(latitude, longitude, distanceInMeters, limit);
+    public List<FacilityResponse> getNearbyFacilities(double latitude, double longitude, double distanceInMeters, int limit, String type) {
+        List<FacilityVO> facilities = facilityRepository.findNearbyFacilities(latitude, longitude, distanceInMeters, limit, type);
         return facilities.stream()
                 .map(facility -> new FacilityResponse(facility, null))
                 .toList();

@@ -9,6 +9,8 @@ import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 
+import jakarta.annotation.Nullable;
+
 public interface FacilityRepository extends CrudRepository<Facility, Long> {
 
 	@Query(value = "SELECT " +
@@ -42,10 +44,11 @@ public interface FacilityRepository extends CrudRepository<Facility, Long> {
 		"ORDER BY fri.created_at DESC LIMIT 1) as image_url " +
 		"FROM facility f " +
 		"WHERE ST_DWithin(f.point, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :distance) " +
+		"AND (CASE WHEN :facilityType IS NULL THEN true ELSE f.facility_type = :facilityType END) " +
 		"ORDER BY ST_Distance(f.point, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) " +
 		"LIMIT :limit",
 		nativeQuery = true)
-	List<FacilityVO> findNearbyFacilities(double latitude, double longitude, double distance, int limit);
+	List<FacilityVO> findNearbyFacilities(double latitude, double longitude, double distance, int limit, @Nullable String facilityType);
 
 	@Query(value = "SELECT f.id, f.name, f.facility_type as type, f.address, " +
 		"ST_Distance(f.point, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography) as distance_meters " +

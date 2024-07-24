@@ -2,6 +2,8 @@ package org.sesac.slopedbe.facility.controller;
 
 import java.util.List;
 
+import org.sesac.slopedbe.facility.exception.FacilityErrorCode;
+import org.sesac.slopedbe.facility.exception.FacilityException;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
@@ -39,9 +41,15 @@ public class FacilityController {
         @RequestParam double latitude,
         @RequestParam double longitude,
         @RequestParam double distance_meters,
-        @RequestParam int limit
+        @RequestParam int limit,
+        @RequestParam(required = false) String type
     ) {
-        return ResponseEntity.ok(facilityService.getNearbyFacilities(latitude, longitude, distance_meters, limit));
+        if (limit > 100) {
+            throw new FacilityException(FacilityErrorCode.FIND_FACILITY_LIMIT_EXCEEDED);
+        }
+
+        return ResponseEntity.ok(facilityService.getNearbyFacilities(latitude, longitude, distance_meters, limit,
+            type));
     }
 
     @GetMapping("/search")
