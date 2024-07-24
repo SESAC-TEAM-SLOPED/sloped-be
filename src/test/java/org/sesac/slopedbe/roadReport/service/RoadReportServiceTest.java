@@ -2,6 +2,7 @@ package org.sesac.slopedbe.roadReport.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
 
@@ -38,14 +39,14 @@ public class RoadReportServiceTest {
 	private RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 
 	@Test
-	void testAddRoadReport() {
+	void testAddRoadReport() throws IOException {
 		// Given
-		RoadReportFormDTO formDTO = new RoadReportFormDTO();
-		formDTO.setContent("도로에 물이 고여있어 통행이 불편합니다.");
-		formDTO.setLatitude(new BigDecimal("37.5665"));
-		formDTO.setLongitude(new BigDecimal("126.9780"));
-		formDTO.setAddress("서울특별시 중구 세종대로 110");
-
+		RoadReportFormDTO formDTO = RoadReportFormDTO.builder()
+			.content("도로에 물이 고여있어 통행이 불편합니다.")
+			.latitude(new BigDecimal("37.5665"))
+			.longitude(new BigDecimal("126.9780"))
+			.address("서울특별시 중구 세종대로 110")
+			.build();
 		// When
 		RoadReport result = roadReportService.addRoadReport(formDTO);
 

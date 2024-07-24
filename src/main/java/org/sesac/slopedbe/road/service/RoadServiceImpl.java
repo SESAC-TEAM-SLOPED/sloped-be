@@ -22,7 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class RoadServiceImpl implements RoadService{
+public class RoadServiceImpl implements RoadService {
 	private final RoadReportRepository roadReportRepository;
 	private final RoadRepository roadRepository;
 
@@ -34,11 +34,10 @@ public class RoadServiceImpl implements RoadService{
 			List<RoadReport> approvedReports = roadReportRepository.findByStatus(ReportStatus.APPROVED);
 
 			if (approvedReports.isEmpty()) {
-				log.warn("승인된 통행 불편 제보가 없습니다.");
+				log.info("승인된 통행 불편 제보가 없습니다.");
 				return Collections.emptyList();
 			}
 
-			// 승인된 보고서를 RoadMarkerInfoDTO로 변환
 			List<RoadMarkerInfoDTO> roadMarkerInfoDTOList = approvedReports.stream()
 				.map(report -> {
 					Road road = report.getRoad();
@@ -65,18 +64,18 @@ public class RoadServiceImpl implements RoadService{
 		Optional<Road> roadOptional = roadReportRepository.findRoadByRoadId(roadId);
 		if (roadOptional.isPresent()) {
 			Road road = roadOptional.get();
-			Point point = road.getPoint(); // Point 객체 가져오기
-			BigDecimal latitude = BigDecimal.valueOf(point.getY()); // 위도
-			BigDecimal longitude = BigDecimal.valueOf(point.getX()); // 경도
+			Point point = road.getPoint();
+			BigDecimal latitude = BigDecimal.valueOf(point.getY());
+			BigDecimal longitude = BigDecimal.valueOf(point.getX());
 
-			RoadMarkerInfoDTO roadInfo =  RoadMarkerInfoDTO.builder()
+			return RoadMarkerInfoDTO.builder()
 				.id(road.getId())
 				.latitude(latitude)
 				.longitude(longitude)
 				.address(road.getAddress())
 				.build();
-			return roadInfo;
 		}
+		log.warn("해당 roadId로 도로를 찾을 수 없음 - roadId: {}", roadId);
 		return null;
 	}
 }

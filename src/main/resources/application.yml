@@ -51,6 +51,8 @@ cloud:
     region:
       static: ${S3_REGION_STATIC}
 
+
+
 ---
 
 spring:

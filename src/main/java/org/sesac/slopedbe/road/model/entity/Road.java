@@ -14,7 +14,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PostLoad;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.Table;
@@ -51,7 +50,13 @@ public class Road extends BaseTimeEntity {
     @Transient
     private BigDecimal longitude;
 
+    public BigDecimal getLatitude() {
+        return point != null ? BigDecimal.valueOf(point.getY()) : null;
+    }
 
+    public BigDecimal getLongitude() {
+        return point != null ? BigDecimal.valueOf(point.getX()) : null;
+    }
     public static Road createRoad(BigDecimal latitude, BigDecimal longitude, String address) {
         GeometryFactory geometryFactory = new GeometryFactory();
         Point point = geometryFactory.createPoint(new Coordinate(longitude.doubleValue(), latitude.doubleValue()));

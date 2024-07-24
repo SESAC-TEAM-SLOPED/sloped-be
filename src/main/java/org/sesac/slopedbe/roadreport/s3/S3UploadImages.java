@@ -40,6 +40,9 @@ public class S3UploadImages {
 		try (InputStream inputStream = multipartFile.getInputStream()) {
 			amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata)
 				.withCannedAcl(CannedAccessControlList.PublicRead)); // PublicRead 권한으로 업로드
+		} catch (IOException e) {
+			log.error("S3에 파일 업로드 중 오류 발생: {}", e.getMessage(), e);
+			throw e;
 		}
 
 		return amazonS3Client.getUrl(bucket, fileName).toString();
