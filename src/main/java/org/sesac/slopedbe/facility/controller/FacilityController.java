@@ -11,6 +11,7 @@ import org.sesac.slopedbe.facility.service.FacilityService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -66,5 +67,11 @@ public class FacilityController {
     @GetMapping("/all")
     public ResponseEntity<Page<FacilityDetailResponse>> getAllFacilities(Pageable pageable) {
         return ResponseEntity.ok(facilityService.getAllFacilities(pageable));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteFacility(@PathVariable Long id) {
+        facilityService.deleteFacility(id);
+        return ResponseEntity.noContent().build();
     }
 }

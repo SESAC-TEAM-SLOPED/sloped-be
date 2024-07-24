@@ -59,4 +59,10 @@ public class FacilityService {
         Page<Facility> facilities = facilityRepository.findAll(pageable);
         return facilities.map(FacilityDetailResponse::new);
     }
+
+    public void deleteFacility(Long id) {
+        Facility facility = facilityRepository.findById(id)
+                .orElseThrow(() -> new FacilityException(FacilityErrorCode.FACILITY_NOT_FOUND));
+        facilityRepository.delete(facility);
+    }
 }
