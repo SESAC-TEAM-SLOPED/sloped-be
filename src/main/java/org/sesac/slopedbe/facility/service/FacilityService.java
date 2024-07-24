@@ -1,5 +1,7 @@
 package org.sesac.slopedbe.facility.service;
 
+import java.util.List;
+
 import org.sesac.slopedbe.bookmark.repository.BookmarkRepository;
 import org.sesac.slopedbe.facility.exception.FacilityErrorCode;
 import org.sesac.slopedbe.facility.exception.FacilityException;
@@ -33,6 +35,13 @@ public class FacilityService {
         Facility facility = facilityRepository.findById(id)
                 .orElseThrow(() -> new FacilityException(FacilityErrorCode.FACILITY_NOT_FOUND));
         return new FacilityDetailResponse(facility);
+    }
+
+    public List<FacilitySimpleResponse> getNearbyFacilities(double latitude, double longitude, double distanceInMeters, int limit) {
+        List<FacilityVO> facilities = facilityRepository.findNearbyFacilitiesDetailed(latitude, longitude, distanceInMeters, limit);
+        return facilities.stream()
+                .map(facility -> new FacilitySimpleResponse(facility, null))
+                .toList();
     }
 
 }

@@ -30,7 +30,5 @@ public record FacilitySimpleResponse (
 			facilityVO.getImageUrl(),
 			isBookmarked
 		);
-
-
 	}
 }
