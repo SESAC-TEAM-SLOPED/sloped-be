@@ -13,6 +13,8 @@ import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.facilityreview.repository.FacilityReviewRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
@@ -51,5 +53,10 @@ public class FacilityService {
         return facilities.stream()
                 .map(FacilitySimpleResponse::new)
                 .toList();
+    }
+
+    public Page<FacilityDetailResponse> getAllFacilities(Pageable pageable) {
+        Page<Facility> facilities = facilityRepository.findAll(pageable);
+        return facilities.map(FacilityDetailResponse::new);
     }
 }

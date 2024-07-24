@@ -6,12 +6,14 @@ import java.util.Optional;
 import org.sesac.slopedbe.facility.model.dto.vo.FacilitySimpleVO;
 import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
 import org.sesac.slopedbe.facility.model.entity.Facility;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 
 import jakarta.annotation.Nullable;
 
-public interface FacilityRepository extends CrudRepository<Facility, Long> {
+public interface FacilityRepository extends JpaRepository<Facility, Long> {
 
 	@Query(value = "SELECT " +
 		"f.id, f.name, f.address, f.facility_type as type, " +
@@ -58,4 +60,14 @@ public interface FacilityRepository extends CrudRepository<Facility, Long> {
 		"LIMIT 20",
 		nativeQuery = true)
 	List<FacilitySimpleVO> findByNameWithDistance(String name, double latitude, double longitude);
+
+	@Query(value = "SELECT f.id as id, f.name as name, f.address as address, " +
+		"f.facility_type as type, ST_Y(f.point) as latitude, ST_X(f.point) as longitude, " +
+		"f.review_count as countOfReviews, f.count_of_convenient as countOfConvenient, " +
+		"f.count_of_inconvenient as countOfInconvenient, " +
+		"(SELECT fr.image_url FROM facility_review fr WHERE fr.facility_id = f.id ORDER BY fr.created_at DESC LIMIT 1) as imageUrl " +
+		"FROM facility f",
+		countQuery = "SELECT COUNT(*) FROM facility",
+		nativeQuery = true)
+	Page<FacilityVO> findAllFacilities(Pageable pageable);
 }
