@@ -1,34 +1,22 @@
 package org.sesac.slopedbe.facility.model.dto.response;
 
-import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
+import org.sesac.slopedbe.facility.model.dto.vo.FacilitySimpleVO;
+import org.sesac.slopedbe.facility.model.type.FacilityType;
 
-public record FacilitySimpleResponse (
+public record FacilitySimpleResponse(
 	Long id,
 	String name,
-	String address,
 	String type,
-	Double latitude,
-	Double longitude,
-	Long countOfReviews,
-	Long countOfConvenient,
-	Long countOfInconvenient,
-	String imageUrl,
-	Boolean isBookmarked
+	String address,
+	Double distance_meters
 ){
-
-	public FacilitySimpleResponse (FacilityVO facilityVO, Boolean isBookmarked){
+	public FacilitySimpleResponse(FacilitySimpleVO facilitySimpleVO){
 		this(
-			facilityVO.getId(),
-			facilityVO.getName(),
-			facilityVO.getAddress(),
-			facilityVO.getType(),
-			facilityVO.getLatitude().doubleValue(),
-			facilityVO.getLongitude().doubleValue(),
-			facilityVO.getCountOfReviews(),
-			facilityVO.getCountOfConvenient(),
-			facilityVO.getCountOfInconvenient(),
-			facilityVO.getImageUrl(),
-			isBookmarked
+			facilitySimpleVO.getId(),
+			facilitySimpleVO.getName(),
+			FacilityType.getDisplayNameByValue(facilitySimpleVO.getType()),
+			facilitySimpleVO.getAddress(),
+			facilitySimpleVO.getDistanceMeters()
 		);
 	}
 }

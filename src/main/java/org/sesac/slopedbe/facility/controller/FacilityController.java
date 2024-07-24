@@ -3,6 +3,7 @@ package org.sesac.slopedbe.facility.controller;
 import java.util.List;
 
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
+import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
 import org.sesac.slopedbe.facility.service.FacilityService;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class FacilityController {
     private final FacilityService facilityService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<FacilitySimpleResponse> getFacilityById(@PathVariable Long id) {
+    public ResponseEntity<FacilityResponse> getFacilityById(@PathVariable Long id) {
         return ResponseEntity.ok(facilityService.getFacility(id));
     }
 
@@ -34,13 +35,22 @@ public class FacilityController {
     }
 
     @GetMapping("")
-    public ResponseEntity<List<FacilitySimpleResponse>> getNearbyFacilities(
+    public ResponseEntity<List<FacilityResponse>> getNearbyFacilities(
         @RequestParam double latitude,
         @RequestParam double longitude,
-        @RequestParam double distance,
+        @RequestParam double distance_meters,
         @RequestParam int limit
     ) {
-        return ResponseEntity.ok(facilityService.getNearbyFacilities(latitude, longitude, distance, limit));
+        return ResponseEntity.ok(facilityService.getNearbyFacilities(latitude, longitude, distance_meters, limit));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<FacilitySimpleResponse>> searchFacilities(
+        @RequestParam String name,
+        @RequestParam Double latitude,
+        @RequestParam Double longitude
+    ) {
+        return ResponseEntity.ok(facilityService.searchFacilities(name, latitude, longitude));
     }
 
 }
