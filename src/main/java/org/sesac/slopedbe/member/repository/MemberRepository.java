@@ -12,6 +12,7 @@ public interface MemberRepository extends JpaRepository<Member, MemberCompositeK
 	Optional<Member> findByMemberId(String memberId);
 	boolean existsByMemberId(String memberId);
 
+
 	// 아래 메서드들은 JpaRepository에 이미 존재.
 	// void deleteById(MemberCompositeKey memberCompositeKey);
 	// boolean existsById(MemberCompositeKey memberCompositeKey);

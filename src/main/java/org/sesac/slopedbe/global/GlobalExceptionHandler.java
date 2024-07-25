@@ -5,8 +5,13 @@ import java.util.stream.Collectors;
 import org.sesac.slopedbe.common.exception.BaseException;
 import org.sesac.slopedbe.common.exception.ErrorCode;
 import org.sesac.slopedbe.common.exception.GlobalErrorCode;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -45,6 +50,27 @@ public class GlobalExceptionHandler {
 			.status(GlobalErrorCode.FORBIDDEN.getStatus())
 			.body(ex.getMessage());
 	}
+
+	@ExceptionHandler(BadCredentialsException.class)
+	public ResponseEntity<String> handleBadCredentialsException(BadCredentialsException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+	}
+
+	@ExceptionHandler(LockedException.class)
+	public ResponseEntity<String> handleLockedException(LockedException ex) {
+		return ResponseEntity.status(HttpStatus.LOCKED).body("Account locked");
+	}
+
+	@ExceptionHandler(DisabledException.class)
+	public ResponseEntity<String> handleDisabledException(DisabledException ex) {
+		return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account disabled");
+	}
+
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<String> handleAuthenticationException(AuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
+	}
+
 
 	@ExceptionHandler(BaseException.class)
 	public ResponseEntity<String> handleBaseException(BaseException ex) {

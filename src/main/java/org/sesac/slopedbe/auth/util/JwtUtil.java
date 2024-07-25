@@ -63,13 +63,9 @@ public class JwtUtil {
 			.compact();
 	}
 
-	public String extractUserEmail(String token) {
+	private String extractUserEmail(String token) {
 		//이메일 추출
 		return extractAllClaims(token).getSubject();
-	}
-
-	public Date extractExpirationDate(String token) {
-		return extractAllClaims(token).getExpiration();
 	}
 
 	private Claims extractAllClaims(String token) {
@@ -91,6 +87,10 @@ public class JwtUtil {
 	public MemberOauthType extractOAuthTypeFromToken(String token) {
 		String oauthTypeValue = getClaimFromToken(token, claims -> claims.get("oauthType", String.class));
 		return MemberOauthType.valueOf(oauthTypeValue);
+	}
+
+	private Date extractExpirationDate(String token) {
+		return extractAllClaims(token).getExpiration();
 	}
 
 	private Boolean isTokenExpired(String token) {

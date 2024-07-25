@@ -73,13 +73,13 @@ public class AuthController {
 			);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (BadCredentialsException e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+			throw e;  // Invalid credentials 예외를 전역 예외 처리기로 전달
 		} catch (LockedException e) {
-			return ResponseEntity.status(HttpStatus.LOCKED).body("Account locked");
+			throw e;  // Account locked 예외를 전역 예외 처리기로 전달
 		} catch (DisabledException e) {
-			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Account disabled");
+			throw e;  // Account disabled 예외를 전역 예외 처리기로 전달
 		} catch (AuthenticationException e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Authentication failed");
+			throw e;  // Authentication failed 예외를 전역 예외 처리기로 전달
 		}
 
 		final UserDetails userDetails = memberService.loadUserByUsername(compositeKey);
@@ -152,7 +152,7 @@ public class AuthController {
 	}
 
 	@PostMapping(value = "/refresh-access-token", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-	public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String refreshTokenHeader, HttpServletResponse response) {
+	public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String refreshTokenHeader, @RequestBody String expiredAccessToken, HttpServletResponse response) {
 		if (refreshTokenHeader == null || !refreshTokenHeader.startsWith("Bearer ")) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
 		}
@@ -160,8 +160,9 @@ public class AuthController {
 		String refreshToken = refreshTokenHeader.substring(7);
 
 		try {
-			String email = jwtUtil.extractUserEmail(refreshToken);
-			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(refreshToken);
+
+			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
+			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
 
 			Optional<Member> memberOptional = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 			Member member = memberOptional.get();
@@ -170,6 +171,7 @@ public class AuthController {
 			boolean isValid = verificationService.validateRefreshToken(member, refreshToken);
 
 			if (isValid) {
+				//Refresh Token 유효, Access Token 재발급
 				final UserDetails userDetails = memberService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails)userDetails);
 
@@ -183,7 +185,30 @@ public class AuthController {
 
 				return ResponseEntity.ok("access token");
 			} else {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+				//Refresh Token 만료, Refresh Token, Access Token 재발급
+				final UserDetails userDetails = memberService.loadUserByUsername(compositeKey);
+				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails)userDetails);
+				//Refresh Token DB에 없으면, 생성 후 return, DB에 존재하면 기존 Refresh Token 값 return
+				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
+				verificationService.saveRefreshToken(member, newRefreshToken);
+
+				// Access Token을 쿠키에 설정
+				Cookie accessTokenCookie = new Cookie("accessToken", accessToken);
+				accessTokenCookie.setHttpOnly(true);
+				accessTokenCookie.setSecure(true);
+				accessTokenCookie.setPath("/");
+				accessTokenCookie.setMaxAge(60 * 5); // 5분
+				response.addCookie(accessTokenCookie);
+
+				// Refresh Token을 쿠키에 설정
+				Cookie refreshTokenCookie = new Cookie("refreshToken", newRefreshToken);
+				refreshTokenCookie.setHttpOnly(true);
+				refreshTokenCookie.setSecure(true);
+				refreshTokenCookie.setPath("/");
+				refreshTokenCookie.setMaxAge(60 * 60 * 24 * 7); // 7일
+				response.addCookie(refreshTokenCookie);
+
+				return ResponseEntity.ok("Access token and refresh token refreshed");
 			}
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
