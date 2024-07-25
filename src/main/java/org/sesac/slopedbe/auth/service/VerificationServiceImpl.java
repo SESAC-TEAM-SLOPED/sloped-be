@@ -8,8 +8,11 @@ import org.sesac.slopedbe.auth.exception.AuthErrorCode;
 import org.sesac.slopedbe.auth.exception.AuthException;
 import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
+import org.sesac.slopedbe.auth.model.GeneralUserDetails;
+import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
@@ -22,14 +25,17 @@ import org.springframework.stereotype.Service;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class VerificationServiceImpl implements VerificationService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final JavaMailSender emailSender;
 	private final MemberRepository memberRepository;
+	private final JwtUtil jwtUtil;
 
 	private String generateVerificationCode() {
 		// 6자리 랜덤 인증코드 생성
@@ -126,17 +132,34 @@ public class VerificationServiceImpl implements VerificationService {
 
 	}
 
+	//JWT 관련 메서드
+	@Override
+	public void saveRefreshToken(Member member, String refreshToken) throws MemberException {
+		member.setRefreshToken(refreshToken);
+		memberRepository.save(member);
+	}
 
-	// @Override
-	// public void sendFindPasswordVerificationCode(String id, String email) {
-	// 	//비밀번호 찾기 용도
-	// 	//이 메서드는 Id 찾기 sendFindIdVerificationCode method와 병합 예정
-	//
-	// 	if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
-	// 		throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
-	// 	}
-	// 	String code = generateVerificationCode();
-	// 	saveVerificationCode(email, code);
-	// 	sendVerificationEmail(email, code);
-	// }
+	@Override
+	public boolean validateRefreshToken(Member member, String refreshToken) throws MemberException {
+		return member.getRefreshToken().equals(refreshToken);
+	}
+
+	// Refresh Token 검증 및 생성
+	@Override
+	public String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
+		// 항상 refreshToken return한다.
+
+		String refreshToken = member.getRefreshToken();
+
+		if (refreshToken == null || !jwtUtil.validateToken(refreshToken, userDetails.getUsername())) {
+			refreshToken = jwtUtil.generateRefreshToken(userDetails);
+			saveRefreshToken(member, refreshToken);
+			return refreshToken;
+		} else {
+			return refreshToken;
+		}
+
+
+	}
+
 }

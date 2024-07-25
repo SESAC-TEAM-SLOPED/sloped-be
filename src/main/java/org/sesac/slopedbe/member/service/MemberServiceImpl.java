@@ -39,15 +39,13 @@ public class MemberServiceImpl implements MemberService {
 		}
 
 		Member member = new Member(
-			registerMemberRequest.id(),
+			registerMemberRequest.memberId(),
 			passwordEncoder.encode(registerMemberRequest.password()),
 			registerMemberRequest.email(),
 			registerMemberRequest.nickname(),
 			registerMemberRequest.isDisabled(),
 			oauthType
 		);
-
-		member.setOauthType(MemberOauthType.LOCAL);
 
 		return memberRepository.save(member);
 	}
@@ -114,8 +112,11 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member updateMemberPassword(String memberId, String newPassword) {
-		//비밀번호 찾기, 메일 인증 후, 비밀번호 변경
-		Optional<Member> member = memberRepository.findByMemberId(memberId);
+		// Local 유저, 비밀번호 찾기, 메일 인증 후, 비밀번호 변경
+		MemberCompositeKey key = new MemberCompositeKey(memberId, MemberOauthType.LOCAL);
+
+		Optional<Member> member = memberRepository.findById(key);
+
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));

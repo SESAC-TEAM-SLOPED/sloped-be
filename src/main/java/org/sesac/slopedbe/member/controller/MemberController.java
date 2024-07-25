@@ -66,9 +66,9 @@ public class MemberController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
-        // 회원 가입
+        // Local 회원 가입
         Member savedMember = memberService.registerMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getId().getEmail()));
     }
 
     @PostMapping("/find-id")
@@ -90,6 +90,6 @@ public class MemberController {
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterSocialMemberRequest request) {
         // 회원 가입
         Member savedMember = memberService.registerSocialMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getId().getEmail()));
     }
 }

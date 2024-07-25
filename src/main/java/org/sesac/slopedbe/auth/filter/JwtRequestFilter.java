@@ -6,6 +6,8 @@ import org.sesac.slopedbe.auth.exception.JwtErrorCode;
 import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -60,8 +62,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		String token = authorizationHeader.substring(7);
 		validateToken(token);
 
-		String username = extractUsername(token);
-		authenticateUser(request, username, token);
+		MemberCompositeKey compositeKey = extractCompositeKey(token);
+		authenticateUser(request, compositeKey, token);
 
 		chain.doFilter(request, response);
 	}
@@ -82,9 +84,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private String extractUsername(String token) {
+	private MemberCompositeKey extractCompositeKey(String token) {
 		try {
-			return jwtUtil.extractUserId(token);
+			String email = jwtUtil.extractEmailFromToken(token);
+			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token);
+			return new MemberCompositeKey(email, oauthType);
 		} catch (SignatureException e) {
 			throw new JwtException(JwtErrorCode.JWT_INVALID);
 		} catch (ExpiredJwtException e) {
@@ -92,11 +96,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private void authenticateUser(HttpServletRequest request, String username, String token) {
+	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey, String token) {
 		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
 
-		if (existingAuth == null || !existingAuth.getName().equals(username)) {
-			UserDetails userDetails = this.memberService.loadUserByUsername(username);
+		if (existingAuth == null || !existingAuth.getName().equals(compositeKey.getEmail())) {
+			UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
 
 			if (userDetails != null && jwtUtil.validateToken(token, userDetails.getUsername())) {
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
