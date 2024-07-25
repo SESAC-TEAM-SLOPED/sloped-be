@@ -29,11 +29,10 @@ public class SecurityConfig {
 
 	private final LoginServiceImpl memberService;
 	private final JwtUtil jwtUtil;
-	private final SocialAuthenticationFailureHandler socialAuthenticationFailureHandler;
 
 	@Bean
 	public SecurityFilterChain securityFilterChain(HttpSecurity http,
-		SocialAuthenticationSuccessHandler socialAuthenticationSuccessHandler) throws Exception {
+		SocialAuthenticationSuccessHandler socialAuthenticationSuccessHandler, SocialAuthenticationFailureHandler socialAuthenticationFailureHandler) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.authorizeHttpRequests(authorizeRequests ->

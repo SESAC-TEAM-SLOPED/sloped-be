@@ -25,7 +25,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service
 @AllArgsConstructor
-public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implements CustomOAuth2UserService {
+public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
+	// 소셜 로그인에서 사용되는 클래스, 따로 import 되지 않는다.
 
 	private final MemberRepository memberRepository;
 	private final HttpServletRequest request;
@@ -42,7 +43,7 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 
 		if ("kakao".equals(registrationId)) {
 			oauthType = MemberOauthType.KAKAO;
-			email = getkakaoEmail(paramMap);
+			email = getKakaoEmail(paramMap);
 		} else if ("naver".equals(registrationId)) {
 			oauthType = MemberOauthType.NAVER;
 			email = getNaverEmail(paramMap);
@@ -68,7 +69,7 @@ public class CustomOAuth2UserServiceImpl extends DefaultOAuth2UserService implem
 	}
 
 	//아래 email 구하는 함수는 외부에서 사용하지 않아 private으로 구현
-	private String getkakaoEmail(Map<String, Object> paramMap) {
+	private String getKakaoEmail(Map<String, Object> paramMap) {
 		// Response에서 email 구하는 method
 		Object value = paramMap.get("kakao_account");
 

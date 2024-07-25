@@ -36,9 +36,16 @@ public class MemberController {
 
     @PostMapping("/duplicate-check/id")
     public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
-        // 회원 가입, 아이디 찾기 시 중복 아이디 검사 용도
+        // 회원 가입 시 중복 아이디 검사 용도
         memberService.checkDuplicateId(checkDuplicateIdRequest.id());
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/duplicate-check/find-id")
+    public ResponseEntity<String> checkExistedId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
+        // 아이디 찾기 시 중복 아이디 검사 용도
+        memberService.checkExistedId(checkDuplicateIdRequest.id());
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("")
@@ -88,7 +95,7 @@ public class MemberController {
 
     @PostMapping("/register/social")
     public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterSocialMemberRequest request) {
-        // 회원 가입
+        // 소셜 유저 회원 가입
         Member savedMember = memberService.registerSocialMember(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getId().getEmail()));
     }

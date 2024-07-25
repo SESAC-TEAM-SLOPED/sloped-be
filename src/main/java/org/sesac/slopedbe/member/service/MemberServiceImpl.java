@@ -1,7 +1,9 @@
 package org.sesac.slopedbe.member.service;
 
+import java.io.IOException;
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.dto.request.IdRequest;
@@ -12,9 +14,12 @@ import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,19 +76,26 @@ public class MemberServiceImpl implements MemberService {
 		return memberRepository.save(member);
 	}
 
-
-
 	@Override
 	public void checkDuplicateId(String memberId) {
 		// MemberId DB에서 검색, 중복 여부 확인
 
-		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
-
-		// 중복이면 errorCode 발생
 		if(memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
 	}
+
+	@Override
+	public void checkExistedId(String memberId) {
+		// MemberId DB에서 검색, 중복 여부 확인
+
+		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
+
+		if(!memberRepository.existsByMemberId(memberId)) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+		}
+	}
+
 
 	@Override
 	public String findMemberIdByEmail(String email) {
@@ -113,9 +125,10 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public Member updateMemberPassword(String memberId, String newPassword) {
 		// Local 유저, 비밀번호 찾기, 메일 인증 후, 비밀번호 변경
-		MemberCompositeKey key = new MemberCompositeKey(memberId, MemberOauthType.LOCAL);
 
-		Optional<Member> member = memberRepository.findById(key);
+		Optional<Member> member = memberRepository.findByMemberId(memberId);
+
+		log.info("member : {}", member);
 
 		if (member.isPresent()) {
 			Member existingMember = member.get();
@@ -160,6 +173,32 @@ public class MemberServiceImpl implements MemberService {
 		existingMember.setPassword(passwordEncoder.encode(newPassword));
 		existingMember.setDisability(newDisability);
 		return memberRepository.save(existingMember);
+	}
+
+	@Override
+	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
+		IOException {
+
+		// 소셜 회원 가입을 위해 email, OAuthType 데이터 보내는 메서드
+
+		response.setContentType("application/json");
+		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+
+		if (exception.getCause() instanceof SocialMemberNotExistsException) {
+			String email = (String)request.getAttribute("email");
+			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
+
+			//소셜 회원가입에 전달할 Response
+			if (email != null && oauthType != null) {
+
+				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
+
+				response.sendRedirect(redirectUrl);
+			} else {
+				response.sendRedirect("http://localhost:3000/login?error=true");
+			}
+		}
+
 	}
 
 
