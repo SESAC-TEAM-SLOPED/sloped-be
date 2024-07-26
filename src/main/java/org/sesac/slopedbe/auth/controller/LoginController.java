@@ -41,21 +41,4 @@ public class LoginController {
 		response.sendRedirect("http://localhost:3000/get-jwt");
 	}
 
-	@GetMapping("/login/kakao")
-	public void redirectToKakao(HttpServletResponse response) throws IOException {
-		// 카카오 로그인 페이지 전달
-		response.sendRedirect("http://localhost:8080/oauth2/authorization/kakao");
-	}
-
-	@GetMapping("/login/naver")
-	public void redirectToNaver(HttpServletResponse response) throws IOException {
-		// 네이버 로그인 페이지 전달
-		response.sendRedirect("http://localhost:8080/oauth2/authorization/naver");
-	}
-
-	@GetMapping("/login/google")
-	public void redirectToGoogle(HttpServletResponse response) throws IOException {
-		// 구글 로그인 페이지 전달
-		response.sendRedirect("http://localhost:8080/oauth2/authorization/google");
-	}
 }
