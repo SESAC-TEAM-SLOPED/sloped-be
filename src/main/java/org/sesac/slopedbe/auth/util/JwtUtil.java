@@ -13,12 +13,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 
 @Component
+@Slf4j
 public class JwtUtil {
 	private final SecretKey key;
 	private final long accessTokenExpirationTime;
@@ -63,11 +66,6 @@ public class JwtUtil {
 			.compact();
 	}
 
-	private String extractUserEmail(String token) {
-		//이메일 추출
-		return extractAllClaims(token).getSubject();
-	}
-
 	private Claims extractAllClaims(String token) {
 		Jws<Claims> jwsClaims = Jwts.parserBuilder()
 			.setSigningKey(key)
@@ -77,16 +75,42 @@ public class JwtUtil {
 	}
 
 	public String extractEmailFromToken(String token) {
-		return extractUserEmail(token);
-	}
+		log.info("Extracting email from token: {}", token);
 
-	public String extractNicknameFromToken(String token) {
-		return getClaimFromToken(token, claims -> claims.get("nickname", String.class));
+		try {
+			Jws<Claims> claimsJws = Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token);
+
+			Claims body = claimsJws.getBody();
+			String email = body.getSubject();
+			return email;
+		} catch (ExpiredJwtException e) {
+			// Access Token이 만료되어도 추출
+			Claims body = e.getClaims();
+			String email = body.getSubject();
+			return email;
+		} catch (Exception e) {
+			log.error("Error extracting email from token", e);
+			return null;
+		}
 	}
 
 	public MemberOauthType extractOAuthTypeFromToken(String token) {
-		String oauthTypeValue = getClaimFromToken(token, claims -> claims.get("oauthType", String.class));
-		return MemberOauthType.valueOf(oauthTypeValue);
+
+		try {
+			String oauthTypeValue = getClaimFromToken(token, claims -> claims.get("oauthType", String.class));
+			return MemberOauthType.valueOf(oauthTypeValue);
+		} catch (ExpiredJwtException e) {
+			// 만료된 토큰의 경우에도 데이터를 추출할 수 있도록 처리
+			Claims body = e.getClaims();
+			String oauthTypeValue = body.get("oauthType", String.class);
+			return MemberOauthType.valueOf(oauthTypeValue);
+		} catch (Exception e) {
+			log.error("Error extracting OAuth type from token", e);
+			return null;
+		}
 	}
 
 	private Date extractExpirationDate(String token) {
@@ -99,7 +123,7 @@ public class JwtUtil {
 
 	public Boolean validateToken(String token, String userEmail) {
 		// 토큰이 유효하면 true(1) 반환
-		final String extractedUserEmail = extractUserEmail(token);
+		final String extractedUserEmail = extractAllClaims(token).getSubject();
 		return (extractedUserEmail.equals(userEmail) && !isTokenExpired(token));
 	}
 

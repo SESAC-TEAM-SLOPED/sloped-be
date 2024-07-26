@@ -41,20 +41,18 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	private final LoginServiceImpl loginService;
 	private final AuthenticationManager authenticationManager;
 
-	@Override
-	public void saveRefreshToken(Member member, String refreshToken) throws MemberException {
+	private void saveRefreshToken(Member member, String refreshToken) throws MemberException {
 		member.setRefreshToken(refreshToken);
 		memberRepository.save(member);
 	}
 
-	@Override
-	public boolean validateRefreshToken(Member member, String refreshToken) throws MemberException {
+
+	private boolean validateRefreshToken(Member member, String refreshToken) throws MemberException {
 		return member.getRefreshToken().equals(refreshToken);
 	}
 
 	// Refresh Token 검증 및 생성
-	@Override
-	public String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
+	private String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
 		// 항상 refreshToken return
 
 		String refreshToken = member.getRefreshToken();
@@ -115,10 +113,12 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		String refreshToken = refreshTokenHeader.substring(7);
 
 		try {
+			log.info("try?");
 			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
 			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
 
 			Optional<Member> memberOptional = memberRepository.findById(new MemberCompositeKey(email, oauthType));
+
 			if (!memberOptional.isPresent()) {
 				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Member not found");
 			}
@@ -155,6 +155,10 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	public void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException {
 		String accessToken = jwtUtil.generateAccessToken(userDetails);
 		String refreshToken = jwtUtil.generateRefreshToken(userDetails);
+
+		Member member = userDetails.getMember();
+
+		saveRefreshToken(member, refreshToken);
 
 		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
 		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);  // 7일
