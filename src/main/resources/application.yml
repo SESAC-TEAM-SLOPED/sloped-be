@@ -100,6 +100,11 @@ logging:
       sesac:
         slopedbe: INFO
 
+openai:
+  secret-key: ${OPENAI_API_KEY}
+
+roadReportDir: road_report
+
 ---
 
 spring:
@@ -120,6 +125,7 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+
 
 logging:
   level:
