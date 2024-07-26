@@ -18,6 +18,8 @@ import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +35,11 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public void addBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->
+        MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+        MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+
+        Member member = memberRepository.findById(compositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
         Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
@@ -53,8 +59,13 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public void removeBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->
+        MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+        MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+
+        Member member = memberRepository.findById(compositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
+
         Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
 

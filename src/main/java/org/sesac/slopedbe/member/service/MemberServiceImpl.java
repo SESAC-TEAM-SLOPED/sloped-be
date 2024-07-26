@@ -43,7 +43,7 @@ public class MemberServiceImpl implements MemberService {
 		}
 
 		Member member = new Member(
-			registerMemberRequest.memberId(),
+			registerMemberRequest.id(),
 			passwordEncoder.encode(registerMemberRequest.password()),
 			registerMemberRequest.email(),
 			registerMemberRequest.nickname(),
