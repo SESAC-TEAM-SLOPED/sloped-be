@@ -33,23 +33,13 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private LoginServiceImpl memberService;
 	private JwtUtil jwtUtil;
 
-	// @Override
-	// protected boolean shouldNotFilter(HttpServletRequest request) {
-	// 	String path = request.getRequestURI();
-	// 	return path.startsWith("/api/auth/") ||
-	// 		path.startsWith("/api/users/") ||
-	// 		"/joinpage".equals(path) ||
-	// 		path.startsWith("/swagger-resources") ||
-	// 		path.startsWith("/swagger-ui") ||
-	// 		path.startsWith("/v3/api-docs") ||
-	// 		path.startsWith("/webjars") ||
-	// 		path.startsWith("/login");
-	// }
-
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
-		// 모든 경로에서 필터링하지 않도록 항상 true를 반환
-		return true;
+		String path = request.getRequestURI();
+		return path.startsWith("/api/auth/") ||
+			path.startsWith("/api/users/") ||
+			"/joinpage".equals(path) ||
+			path.startsWith("/login");
 	}
 
 	@Override
