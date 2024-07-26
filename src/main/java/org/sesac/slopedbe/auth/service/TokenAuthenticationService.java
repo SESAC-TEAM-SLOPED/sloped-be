@@ -11,6 +11,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public interface TokenAuthenticationService {
 
 	ResponseEntity<?> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws	IOException;
-	ResponseEntity<?> refreshAccessToken(String refreshTokenHeader, String expiredAccessToken, HttpServletResponse response) throws IOException;
+	ResponseEntity<?> refreshToken(String refreshTokenHeader, String expiredAccessToken, HttpServletResponse response) throws IOException;
 	void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException;
 }

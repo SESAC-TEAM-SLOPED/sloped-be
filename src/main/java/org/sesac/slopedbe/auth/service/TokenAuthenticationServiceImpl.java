@@ -51,9 +51,8 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		return member.getRefreshToken().equals(refreshToken);
 	}
 
-	// Refresh Token 검증 및 생성
 	private String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
-		// 항상 refreshToken return
+		// Refresh Token 만료 확인 및 생성
 
 		String refreshToken = member.getRefreshToken();
 
@@ -70,7 +69,7 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	@Override
 	public ResponseEntity<?> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
 		IOException {
-
+		// Access Token, Refresh Token 쿠키에 담아서 전송
 		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.getMemberId());
 		if (!memberOptional.isPresent()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Member not found");
@@ -105,7 +104,7 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	}
 
 	@Override
-	public ResponseEntity<?> refreshAccessToken(String refreshTokenHeader, String expiredAccessToken, HttpServletResponse response) throws IOException {
+	public ResponseEntity<?> refreshToken(String refreshTokenHeader, String expiredAccessToken, HttpServletResponse response) throws IOException {
 		if (refreshTokenHeader == null || !refreshTokenHeader.startsWith("Bearer ")) {
 			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
 		}

@@ -54,7 +54,6 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 			throw new OAuth2AuthenticationException("Unsupported OAuth2 provider");
 		}
 
-		// 정보를 HttpServletRequest에 설정 > 소셜 회원 가입 용도
 		request.setAttribute("email", email);
 		request.setAttribute("oauthType", oauthType);
 
@@ -68,9 +67,7 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 		return new GeneralUserDetails(member, Collections.singletonList(new SimpleGrantedAuthority(member.getMemberRole().getValue())), paramMap);
 	}
 
-	//아래 email 구하는 함수는 외부에서 사용하지 않아 private으로 구현
 	private String getKakaoEmail(Map<String, Object> paramMap) {
-		// Response에서 email 구하는 method
 		Object value = paramMap.get("kakao_account");
 
 		LinkedHashMap accountMap = (LinkedHashMap) value;
@@ -80,9 +77,6 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 	}
 
 	private String getNaverEmail(Map<String, Object> paramMap) {
-		// Response에서 email 구하는 method
-		// KAKAO랑 Response 응답 형태가 달라서 method 차이 발생
-
 		LinkedHashMap response = (LinkedHashMap) paramMap.get("response");
 		String email = (String) response.get("email");
 
@@ -90,8 +84,6 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 	}
 
 	private String getGoogleEmail(Map<String, Object> paramMap) {
-		// Response에서 email 구하는 method
-		// KAKAO랑 Response 응답 형태가 달라서 method 차이 발생
 		String email = (String)paramMap.get("email");
 		return email;
 	}

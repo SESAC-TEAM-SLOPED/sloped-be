@@ -24,10 +24,11 @@ public class JwtController {
 
 	private final TokenAuthenticationService tokenAuthenticationService;
 
-	@PostMapping(value = "/refresh-access-token", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	@PostMapping(value = "/refresh-token", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<?> refreshAccessToken(@RequestHeader("Authorization") String refreshTokenHeader, @RequestBody ExpiredAccessTokenRequest expiredAccessTokenRequest, HttpServletResponse response) throws IOException {
-		log.info("access-token 요청");
+		// Access token, Refresh token 갱신
+
 		String expiredAccessToken = expiredAccessTokenRequest.getExpiredAccessToken();
-		return tokenAuthenticationService.refreshAccessToken(refreshTokenHeader, expiredAccessToken, response);
+		return tokenAuthenticationService.refreshToken(refreshTokenHeader, expiredAccessToken, response);
 	}
 }

@@ -29,13 +29,12 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 	private final MemberRepository memberRepository;
 
 	private String generateVerificationCode() {
-		// 6자리 랜덤 인증코드 생성
 		return String.valueOf(new Random().nextInt(900000) + 100000);
 	}
 
 	private void saveVerificationCode(String email, String code) {
 		// 인증 코드 메일 발송 전 Redis에 5분간 저장
-		// email 과 code 함께 저장, 중복 방지
+
 		redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
 	}
 
@@ -66,15 +65,12 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
-		// 이메일 이미 존재하면 오류
 		if (memberRepository.existsById(new MemberCompositeKey(email, oauthType))) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
-		// 인증 코드 생성
+
 		String code = generateVerificationCode();
-		// 인증 코드 Redis에 비교용으로 저장
 		saveVerificationCode(email, code);
-		// 인증 코드 전송
 		sendVerificationEmail(email, code);
 	}
 
@@ -84,16 +80,12 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
-		// 이메일 존재하지 않으면 오류
 		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isEmpty()) {
 			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
 		}
 
-		// 인증 코드 생성
 		String code = generateVerificationCode();
-		// 인증 코드 Redis에 비교용으로 저장
 		saveVerificationCode(email, code);
-		// 인증 코드 전송
 		sendVerificationEmail(email, code);
 	}
 

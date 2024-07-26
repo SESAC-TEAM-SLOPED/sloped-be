@@ -34,11 +34,10 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member registerMember(RegisterMemberRequest registerMemberRequest) {
-		// 회원 가입 DB 저장
+		// Local 멤버 회원 가입 DB 저장
 		String email = registerMemberRequest.email();
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
-		// email과 oauthType 기준, DB에 중복 검증
 		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
@@ -57,11 +56,10 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public Member registerSocialMember(RegisterSocialMemberRequest registerSocialMemberRequest) {
-		// 회원 가입 DB 저장
+		// Social 유저 회원 가입 DB 저장
 		String email = registerSocialMemberRequest.email();
 		MemberOauthType oauthType = registerSocialMemberRequest.oauthType();
 
-		// email과 oauthType 기준, DB에 중복 검증
 		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
@@ -79,7 +77,6 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void checkDuplicateId(String memberId) {
 		// MemberId DB에서 검색, 중복 여부 확인
-
 		if(memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
@@ -87,9 +84,7 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public void checkExistedId(String memberId) {
-		// MemberId DB에서 검색, 중복 여부 확인
-
-		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(memberId));
+		// MemberId DB에서 검색, 중복 여부 확인 (아이디 찾기 용도)
 
 		if(!memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
@@ -99,9 +94,6 @@ public class MemberServiceImpl implements MemberService {
 
 	@Override
 	public String findMemberIdByEmail(String email) {
-		// email로 검색 후, MemberId 반환
-
-		// MemberId 찾는 method로, Type은 Local로 지정
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
 		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
@@ -127,8 +119,6 @@ public class MemberServiceImpl implements MemberService {
 		// Local 유저, 비밀번호 찾기, 메일 인증 후, 비밀번호 변경
 
 		Optional<Member> member = memberRepository.findByMemberId(memberId);
-
-		log.info("member : {}", member);
 
 		if (member.isPresent()) {
 			Member existingMember = member.get();
@@ -178,7 +168,6 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
 		IOException {
-
 		// 소셜 회원 가입을 위해 email, OAuthType 데이터 보내는 메서드
 
 		response.setContentType("application/json");
@@ -188,7 +177,6 @@ public class MemberServiceImpl implements MemberService {
 			String email = (String)request.getAttribute("email");
 			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
 
-			//소셜 회원가입에 전달할 Response
 			if (email != null && oauthType != null) {
 
 				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());

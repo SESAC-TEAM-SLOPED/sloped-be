@@ -14,16 +14,17 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GeneralUserDetails implements OAuth2User, UserDetails {
-	//Local User, Social User 모두 포함
+	// Local User, Social User 모두 포함
 	// JWT 생성, loadUserByUsername에 사용
 
-	// 생성자 설명
-	// authorities : 사용자에게 부여된 권한(예: ROLE_USER, ROLE_ADMIN 등)
-	// attributes : OAuth2 인증을 통해 제공된 사용자 속성(예: email, nickname) 이번 프로젝트는 email만 제공
+
 
 	private Member member;
 	private Collection<? extends GrantedAuthority> authorities;
 	private Map<String, Object> attributes;
+
+	// authorities : 사용자에게 부여된 권한(예: ROLE_USER, ROLE_ADMIN 등)
+	// attributes : OAuth2 인증을 통해 제공된 사용자 속성(예: email, nickname) 이번 프로젝트는 email만 제공
 
 	@Override
 	public Map<String, Object> getAttributes() {
@@ -72,15 +73,6 @@ public class GeneralUserDetails implements OAuth2User, UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
-	}
-
-	public String getUserEmail() {
-		// 복합키에서 email을 가져옴
-		return this.member.getId().getEmail();
-	}
-
-	public String getUserNickname() {
-		return this.member.getNickname();
 	}
 
 	public String getUserOauthType() {

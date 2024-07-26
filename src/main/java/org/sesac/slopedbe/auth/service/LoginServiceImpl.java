@@ -28,11 +28,9 @@ public class LoginServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
-
-		// compositeKey를 email과 oauthType으로 분리
+		//
 		MemberCompositeKey key = parseCompositeKey(compositeKey);
 
-		// email과 oauthType으로 사용자 검색
 		Member member = memberRepository.findById(key)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 		return new GeneralUserDetails(member, getAuthorities(member), null);
@@ -43,25 +41,19 @@ public class LoginServiceImpl implements UserDetailsService {
 		return List.of(new SimpleGrantedAuthority(member.getMemberRole().getValue()));
 	}
 
-	// 복합키 사용 + Spring 표준 UserDetailsService를 사용하기 때문에 해당 메서드 생성
-	// compositeKey 생성 메서드
 	public static String createCompositeKey(String email, MemberOauthType oauthType) {
+		// UserDetailsService에 사용할 compositeKey 생성 메서드
 		return email + "::" + oauthType.name();
 	}
 
-	// compositeKey 분리 메서드
+
 	private static MemberCompositeKey parseCompositeKey(String compositeKey) {
+		// compositeKey 분리 메서드
 		String[] parts = compositeKey.split("::");
 		if (parts.length != 2) {
 			throw new IllegalArgumentException("Invalid compositeKey format");
 		}
 		return new MemberCompositeKey(parts[0], MemberOauthType.valueOf(parts[1]));
 	}
-
-	public boolean existsByEmailAndOauthType(String email, MemberOauthType oauthType) {
-		return memberRepository.existsById(new MemberCompositeKey(email, oauthType));
-	}
-
-
 
 }
