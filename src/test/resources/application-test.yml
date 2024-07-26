@@ -13,8 +13,7 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-    show-sql: true
-    
+
   mail:
     host: smtp.gmail.com
     port: 587
@@ -26,4 +25,24 @@ spring:
           auth: true
           starttls:
             enable: true
-            required: true  
+            required: true
+    data:
+      redis:
+        host: localhost
+        port: 6379
+    jwt:
+      access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
+      prefix: ${JWT_PREFIX}
+      secret-key: ${JWT_SECRET_KEY}
+
+cloud:
+  aws:
+    stack:
+      auto: false
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_ACCESSKEY}
+      secretKey: ${S3_SECRETKEY}
+    region:
+      static: ${S3_REGION_STATIC}
