@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.dto;
+package org.sesac.slopedbe.member.model.dto.request;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -7,8 +7,7 @@ import lombok.Setter;
 @Setter
 public class UpdateRequest {
 	private String email;
-	private String code;
-	private String id;
+	private String memberId;
 	private String newPassword;
 }
 

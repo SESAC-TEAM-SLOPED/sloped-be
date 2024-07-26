@@ -9,13 +9,13 @@ import org.sesac.slopedbe.member.model.type.MemberRole;
 import org.sesac.slopedbe.member.model.type.MemberStatus;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,10 +29,8 @@ import lombok.Setter;
 @Entity
 public class Member extends BaseTimeEntity {
 
-    @Id
-    @Column(nullable = false, unique = true, length = 200)
-    @Email
-    private String email;
+    @EmbeddedId
+    private MemberCompositeKey id;
 
     @Column(nullable = false, length = 20)
     private String nickname;
@@ -50,9 +48,6 @@ public class Member extends BaseTimeEntity {
     @Column()
     private String refreshToken;
 
-    @Enumerated(EnumType.STRING)
-    private MemberOauthType oauthType;
-
     @Column(unique = true)
     private String memberId;
 
@@ -62,16 +57,23 @@ public class Member extends BaseTimeEntity {
     @Column(length = 50)
     private String socialAuthCode;
 
-    @Column(length = 50)
-    private String socialOauthType;
+	@OneToMany(mappedBy = "registrar")
+	private List<Facility> registeredFacilities;
 
-    @OneToMany(mappedBy = "registrar")
-    private List<Facility> registeredFacilities;
-
-    public Member(String memberId, String password, String email, String nickname, Boolean isDisabled) {
+    //Local member 생성자
+    public Member(String memberId, String password, String email, String nickname, Boolean isDisabled, MemberOauthType memberOauthType ) {
+        this.id = new MemberCompositeKey(email, memberOauthType);
         this.memberId = memberId;
         this.password = password;
-        this.email = email;
+        this.nickname = nickname;
+        this.isDisability = isDisabled;
+        this.memberRole = MemberRole.USER;
+        this.memberStatus = MemberStatus.ACTIVE;
+    }
+
+    //Social member 생성자
+    public Member(String email, String nickname, Boolean isDisabled, MemberOauthType memberOauthType) {
+        this.id = new MemberCompositeKey(email, memberOauthType);
         this.nickname = nickname;
         this.isDisability = isDisabled;
         this.memberRole = MemberRole.USER;
