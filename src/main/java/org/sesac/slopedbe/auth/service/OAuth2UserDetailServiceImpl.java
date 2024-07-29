@@ -81,6 +81,7 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 
 	private String getGoogleEmail(Map<String, Object> paramMap) {
 		String email = (String)paramMap.get("email");
+
 		return email;
 	}
 

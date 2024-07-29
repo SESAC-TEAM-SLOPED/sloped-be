@@ -40,7 +40,7 @@ public class LoginController {
 	public ResponseEntity<Map<String, String>> createAuthenticationToken(@RequestBody LoginRequest loginRequest, HttpServletResponse response) throws
 		IOException {
 
-		log.info("Login attempt for user: {}", loginRequest.getMemberId());
+		log.info("Login attempt for user: {}", loginRequest.memberId());
 		return tokenAuthenticationService.createAuthenticationToken(loginRequest, response);
 	}
 

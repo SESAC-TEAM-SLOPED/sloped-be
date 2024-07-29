@@ -35,7 +35,6 @@ public class LoginServiceImpl implements UserDetailsService {
 		return new GeneralUserDetails(member, getAuthorities(member), null);
 	}
 
-
 	private Collection<? extends GrantedAuthority> getAuthorities(Member member) {
 		return List.of(new SimpleGrantedAuthority(member.getMemberRole().getValue()));
 	}
@@ -43,7 +42,6 @@ public class LoginServiceImpl implements UserDetailsService {
 	public static String createCompositeKey(String email, MemberOauthType oauthType) {
 		return email + "::" + oauthType.name();
 	}
-
 
 	private static MemberCompositeKey parseCompositeKey(String compositeKey) {
 		String[] parts = compositeKey.split("::");

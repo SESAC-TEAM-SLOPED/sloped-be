@@ -64,13 +64,12 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		} else {
 			return refreshToken;
 		}
-
 	}
 
 	@Override
 	public ResponseEntity<Map<String, String>> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
 		IOException {
-		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.getMemberId());
+		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.memberId());
 
 		if (!memberOptional.isPresent()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
@@ -82,7 +81,7 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 
 		try {
 			Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(compositeKey, loginRequest.getPassword())
+				new UsernamePasswordAuthenticationToken(compositeKey, loginRequest.password())
 			);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
 		} catch (BadCredentialsException e) {
@@ -111,7 +110,6 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 
 	@Override
 	public ResponseEntity<Map<String, String>> refreshToken(String expiredAccessToken, String refreshToken, HttpServletResponse response) throws IOException {
-
 		try {
 			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
 			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
@@ -168,7 +166,6 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		log.info("Generated access token: {}", accessToken);
 		log.info("Generated refresh token: {}", refreshToken);
 	}
-
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
 		Cookie cookie = new Cookie(name, value);

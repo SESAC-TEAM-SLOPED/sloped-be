@@ -19,7 +19,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-
 @Service
 @Slf4j
 @AllArgsConstructor
@@ -59,7 +58,6 @@ public class MemberServiceImpl implements MemberService {
 			memberRequest.isDisabled(),
 			oauthType
 		);
-
 		memberRepository.save(member);
 	}
 
@@ -78,7 +76,6 @@ public class MemberServiceImpl implements MemberService {
 			memberRequest.isDisabled(),
 			memberRequest.oauthType()
 		);
-
 		memberRepository.save(member);
 	}
 

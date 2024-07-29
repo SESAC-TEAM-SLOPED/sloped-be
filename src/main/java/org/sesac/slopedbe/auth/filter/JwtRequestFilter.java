@@ -33,13 +33,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private LoginServiceImpl memberService;
 	private JwtUtil jwtUtil;
 
+	// @Override
+	// protected boolean shouldNotFilter(HttpServletRequest request) {
+	// 	String path = request.getRequestURI();
+	// 	return path.startsWith("/api/auth/") ||
+	// 		path.startsWith("/api/users/") ||
+	// 		"/joinpage".equals(path) ||
+	// 		path.startsWith("/login");
+	// }
+
 	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request) {
-		String path = request.getRequestURI();
-		return path.startsWith("/api/auth/") ||
-			path.startsWith("/api/users/") ||
-			"/joinpage".equals(path) ||
-			path.startsWith("/login");
+	protected boolean shouldNotFilter(HttpServletRequest request){
+		return true;
 	}
 
 	@Override
