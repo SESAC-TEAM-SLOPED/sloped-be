@@ -50,8 +50,9 @@ cloud:
       secretKey: ${S3_SECRETKEY}
     region:
       static: ${S3_REGION_STATIC}
-roadReportDir: /road_report/
-
+roadReportDir: ${ROAD_REPORT_DIR}
+file:
+  max-size: ${S3_FILE_MAX_SIZE}  # 20MB
 
 ---
 
@@ -80,4 +81,6 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate: DEBUG
 
-roadReportDir: /road_report/
+roadReportDir: ${ROAD_REPORT_DIR}
+file:
+  max-size: ${S3_FILE_MAX_SIZE} # 20MB

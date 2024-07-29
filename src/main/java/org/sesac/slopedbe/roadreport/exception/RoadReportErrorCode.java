@@ -24,8 +24,11 @@ public enum RoadReportErrorCode implements ErrorCode {
 
 	CLOSEST_CALL_TAXI_NOT_FOUND(HttpStatus.NOT_FOUND, "가장 가까운 콜택시를 찾을 수 없습니다."),
 
-	ROAD_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 도로 ID입니다.");
+	ROAD_ID_NOT_FOUND(HttpStatus.NOT_FOUND, "존재하지 않는 도로 ID입니다."),
 
+	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다.");
+
+	
 	private final HttpStatus status;
 	private final String message;
 }

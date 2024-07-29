@@ -3,6 +3,8 @@ package org.sesac.slopedbe.roadreport.s3;
 import java.io.IOException;
 import java.io.InputStream;
 
+import org.sesac.slopedbe.roadreport.exception.RoadReportErrorCode;
+import org.sesac.slopedbe.roadreport.exception.RoadReportException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -26,10 +28,26 @@ public class S3UploadImages {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
+	@Value("${file.max-size}")
+	private long maxFileSize;
+
 
 	public String upload(MultipartFile multipartFile, String dirName, String saveFileName) throws IOException {
+		validateFile(multipartFile); // 파일 크기, 형식 제한
+
 		String fileName = dirName + "/" + saveFileName;
 		return uploadFile(multipartFile, fileName);
+	}
+
+	private void validateFile(MultipartFile multipartFile) {
+		if (multipartFile.getSize() > maxFileSize) {
+			throw new RoadReportException(RoadReportErrorCode.FILE_SIZE_EXCEEDED);
+		}
+
+		String contentType = multipartFile.getContentType();
+		if (!(contentType.equals("image/png") || contentType.equals("image/jpeg"))) {
+			throw new RoadReportException(RoadReportErrorCode.REPORT_IMAGE_UPLOAD_FAILED);
+		}
 	}
 
 	private String uploadFile(MultipartFile multipartFile, String fileName) throws IOException {
