@@ -3,6 +3,8 @@ package org.sesac.slopedbe.auth.service;
 import static org.sesac.slopedbe.auth.service.LoginServiceImpl.*;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
@@ -67,12 +69,13 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	}
 
 	@Override
-	public ResponseEntity<?> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
+	public ResponseEntity<Map<String, String>> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
 		IOException {
-		// Access Token, Refresh Token 쿠키에 담아서 전송
 		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.getMemberId());
 		if (!memberOptional.isPresent()) {
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Member not found");
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Member not found");
+			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 		}
 
 		Member member = memberOptional.get();
@@ -94,32 +97,29 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 		final String refreshToken = generateAndSaveRefreshTokenIfNeeded(member, (GeneralUserDetails) userDetails);
 
-		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
-		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);  // 7일
+		setCookie(response, "accessToken", accessToken, 60 * 5);
+		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);
 
-		log.info("Access Token added cookie for user {}: {}", loginRequest.getMemberId(), accessToken);
-		log.info("Refresh Token added cookie for user {}: {}", loginRequest.getMemberId(), refreshToken);
-
-		return ResponseEntity.ok().body("Login successful");
+		Map<String, String> successResponse = new HashMap<>();
+		successResponse.put("message", "Login successful");
+		successResponse.put("accessToken", accessToken);
+		successResponse.put("refreshToken", refreshToken);
+		return ResponseEntity.ok(successResponse);
 	}
 
 	@Override
-	public ResponseEntity<?> refreshToken(String refreshTokenHeader, String expiredAccessToken, HttpServletResponse response) throws IOException {
-		if (refreshTokenHeader == null || !refreshTokenHeader.startsWith("Bearer ")) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
-		}
-
-		String refreshToken = refreshTokenHeader.substring(7);
+	public ResponseEntity<Map<String, String>> refreshToken(String expiredAccessToken, String refreshToken, HttpServletResponse response) throws IOException {
 
 		try {
-			log.info("try?");
 			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
 			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
 
 			Optional<Member> memberOptional = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 
 			if (!memberOptional.isPresent()) {
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Member not found");
+				Map<String, String> errorResponse = new HashMap<>();
+				errorResponse.put("error", "Member not found");
+				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 			}
 
 			Member member = memberOptional.get();
@@ -131,22 +131,31 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 
-				setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
+				setCookie(response, "accessToken", accessToken, 60 * 5);
 
-				return ResponseEntity.ok("Access token refreshed");
+				Map<String, String> successResponse = new HashMap<>();
+				successResponse.put("message", "Access token refreshed");
+				successResponse.put("accessToken", accessToken);
+				return ResponseEntity.ok(successResponse);
 			} else {
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
 				saveRefreshToken(member, newRefreshToken);
 
-				setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
-				setCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24 * 7);  // 7일
+				setCookie(response, "accessToken", accessToken, 60 * 5);
+				setCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24 * 7);
 
-				return ResponseEntity.ok("Access token and refresh token refreshed");
+				Map<String, String> successResponse = new HashMap<>();
+				successResponse.put("message", "Access token and refresh token refreshed");
+				successResponse.put("accessToken", accessToken);
+				successResponse.put("refreshToken", newRefreshToken);
+				return ResponseEntity.ok(successResponse);
 			}
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid refresh token");
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("error", "Invalid refresh token");
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
 		}
 	}
 
