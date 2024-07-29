@@ -39,8 +39,6 @@ public class Road extends BaseTimeEntity {
     @Column(columnDefinition = "geometry(Point, 4326)", nullable = false)
     private Point point;
 
-    private String content;
-
     @Column(name = "address", nullable = false)
     private String address;
 
@@ -62,7 +60,6 @@ public class Road extends BaseTimeEntity {
         Point point = geometryFactory.createPoint(new Coordinate(longitude.doubleValue(), latitude.doubleValue()));
         return Road.builder()
             .point(point)
-            //.content(content)
             .address(address)
             .build();
     }
