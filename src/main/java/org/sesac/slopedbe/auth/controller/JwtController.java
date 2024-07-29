@@ -29,9 +29,9 @@ public class JwtController {
 
 	@Operation(summary = "Token 갱신", description = "Access Token, Refresh Token을 갱신한다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "Access token and refresh token refreshed"),
-		@ApiResponse(responseCode = "401", description = "Invalid refresh token"),
-		@ApiResponse(responseCode = "404", description = "Member not found")
+		@ApiResponse(responseCode = "200", description = "토큰 갱신 완료"),
+		@ApiResponse(responseCode = "401", description = "인증 실패"),
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 회원")
 	})
 	@PostMapping(value = "/refresh-token")
 	public ResponseEntity<Map<String, String>> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {

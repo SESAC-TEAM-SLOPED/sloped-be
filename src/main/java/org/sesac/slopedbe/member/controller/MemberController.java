@@ -34,7 +34,7 @@ public class MemberController {
 
     @Operation(summary = "중복 아이디 검사", description = "회원 가입용, 동일 아이디가 존재하는 지 검사한다.")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "MemberId가 중복되지 않습니다."),
+        @ApiResponse(responseCode = "200", description = "MemberId가 중복되지 않습니다."),
         @ApiResponse(responseCode = "409", description = "MemberId가 중복됩니다.")
     })
     @PostMapping("/duplicate-check/id")
@@ -45,7 +45,7 @@ public class MemberController {
             String memberId = memberRequest.memberId();
             memberService.checkDuplicateId(memberId);
             response.put("message", "MemberId가 중복되지 않습니다.");
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(response);
+            return ResponseEntity.ok(response);
         } catch (MemberException e) {
             response.put("error", e.getMessage());
             return ResponseEntity.status(HttpStatus.CONFLICT).body(response);

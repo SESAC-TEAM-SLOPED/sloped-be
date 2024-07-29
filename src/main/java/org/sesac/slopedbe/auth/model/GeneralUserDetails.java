@@ -50,8 +50,6 @@ public class GeneralUserDetails implements OAuth2User, UserDetails {
 
 	@Override
 	public String getUsername() {
-		// UserDetails 메서드, 주로 DB에서 사용자 정보 조회용
-		// 복합키에서 email을 가져옴
 		return this.member.getId().getEmail();
 	}
 

@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.sesac.slopedbe.auth.exception.AuthErrorCode;
 import org.sesac.slopedbe.auth.exception.AuthException;
-import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
@@ -33,14 +32,10 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 	}
 
 	private void saveVerificationCode(String email, String code) {
-		// 인증 코드 메일 발송 전 Redis에 5분간 저장
-
 		redisTemplate.opsForValue().set(email, code, 5, TimeUnit.MINUTES);
 	}
 
 	private void sendVerificationEmail(String to, String code) {
-		// 인증 메일 양식
-
 		SimpleMailMessage message = new SimpleMailMessage();
 		message.setTo(to);
 		message.setSubject("Your Verification Code");
@@ -51,8 +46,6 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 	@Override
 	public void verifyCode(String email, String code) {
-		//redis에 저장된 인증 번호와 입력된 인증 번호 비교
-
 		String storedCode = (String) redisTemplate.opsForValue().get(email);
 		if (!code.equals(storedCode)) {
 			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED);
@@ -61,8 +54,6 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 	@Override
 	public void sendRegisterVerificationCode(String email) {
-		// 회원 가입용 인증 코드 포함, 인증 메일 전송 method
-
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
 		if (memberRepository.existsById(new MemberCompositeKey(email, oauthType))) {
@@ -76,12 +67,10 @@ public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 	@Override
 	public void sendFindIdVerificationCode(String email) {
-		// 아이디 찾기 용 인증 코드 포함, 인증 메일 전송 method
-
 		MemberOauthType oauthType = MemberOauthType.LOCAL;
 
 		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isEmpty()) {
-			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		String code = generateVerificationCode();

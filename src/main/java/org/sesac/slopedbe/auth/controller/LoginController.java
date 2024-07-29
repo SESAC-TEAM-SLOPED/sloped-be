@@ -27,11 +27,14 @@ public class LoginController {
 
 	private final TokenAuthenticationService tokenAuthenticationService;
 
-	@Operation(summary = "Local login", description = "memberId, password 받아 로그인 진행, Token 발급")
+	@Operation(summary = "Local login", description = "memberId, password 받아 로그인 진행 Token을 Cookie 형태로 발급한다.")
 	@ApiResponses(value = {
-		@ApiResponse(responseCode = "200", description = "Login successful, tokens issued"),
-		@ApiResponse(responseCode = "401", description = "Invalid credentials"),
-		@ApiResponse(responseCode = "404", description = "Member not found")
+		@ApiResponse(responseCode = "200", description = "로그인 성공, Token 발급 완료"),
+		@ApiResponse(responseCode = "401", description = "잘못된 자격 증명"),
+		@ApiResponse(responseCode = "401", description = "계정 잠김"),
+		@ApiResponse(responseCode = "401", description = "계정 비활성화"),
+		@ApiResponse(responseCode = "401", description = "인증 실패"),
+		@ApiResponse(responseCode = "404", description = "존재하지 않는 회원")
 	})
 	@PostMapping(value="/login")
 	public ResponseEntity<Map<String, String>> createAuthenticationToken(@RequestBody LoginRequest loginRequest, HttpServletResponse response) throws

@@ -28,7 +28,6 @@ public class LoginServiceImpl implements UserDetailsService {
 
 	@Override
 	public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
-		//
 		MemberCompositeKey key = parseCompositeKey(compositeKey);
 
 		Member member = memberRepository.findById(key)
@@ -42,13 +41,11 @@ public class LoginServiceImpl implements UserDetailsService {
 	}
 
 	public static String createCompositeKey(String email, MemberOauthType oauthType) {
-		// UserDetailsService에 사용할 compositeKey 생성 메서드
 		return email + "::" + oauthType.name();
 	}
 
 
 	private static MemberCompositeKey parseCompositeKey(String compositeKey) {
-		// compositeKey 분리 메서드
 		String[] parts = compositeKey.split("::");
 		if (parts.length != 2) {
 			throw new IllegalArgumentException("Invalid compositeKey format");

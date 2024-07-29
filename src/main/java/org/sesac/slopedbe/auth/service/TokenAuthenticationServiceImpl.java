@@ -7,15 +7,17 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.exception.AuthErrorCode;
+import org.sesac.slopedbe.auth.exception.AuthException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
 import org.sesac.slopedbe.auth.util.JwtUtil;
+import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -48,14 +50,11 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		memberRepository.save(member);
 	}
 
-
 	private boolean validateRefreshToken(Member member, String refreshToken) throws MemberException {
 		return member.getRefreshToken().equals(refreshToken);
 	}
 
 	private String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
-		// Refresh Token 만료 확인 및 생성
-
 		String refreshToken = member.getRefreshToken();
 
 		if (refreshToken == null || !jwtUtil.validateToken(refreshToken, userDetails.getUsername())) {
@@ -72,10 +71,9 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	public ResponseEntity<Map<String, String>> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
 		IOException {
 		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.getMemberId());
+
 		if (!memberOptional.isPresent()) {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Member not found");
-			return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		Member member = memberOptional.get();
@@ -87,10 +85,14 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 				new UsernamePasswordAuthenticationToken(compositeKey, loginRequest.getPassword())
 			);
 			SecurityContextHolder.getContext().setAuthentication(authentication);
-		} catch (BadCredentialsException | LockedException | DisabledException e) {
-			throw e;
+		} catch (BadCredentialsException e) {
+			throw new AuthException(AuthErrorCode.BAD_CREDENTIALS);
+		} catch (LockedException e) {
+			throw new AuthException(AuthErrorCode.ACCOUNT_LOCKED);
+		} catch (DisabledException e) {
+			throw new AuthException(AuthErrorCode.ACCOUNT_DISABLED);
 		} catch (AuthenticationException e) {
-			throw e;
+			throw new AuthException(AuthErrorCode.AUTHENTICATION_EXCEPTION);
 		}
 
 		final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
@@ -113,18 +115,14 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		try {
 			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
 			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
-
 			Optional<Member> memberOptional = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 
 			if (!memberOptional.isPresent()) {
-				Map<String, String> errorResponse = new HashMap<>();
-				errorResponse.put("error", "Member not found");
-				return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+				throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 			}
 
 			Member member = memberOptional.get();
 			String compositeKey = createCompositeKey(email, oauthType);
-
 			boolean isValid = validateRefreshToken(member, refreshToken);
 
 			if (isValid) {
@@ -134,7 +132,7 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 				setCookie(response, "accessToken", accessToken, 60 * 5);
 
 				Map<String, String> successResponse = new HashMap<>();
-				successResponse.put("message", "Access token refreshed");
+				successResponse.put("message", "Access token 갱신 완료");
 				successResponse.put("accessToken", accessToken);
 				return ResponseEntity.ok(successResponse);
 			} else {
@@ -147,15 +145,13 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 				setCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24 * 7);
 
 				Map<String, String> successResponse = new HashMap<>();
-				successResponse.put("message", "Access token and refresh token refreshed");
+				successResponse.put("message", "Access token, refresh token 갱신 완료");
 				successResponse.put("accessToken", accessToken);
 				successResponse.put("refreshToken", newRefreshToken);
 				return ResponseEntity.ok(successResponse);
 			}
 		} catch (Exception e) {
-			Map<String, String> errorResponse = new HashMap<>();
-			errorResponse.put("error", "Invalid refresh token");
-			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED);
 		}
 	}
 
@@ -163,11 +159,9 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 	public void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException {
 		String accessToken = jwtUtil.generateAccessToken(userDetails);
 		String refreshToken = jwtUtil.generateRefreshToken(userDetails);
-
 		Member member = userDetails.getMember();
 
 		saveRefreshToken(member, refreshToken);
-
 		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
 		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);  // 7일
 
