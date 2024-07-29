@@ -11,7 +11,7 @@ spring:
   jpa:
     generate-ddl: true
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -50,7 +50,7 @@ cloud:
       secretKey: ${S3_SECRETKEY}
     region:
       static: ${S3_REGION_STATIC}
-
+roadReportDir: /road_report/
 
 
 ---
@@ -79,3 +79,5 @@ logging:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate: DEBUG
+
+roadReportDir: /road_report/

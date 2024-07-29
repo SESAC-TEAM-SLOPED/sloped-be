@@ -51,9 +51,18 @@ public class RoadReportCsvDataLoader {
 		) {
 			for (CSVRecord csvRecord : csvParser) {
 				try {
-					BigDecimal latitude = new BigDecimal(csvRecord.get("위도"));
-					BigDecimal longitude = new BigDecimal(csvRecord.get("경도"));
-					String address = csvRecord.get("주소");
+					BigDecimal latitude = new BigDecimal(csvRecord.values()[4]);
+					BigDecimal longitude = new BigDecimal(csvRecord.values()[5]);
+					String address = csvRecord.values()[3];
+					String centerName = csvRecord.values()[1];
+					String centerContact = csvRecord.values()[2];
+
+					if (roadReportCenterRepository.existsByLocationAndCenterNameAndCenterContact(
+						latitude.doubleValue(), longitude.doubleValue(), centerName, centerContact)) {
+						log.info("중복된 데이터: " + centerName);
+						continue; // 중복된 데이터는 건너뜁니다.
+					}
+
 					Road road = Road.createRoad(latitude, longitude, address);
 					roadRepository.save(road);
 
@@ -84,6 +93,7 @@ public class RoadReportCsvDataLoader {
 	}
 
 
+
 	public void loadTaxiCsvData() {
 		log.info("콜택시 CSV 파일 로딩 시작");
 
@@ -92,14 +102,22 @@ public class RoadReportCsvDataLoader {
 			CSVParser csvParser = new CSVParser(reader, CSVFormat.DEFAULT.withFirstRecordAsHeader().withIgnoreHeaderCase().withTrim())
 		) {
 			for (CSVRecord csvRecord : csvParser) {
+				//[0]~[6]: 교통약자이동지원센터명,주소,위도,경도,예약전화번호,홈페이지,온라인예약가능여부
 				String callTaxiName = csvRecord.values()[0];
 				String callTaxiContact = csvRecord.values()[4];
 				String homePage = csvRecord.values()[5];
 				boolean canOnlineReserve = csvRecord.values()[6].equals("o");
 
 				try {
-					BigDecimal latitude = new BigDecimal(csvRecord.get("위도"));
-					BigDecimal longitude = new BigDecimal(csvRecord.get("경도"));
+					BigDecimal latitude = new BigDecimal(csvRecord.values()[2]);
+					BigDecimal longitude = new BigDecimal(csvRecord.values()[3]);
+
+					if (roadReportCallTaxiRepository.existsByLocationAndCallTaxiNameAndCallTaxiContact(
+						latitude.doubleValue(), longitude.doubleValue(), callTaxiName, callTaxiContact)) {
+						log.info("중복된 데이터: " + callTaxiName);
+						continue; // 중복된 데이터는 건너뜁니다.
+					}
+
 					String address = csvRecord.get("주소");
 					Road road = Road.createRoad(latitude, longitude, address);
 					roadRepository.save(road);
@@ -138,9 +156,15 @@ public class RoadReportCsvDataLoader {
 			int recordCount = 0;
 
 			for (CSVRecord csvRecord : csvParser) {
+				//시도,지역명,민원기관지역
 				String cityName = csvRecord.values()[0];
 				String regionName = csvRecord.values()[1];
 				String complaintRegion = csvRecord.values()[2];
+
+				if (cityRepository.existsByCityNameAndRegionNameAndComplaintRegion(cityName, regionName, complaintRegion)) {
+					log.info("중복된 데이터: " + cityName);
+					continue; // 중복된 데이터는 건너뜁니다.
+				}
 
 				RoadKoreaCity city = RoadKoreaCity.builder()
 					.cityName(cityName)
