@@ -18,13 +18,12 @@ public class BookmarkResponseDTO {
 	private int countOfReviews;
 
 	public static BookmarkResponseDTO toBookmarkDTO(Bookmark bookmark) {
-		BookmarkResponseDTO bookmarkResponseDTO = new BookmarkResponseDTO();
-		bookmarkResponseDTO.setFacilityId(bookmark.getFacility().getId());
-		bookmarkResponseDTO.setName(bookmark.getFacility().getName());
-		bookmarkResponseDTO.setFacilityType(bookmark.getFacility().getFacilityType());
-		bookmarkResponseDTO.setAddress(bookmark.getFacility().getAddress());
-		bookmarkResponseDTO.setCountOfReviews(bookmark.getFacility().getFacilityReviews().size());
-
-		return bookmarkResponseDTO;
+		return new BookmarkResponseDTO(
+			bookmark.getFacility().getId(),
+			bookmark.getFacility().getName(),
+			bookmark.getFacility().getFacilityType(),
+			bookmark.getFacility().getAddress(),
+			bookmark.getFacility().getFacilityReviews().size()
+		);
 	}
 }

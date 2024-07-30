@@ -22,7 +22,9 @@ import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class BookmarkServiceImpl implements BookmarkService {
@@ -59,13 +61,13 @@ public class BookmarkServiceImpl implements BookmarkService {
             GlobalErrorCode.BAD_REQUEST));
 
         BookmarkId bookmarkId = new BookmarkId(facility, member);
-        System.out.println(bookmarkId);
+
         bookmarkRepository.deleteById(bookmarkId);
     }
 
     @Override
     public List<BookmarkResponseDTO> getBookmarksByEmail(String email) {
-        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMember_Email(email);
+        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMemberEmail(email);
         List<BookmarkResponseDTO> bookmarks = new ArrayList<>();
 
         for (Bookmark bookmarkEntity : bookmarkEntities) {
