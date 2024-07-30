@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
-import org.sesac.slopedbe.member.exception.MemberErrorCode;
-import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
@@ -15,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +36,7 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 
 		String email = null;
 		MemberOauthType oauthType;
+
 		String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
 		if ("kakao".equals(registrationId)) {
@@ -57,7 +58,8 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 		Member member = memberRepository.findById(new MemberCompositeKey(email, oauthType))
 			.orElseThrow(() -> {
 				log.info("{} 소셜 회원, 회원 가입 필요", oauthType);
-				return new MemberException(MemberErrorCode.SOCIAL_MEMBER_NOT_EXISTS);
+				OAuth2Error oauth2Error = new OAuth2Error("social_member_not_exists", "회원 가입 필요", null);
+				return new OAuth2AuthenticationException(oauth2Error, new SocialMemberNotExistsException("회원 가입 필요"));
 			});
 
 		return new GeneralUserDetails(member, Collections.singletonList(new SimpleGrantedAuthority(member.getMemberRole().getValue())), paramMap);

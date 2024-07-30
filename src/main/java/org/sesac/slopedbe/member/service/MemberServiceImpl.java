@@ -3,6 +3,7 @@ package org.sesac.slopedbe.member.service;
 import java.io.IOException;
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
@@ -143,25 +144,16 @@ public class MemberServiceImpl implements MemberService {
 	@Override
 	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
 		IOException {
-		response.setContentType("application/json");
-		response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		if (exception.getCause() instanceof SocialMemberNotExistsException) {
+			String email = (String)request.getAttribute("email");
+			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
 
-		if (exception.getCause() instanceof MemberException) {
-			MemberException memberException = (MemberException)exception.getCause();
-
-			if (memberException.getErrorCode() == MemberErrorCode.SOCIAL_MEMBER_NOT_EXISTS) {
-				String email = (String)request.getAttribute("email");
-				MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
-
-				if (email != null && oauthType != null) {
-					String redirectUrl = String.format(
-						"http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
-					response.sendRedirect(redirectUrl);
-				} else {
-					response.sendRedirect("http://localhost:3000/login?error=true");
-				}
+			if (email != null && oauthType != null) {
+				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
+				response.sendRedirect(redirectUrl);
+			} else {
+				response.sendRedirect("http://localhost:3000/login?error=true");
 			}
 		}
 	}
-
 }

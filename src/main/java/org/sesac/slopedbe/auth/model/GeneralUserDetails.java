@@ -14,17 +14,9 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class GeneralUserDetails implements OAuth2User, UserDetails {
-	// Local User, Social User 모두 포함
-	// JWT 생성, loadUserByUsername에 사용
-
-
-
 	private Member member;
 	private Collection<? extends GrantedAuthority> authorities;
 	private Map<String, Object> attributes;
-
-	// authorities : 사용자에게 부여된 권한(예: ROLE_USER, ROLE_ADMIN 등)
-	// attributes : OAuth2 인증을 통해 제공된 사용자 속성(예: email, nickname) 이번 프로젝트는 email만 제공
 
 	@Override
 	public Map<String, Object> getAttributes() {
@@ -38,14 +30,12 @@ public class GeneralUserDetails implements OAuth2User, UserDetails {
 
 	@Override
 	public String getName() {
-		// OAuth2User 메서드, 주로 OAuth2 인증을 통해 제공된 사용자 정보 가져오는데 사용
-		// 소셜 로그인 할 때, email만 받아오기 때문에 DB의 nickname 사용
 		return this.member.getNickname();
 	}
 
 	@Override
 	public String getPassword() {
-		return this.member.getPassword(); // 소셜 사용자의 경우 null
+		return this.member.getPassword();
 	}
 
 	@Override

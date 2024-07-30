@@ -6,7 +6,6 @@ import java.util.Map;
 import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
 import org.sesac.slopedbe.auth.service.TokenAuthenticationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,12 +42,4 @@ public class LoginController {
 		log.info("Login attempt for user: {}", loginRequest.memberId());
 		return tokenAuthenticationService.createAuthenticationToken(loginRequest, response);
 	}
-
-
-	@GetMapping("/login-success")
-	public void loginSuccess(HttpServletResponse response) throws IOException {
-		log.info("JWT Client 전달");
-		response.sendRedirect("http://localhost:3000/get-jwt");
-	}
-
 }
