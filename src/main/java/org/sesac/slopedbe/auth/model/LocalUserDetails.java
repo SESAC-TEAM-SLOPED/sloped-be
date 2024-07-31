@@ -11,7 +11,7 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class CustomUserDetails implements UserDetails {
+public class LocalUserDetails implements UserDetails {
 	private Member member;
 	private Collection<? extends GrantedAuthority> authorities;
 
