@@ -5,9 +5,10 @@ import java.util.concurrent.TimeUnit;
 
 import org.sesac.slopedbe.auth.exception.AuthErrorCode;
 import org.sesac.slopedbe.auth.exception.AuthException;
-import org.sesac.slopedbe.auth.exception.MemberNotFoundException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.SimpleMailMessage;
@@ -15,10 +16,12 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @AllArgsConstructor
-public class VerificationServiceImpl implements VerificationService {
+@Slf4j
+public class MailAuthenticationServiceImpl implements MailAuthenticationService{
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final JavaMailSender emailSender;
@@ -51,7 +54,9 @@ public class VerificationServiceImpl implements VerificationService {
 
 	@Override
 	public void sendRegisterVerificationCode(String email) {
-		if (memberRepository.existsByEmail(email)) {
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+		if (memberRepository.existsById(new MemberCompositeKey(email, oauthType))) {
 			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
 		}
 
@@ -62,8 +67,10 @@ public class VerificationServiceImpl implements VerificationService {
 
 	@Override
 	public void sendFindIdVerificationCode(String email) {
-		if (memberRepository.findByEmail(email).isEmpty()) {
-			throw new MemberNotFoundException("해당 이메일이 검색되지 않습니다.");
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isEmpty()) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		String code = generateVerificationCode();
@@ -71,14 +78,4 @@ public class VerificationServiceImpl implements VerificationService {
 		sendVerificationEmail(email, code);
 	}
 
-	@Override
-	public void sendFindPasswordVerificationCode(String id, String email) {
-		//비밀번호 찾기 용도
-		if (memberRepository.findByEmail(email).isEmpty() || memberRepository.findByMemberId(id).isEmpty()) {
-			throw new MemberNotFoundException("해당 아이디 또는 이메일이 조회되지 않습니다.");
-		}
-		String code = generateVerificationCode();
-		saveVerificationCode(email, code);
-		sendVerificationEmail(email, code);
-	}
 }

@@ -1,21 +1,33 @@
 package org.sesac.slopedbe.member.service;
 
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import java.io.IOException;
+
+import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.type.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
+import org.springframework.security.core.AuthenticationException;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 public interface MemberService {
-    Member registerMember(RegisterMemberRequest registerMemberRequest);
+    void registerMember(MemberRequest memberRequest);
 
-    void checkDuplicateId(String id);
+    void registerSocialMember(MemberRequest memberRequest);
 
-    String findIdByEmail(String email);
+    void checkExistedId(String memberId);
 
-    void deleteMember(String email);
+    void checkDuplicateId(String memberId);
 
-    Member updateMemberPassword(String id, String newPassword);
+    String findMemberIdByEmail(String email);
 
-    Member updateMemberStatus(String email, MemberStatus status);
+    void deleteMember(String email, MemberOauthType oauthType);
 
-    Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability);
+    void updateMemberPassword(String memberId, String newPassword);
+
+    void updateMemberStatus(MemberRequest memberRequest);
+
+    Member updateMemberInfo(MemberRequest memberRequest);
+
+    void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException;
 }
