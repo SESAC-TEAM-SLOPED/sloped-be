@@ -12,7 +12,6 @@ import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class LoginServiceImpl implements UserDetailsService {
 	private final MemberRepository memberRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
+	public GeneralUserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
 		MemberCompositeKey key = parseCompositeKey(compositeKey);
 
 		Member member = memberRepository.findById(key)
