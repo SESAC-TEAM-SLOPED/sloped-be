@@ -7,7 +7,6 @@ import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -54,7 +53,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(token);
 				log.info("Extracted composite key: {}, {}", compositeKey.getEmail(), compositeKey.getOauthType());
 
-				authenticateUser(request, compositeKey, token);
+				authenticateUser(request, compositeKey);
 				log.info("JWT authentication successful for path: {}", request.getRequestURI());
 			} else {
 				log.info("No valid Authorization header found for path: {}", request.getRequestURI());
@@ -66,21 +65,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		chain.doFilter(request, response);
 	}
 
-	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey, String token) {
-		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (existingAuth == null || !existingAuth.getName().equals(compositeKey.getEmail())) {
-			UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
-			log.info("Loaded UserDetails: {}", userDetails.getUsername());
-
-			if (userDetails != null && jwtUtil.validateToken(token, userDetails.getUsername())) {
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-					new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				usernamePasswordAuthenticationToken
-					.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-				log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
-			}
-		}
+	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey) {
+		UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
+		log.info("Loaded UserDetails: {}", userDetails.getUsername());
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		usernamePasswordAuthenticationToken
+			.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 	}
 }

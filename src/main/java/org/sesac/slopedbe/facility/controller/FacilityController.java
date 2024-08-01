@@ -48,7 +48,7 @@ public class FacilityController {
         @PathVariable Long id) {
         MemberCompositeKey memberCK = jwtUtil.getMemberCKFromHeader();
 
-        return ResponseEntity.ok(facilityService.getFacility(id, null));
+        return ResponseEntity.ok(facilityService.getFacility(id, memberCK));
     }
 
     @Operation(summary = "Facility 상세 조회", description = "시설 ID로 시설을 상세 조회한다.")
