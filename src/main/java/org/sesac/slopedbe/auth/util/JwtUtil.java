@@ -3,14 +3,20 @@ package org.sesac.slopedbe.auth.util;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.sesac.slopedbe.auth.exception.JwtErrorCode;
+import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,6 +24,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -111,6 +119,36 @@ public class JwtUtil {
 		}
 	}
 
+	public MemberCompositeKey extractCompositeKey(String token) {
+		try {
+			String email = extractEmailFromToken(token);
+			MemberOauthType oauthType = extractOAuthTypeFromToken(token);
+
+			log.info("Extracted email: {}, oauthType: {}", email, oauthType);
+			return new MemberCompositeKey(email, oauthType);
+		} catch (SignatureException e) {
+			throw new JwtException(JwtErrorCode.JWT_INVALID);
+		} catch (ExpiredJwtException e) {
+			throw new JwtException(JwtErrorCode.JWT_EXPIRED);
+		}
+	}
+
+	public MemberCompositeKey getMemberCKFromHeader() {
+		HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(
+			RequestContextHolder.getRequestAttributes())).getRequest();
+		final String authorizationHeader = request.getHeader("Authorization");
+
+		if (authorizationHeader == null || authorizationHeader.isBlank()) {
+			return null;
+		}
+
+		String token = authorizationHeader.substring(7);
+		if(token.isBlank()) {
+			return null;
+		}
+		return extractCompositeKey(token);
+	}
+
 	private Date extractExpirationDate(String token) {
 		return extractAllClaims(token).getExpiration();
 	}
@@ -127,13 +165,5 @@ public class JwtUtil {
 	public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
 		final Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
-	}
-
-	public long getAccessTokenExpirationTime() {
-		return accessTokenExpirationTime;
-	}
-
-	public long getRefreshTokenExpirationTime() {
-		return refreshTokenExpirationTime;
 	}
 }
