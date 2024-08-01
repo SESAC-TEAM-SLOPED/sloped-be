@@ -2,12 +2,10 @@ package org.sesac.slopedbe.auth.filter;
 
 import java.io.IOException;
 
-import org.sesac.slopedbe.auth.exception.JwtErrorCode;
 import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
-import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,8 +14,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,62 +29,41 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private LoginServiceImpl memberService;
 	private JwtUtil jwtUtil;
 
-	// @Override
-	// protected boolean shouldNotFilter(HttpServletRequest request) {
-	// 	String path = request.getRequestURI();
-	// 	return path.startsWith("/api/auth/") ||
-	// 		path.startsWith("/api/users/") ||
-	// 		"/joinpage".equals(path) ||
-	// 		path.startsWith("/login");
-	// }
-
 	@Override
-	protected boolean shouldNotFilter(HttpServletRequest request){
-		return true;
+	protected boolean shouldNotFilter(HttpServletRequest request) {
+		String path = request.getRequestURI();
+		boolean shouldNotFilter = path.startsWith("/api/auth/") || path.startsWith("/api/facilities") || path.startsWith("/api/roads");
+		log.info("Request path: {}, ShouldNotFilter: {}", path, shouldNotFilter);
+		return shouldNotFilter;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
 
-		final String authorizationHeader = request.getHeader("Authorization");
-		validateAuthorizationHeader(authorizationHeader);
+		if (shouldNotFilter(request)) {
+			log.info("Skipping JWT filter for path: {}", request.getRequestURI());
+			chain.doFilter(request, response);
+			return;
+		}
 
-		String token = authorizationHeader.substring(7);
-		validateToken(token);
+		try {
+			final String authorizationHeader = request.getHeader("Authorization");
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				String token = authorizationHeader.substring(7);
+				MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(token);
+				log.info("Extracted composite key: {}, {}", compositeKey.getEmail(), compositeKey.getOauthType());
 
-		MemberCompositeKey compositeKey = extractCompositeKey(token);
-		authenticateUser(request, compositeKey, token);
+				authenticateUser(request, compositeKey, token);
+				log.info("JWT authentication successful for path: {}", request.getRequestURI());
+			} else {
+				log.info("No valid Authorization header found for path: {}", request.getRequestURI());
+			}
+		} catch (JwtException e) {
+			log.error("JWT Error for path {}: {}", request.getRequestURI(), e.getMessage());
+		}
 
 		chain.doFilter(request, response);
-	}
-
-	private void validateAuthorizationHeader(String authorizationHeader) {
-		if (authorizationHeader == null || authorizationHeader.isBlank()) {
-			throw new JwtException(JwtErrorCode.JWT_NOT_FOUND);
-		}
-
-		if (!authorizationHeader.startsWith("Bearer ")) {
-			throw new JwtException(JwtErrorCode.JWT_PREFIX_INVALID);
-		}
-	}
-
-	private void validateToken(String token) {
-		if (token == null || token.isBlank()) {
-			throw new JwtException(JwtErrorCode.JWT_NOT_FOUND);
-		}
-	}
-
-	private MemberCompositeKey extractCompositeKey(String token) {
-		try {
-			String email = jwtUtil.extractEmailFromToken(token);
-			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token);
-			return new MemberCompositeKey(email, oauthType);
-		} catch (SignatureException e) {
-			throw new JwtException(JwtErrorCode.JWT_INVALID);
-		} catch (ExpiredJwtException e) {
-			throw new JwtException(JwtErrorCode.JWT_EXPIRED);
-		}
 	}
 
 	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey, String token) {
@@ -96,6 +71,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 
 		if (existingAuth == null || !existingAuth.getName().equals(compositeKey.getEmail())) {
 			UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
+			log.info("Loaded UserDetails: {}", userDetails.getUsername());
 
 			if (userDetails != null && jwtUtil.validateToken(token, userDetails.getUsername())) {
 				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
@@ -103,6 +79,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 				usernamePasswordAuthenticationToken
 					.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+				log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 			}
 		}
 	}

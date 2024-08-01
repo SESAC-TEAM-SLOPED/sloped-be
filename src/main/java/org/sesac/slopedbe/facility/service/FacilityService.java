@@ -13,6 +13,7 @@ import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.facilityreview.repository.FacilityReviewRepository;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,12 +28,17 @@ public class FacilityService {
     private final BookmarkRepository bookmarkRepository;
     private final FacilityReviewRepository facilityReviewRepository;
 
-    public FacilityResponse getFacility(Long id) {
+    public FacilityResponse getFacility(Long id, MemberCompositeKey memberCK) {
         FacilityVO facilityVO = facilityRepository.findFacilityById(id)
                 .orElseThrow(() -> new FacilityException(FacilityErrorCode.FACILITY_NOT_FOUND));
 
-        Boolean isBookmarked = null; // TODO: JWT 문제 해결 이후 북마크 여부 조회 추가
-        return new FacilityResponse(facilityVO, null);
+        Boolean isBookmarked = null;
+        if(memberCK == null) {
+            isBookmarked = null;
+        } else {
+            isBookmarked = bookmarkRepository.existsByMember_Id_EmailAndMember_Id_OauthTypeAndFacility_Id(memberCK.getEmail(), memberCK.getOauthType(), id);
+        }
+        return new FacilityResponse(facilityVO, isBookmarked);
     }
 
     public FacilityDetailResponse getFacilityDetail(Long id) {
