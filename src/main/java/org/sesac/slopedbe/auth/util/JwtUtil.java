@@ -43,7 +43,6 @@ public class JwtUtil {
 		this.refreshTokenExpirationTime = refreshTokenExpirationTime;
 	}
 
-	// Access Token 생성
 	public String generateAccessToken(GeneralUserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("nickname", userDetails.getMember().getNickname());
@@ -51,23 +50,19 @@ public class JwtUtil {
 
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername()) // email 주소 포함
+			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
 	}
 
-	// Refresh Token 생성
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		// 탈취되어도 문제 없게 Refresh Token에는 다른 정보들 제외 예정 !!
-		claims.put("nickname", userDetails.getMember().getNickname());
 		claims.put("oauthType", userDetails.getUserOauthType());
-
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername()) // email 주소 포함
+			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
