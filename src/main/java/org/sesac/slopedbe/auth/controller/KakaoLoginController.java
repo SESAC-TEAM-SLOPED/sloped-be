@@ -6,13 +6,16 @@ import java.util.Map;
 
 import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponseDto;
 import org.sesac.slopedbe.auth.service.KakaoLoginService;
+import org.sesac.slopedbe.auth.service.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 @RestController
@@ -20,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class KakaoLoginController {
 
 	private final KakaoLoginService kakaoLoginService;
+	private final OAuth2UserService oAuth2UserService;
 
 	@Value("${KAKAO_CLIENT_ID}")
 	private String kakaoClientId;
@@ -27,10 +31,13 @@ public class KakaoLoginController {
 	@Value("${KAKAO_REDIRECT_URI}")
 	private String redirectUri;
 
-	public KakaoLoginController(KakaoLoginService kakaoLoginService) {
+	public KakaoLoginController(KakaoLoginService kakaoLoginService, OAuth2UserService oAuth2UserService){
 		this.kakaoLoginService = kakaoLoginService;
+		this.oAuth2UserService = oAuth2UserService;
 	}
 
+	@Operation(summary = "Kakao Social login", description = "Client에 kakao REST API KEY, Redirect URI 반환 ")
+	@ApiResponse(responseCode = "200", description = "반환 완료")
 	@GetMapping("/api/auth/kakao-login")
 	public ResponseEntity<Map<String, String>> getKakaoLoginInfo() {
 		Map<String, String> response = new HashMap<>();
@@ -39,15 +46,12 @@ public class KakaoLoginController {
 		return ResponseEntity.ok(response);
 	}
 
+	@Operation(summary = "Kakao Social login", description = "Redirect URI로 전달된 code 활용, 유저 정보 추출, login logic 실행")
 	@GetMapping("/login/oauth2/code/kakao")
-	public ResponseEntity<Map<String, String>> getKakaoRedirectUri(@RequestParam("code") String code) throws IOException {
+	public void getKakaoRedirectUri(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
 		String accessToken = kakaoLoginService.getAccessTokenFromKakao(code);
 		KakaoUserInfoResponseDto userInfo = kakaoLoginService.getUserInfo(accessToken);
 
-
-
-
-		log.info("userInfo = {}", userInfo.kakaoAccount.email);
-		return new ResponseEntity<>(HttpStatus.OK);
+		oAuth2UserService.loginSocialUser(userInfo.kakaoAccount.email,"kakao", response);
 	}
 }

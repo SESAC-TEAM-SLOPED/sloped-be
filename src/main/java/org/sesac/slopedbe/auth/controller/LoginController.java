@@ -1,10 +1,14 @@
 package org.sesac.slopedbe.auth.controller;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
 import org.sesac.slopedbe.auth.service.TokenAuthenticationService;
+import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
+import org.sesac.slopedbe.member.service.MemberService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class LoginController {
 
 	private final TokenAuthenticationService tokenAuthenticationService;
+	private final MemberService memberService;
 
 	@Operation(summary = "Local login", description = "memberId, password 받아 로그인 진행 Token을 Cookie 형태로 발급한다.")
 	@ApiResponses(value = {
@@ -41,5 +46,17 @@ public class LoginController {
 
 		log.info("Login attempt for user: {}", loginRequest.memberId());
 		return tokenAuthenticationService.createAuthenticationToken(loginRequest, response);
+	}
+
+	@Operation(summary = "회원 가입", description = "소셜 유저 정보를 DB에 저장한다.")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "201", description = "소셜 유저 가입 성공")
+	})
+	@PostMapping("/register/social")
+	public ResponseEntity<Map<String, String>> registerSocialMember(@RequestBody MemberRequest memberRequest) {
+		memberService.registerSocialMember(memberRequest);
+		Map<String, String> response = new HashMap<>();
+		response.put("message", "소셜 유저 가입 성공");
+		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 	}
 }

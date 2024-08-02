@@ -116,18 +116,6 @@ public class MemberController {
         }
     }
 
-    @Operation(summary = "회원 가입", description = "소셜 유저 정보를 DB에 저장한다.")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "소셜 유저 가입 성공")
-    })
-    @PostMapping("/register/social")
-    public ResponseEntity<Map<String, String>> registerSocialMember(@RequestBody MemberRequest memberRequest) {
-        memberService.registerSocialMember(memberRequest);
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "소셜 유저 가입 성공");
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
     @Operation(summary = "회원 정보 수정", description = "마이페이지용, 요청된 회원 정보로 DB를 수정한다.")
     @PutMapping("")
     public ResponseEntity<Member> updateMemberInfo(@RequestBody MemberRequest memberRequest) {

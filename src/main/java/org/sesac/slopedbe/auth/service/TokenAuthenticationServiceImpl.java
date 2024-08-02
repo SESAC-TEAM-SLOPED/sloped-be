@@ -54,7 +54,8 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 		return member.getRefreshToken().equals(refreshToken);
 	}
 
-	private String generateAndSaveRefreshTokenIfNeeded(Member member, GeneralUserDetails userDetails) throws MemberException {
+	private String generateAndSaveRefreshTokenIfNeeded(GeneralUserDetails userDetails) throws MemberException {
+		Member member = userDetails.getMember();
 		String refreshToken = member.getRefreshToken();
 
 		if (refreshToken == null || !jwtUtil.validateToken(refreshToken, userDetails.getUsername())) {
@@ -96,7 +97,7 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 
 		final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
-		final String refreshToken = generateAndSaveRefreshTokenIfNeeded(member, (GeneralUserDetails) userDetails);
+		final String refreshToken = generateAndSaveRefreshTokenIfNeeded((GeneralUserDetails) userDetails);
 
 		setCookie(response, "accessToken", accessToken, 60 * 5);
 		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);
@@ -155,9 +156,9 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 
 	@Override
 	public void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException {
-		String accessToken = jwtUtil.generateAccessToken(userDetails);
-		String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 		Member member = userDetails.getMember();
+		String accessToken = jwtUtil.generateAccessToken(userDetails);
+		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
 
 		saveRefreshToken(member, refreshToken);
 		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
@@ -165,6 +166,8 @@ public class TokenAuthenticationServiceImpl implements TokenAuthenticationServic
 
 		log.info("Generated access token: {}", accessToken);
 		log.info("Generated refresh token: {}", refreshToken);
+
+		response.sendRedirect("http://localhost:3000/get-jwt");
 	}
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {

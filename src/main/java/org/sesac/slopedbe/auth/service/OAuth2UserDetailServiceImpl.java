@@ -31,6 +31,7 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		log.info("LoadUser 호출");
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		Map<String, Object> paramMap = oAuth2User.getAttributes();
 
