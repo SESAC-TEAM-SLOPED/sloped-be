@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.DTO.request;
+package org.sesac.slopedbe.member.abc;
 
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.model.type.MemberStatus;

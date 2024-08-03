@@ -3,8 +3,8 @@ package org.sesac.slopedbe.member.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sesac.slopedbe.member.abc.MemberRequest;
 import org.sesac.slopedbe.member.exception.MemberException;
-import org.sesac.slopedbe.member.model.DTO.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.service.MemberService;

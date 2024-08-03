@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.member.model.DTO.request;
+package org.sesac.slopedbe.member.abc;
 
 import jakarta.validation.constraints.Email;
 

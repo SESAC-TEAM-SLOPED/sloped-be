@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
+import org.sesac.slopedbe.member.abc.MemberRequest;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
-import org.sesac.slopedbe.member.model.DTO.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;

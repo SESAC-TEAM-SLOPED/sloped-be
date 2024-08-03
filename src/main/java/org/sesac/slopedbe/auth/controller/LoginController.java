@@ -6,9 +6,9 @@ import java.util.Map;
 
 import org.sesac.slopedbe.auth.model.dto.request.LoginRequest;
 import org.sesac.slopedbe.auth.service.TokenAuthenticationService;
+import org.sesac.slopedbe.member.abc.MemberRequest;
+import org.sesac.slopedbe.member.abc.MemberSimpleRequest;
 import org.sesac.slopedbe.member.exception.MemberException;
-import org.sesac.slopedbe.member.model.DTO.request.MemberRequest;
-import org.sesac.slopedbe.member.model.DTO.request.MemberSimpleRequest;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

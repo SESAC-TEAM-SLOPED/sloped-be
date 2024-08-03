@@ -2,7 +2,7 @@ package org.sesac.slopedbe.member.service;
 
 import java.io.IOException;
 
-import org.sesac.slopedbe.member.model.DTO.request.MemberRequest;
+import org.sesac.slopedbe.member.abc.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.core.AuthenticationException;
