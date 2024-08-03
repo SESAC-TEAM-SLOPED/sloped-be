@@ -19,7 +19,6 @@ public class SocialAuthenticationFailureHandler implements AuthenticationFailure
 
 	@Override
 	public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException {
-
 		memberService.sendSocialRegisterInformation(request, response, exception);
 	}
 }

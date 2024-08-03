@@ -9,7 +9,6 @@ import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -36,12 +35,20 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		return true;
+		boolean shouldNotFilter = path.startsWith("/api/auth/") || path.startsWith("/api/facilities") || path.startsWith("/api/roads") || path.startsWith("/favicon.ico") || path.startsWith("/login/oauth2");
+		log.info("Request path: {}, ShouldNotFilter: {}", path, shouldNotFilter);
+		return shouldNotFilter;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
+
+		if (shouldNotFilter(request)) {
+			log.info("Skipping JWT filter for path: {}", request.getRequestURI());
+			chain.doFilter(request, response);
+			return;
+		}
 
 		final String authorizationHeader = request.getHeader("Authorization");
 		validateAuthorizationHeader(authorizationHeader);
@@ -50,7 +57,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		validateToken(token);
 
 		MemberCompositeKey compositeKey = extractCompositeKey(token);
-		authenticateUser(request, compositeKey, token);
+		authenticateUser(request, compositeKey);
 
 		chain.doFilter(request, response);
 	}
@@ -83,19 +90,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey, String token) {
-		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (existingAuth == null || !existingAuth.getName().equals(compositeKey.getEmail())) {
-			UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
-
-			if (userDetails != null && jwtUtil.validateToken(token, userDetails.getUsername())) {
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-					new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				usernamePasswordAuthenticationToken
-					.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-			}
-		}
+	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey) {
+		UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
+		log.info("Loaded UserDetails: {}", userDetails.getUsername());
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		usernamePasswordAuthenticationToken
+			.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 	}
 }

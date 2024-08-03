@@ -7,7 +7,6 @@ import org.sesac.slopedbe.auth.handler.SocialAuthenticationFailureHandler;
 import org.sesac.slopedbe.auth.handler.SocialAuthenticationSuccessHandler;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -47,28 +46,26 @@ public class SecurityConfig {
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/api/auth/**", "/api/users/**", "/joinpage", "/swagger-resources/**", "/swagger-ui/**", "/v3/api-docs/**", "/webjars/**", "/login/**").permitAll()
+					// 로그인 필요 없는 경로 && 로그인/비로그인 모두 가능한 경로
+					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**",
+						"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/login/oauth2/**").permitAll()
+					// 로그인 필요한 경로
+					.requestMatchers("/api/users").authenticated()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
 				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			.oauth2Login(oauth2 ->
-				oauth2
-					.successHandler(socialAuthenticationSuccessHandler)
-					.failureHandler(socialAuthenticationFailureHandler)
-			)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
+			// .oauth2Login(oauth2 ->
+			// 	oauth2
+			// 		.successHandler(socialAuthenticationSuccessHandler)
+			// 		.failureHandler(socialAuthenticationFailureHandler)
+			// )
 			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
-	}
-
-	@Bean
-	public FilterRegistrationBean<JwtRequestFilter> jwtFilter() {
-		FilterRegistrationBean<JwtRequestFilter> filter = new FilterRegistrationBean<>();
-		filter.setFilter(new JwtRequestFilter(memberService, jwtUtil));
-		filter.addUrlPatterns("/api/*");
-		return filter;
 	}
 
 	@Bean

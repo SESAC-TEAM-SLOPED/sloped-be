@@ -26,13 +26,12 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @AllArgsConstructor
 public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
-	// 소셜 로그인에서 사용되는 클래스, 따로 import 되지 않는다.
-
 	private final MemberRepository memberRepository;
 	private final HttpServletRequest request;
 
 	@Override
 	public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+		log.info("LoadUser 호출");
 		OAuth2User oAuth2User = super.loadUser(userRequest);
 		Map<String, Object> paramMap = oAuth2User.getAttributes();
 
@@ -85,6 +84,7 @@ public class OAuth2UserDetailServiceImpl extends DefaultOAuth2UserService {
 
 	private String getGoogleEmail(Map<String, Object> paramMap) {
 		String email = (String)paramMap.get("email");
+
 		return email;
 	}
 

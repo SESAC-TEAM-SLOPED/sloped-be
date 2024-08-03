@@ -24,11 +24,8 @@ public class SocialAuthenticationSuccessHandler implements AuthenticationSuccess
 	@Override
 	public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws
 		IOException, ServletException {
-
 		GeneralUserDetails userDetails = (GeneralUserDetails) authentication.getPrincipal();
-
 		tokenAuthenticationService.createSocialAuthenticationCookies(response, userDetails);
-
 		response.sendRedirect("http://localhost:3000/get-jwt");
 	}
 }

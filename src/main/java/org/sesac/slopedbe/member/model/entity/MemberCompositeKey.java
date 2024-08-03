@@ -18,7 +18,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 public class MemberCompositeKey implements Serializable {
-
 	private String email;
 
 	@Enumerated(EnumType.STRING)

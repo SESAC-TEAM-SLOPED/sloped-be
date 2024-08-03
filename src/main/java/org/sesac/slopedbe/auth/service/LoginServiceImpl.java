@@ -12,7 +12,6 @@ import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,8 +26,7 @@ public class LoginServiceImpl implements UserDetailsService {
 	private final MemberRepository memberRepository;
 
 	@Override
-	public UserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
-		//
+	public GeneralUserDetails loadUserByUsername(String compositeKey) throws UsernameNotFoundException {
 		MemberCompositeKey key = parseCompositeKey(compositeKey);
 
 		Member member = memberRepository.findById(key)
@@ -36,19 +34,15 @@ public class LoginServiceImpl implements UserDetailsService {
 		return new GeneralUserDetails(member, getAuthorities(member), null);
 	}
 
-
 	private Collection<? extends GrantedAuthority> getAuthorities(Member member) {
 		return List.of(new SimpleGrantedAuthority(member.getMemberRole().getValue()));
 	}
 
 	public static String createCompositeKey(String email, MemberOauthType oauthType) {
-		// UserDetailsService에 사용할 compositeKey 생성 메서드
 		return email + "::" + oauthType.name();
 	}
 
-
 	private static MemberCompositeKey parseCompositeKey(String compositeKey) {
-		// compositeKey 분리 메서드
 		String[] parts = compositeKey.split("::");
 		if (parts.length != 2) {
 			throw new IllegalArgumentException("Invalid compositeKey format");

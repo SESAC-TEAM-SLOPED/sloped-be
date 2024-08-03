@@ -1,28 +1,26 @@
 package org.sesac.slopedbe.member.controller;
 
-import org.sesac.slopedbe.auth.model.GeneralUserDetails;
-import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
-import org.sesac.slopedbe.member.model.dto.request.EmailRequest;
-import org.sesac.slopedbe.member.model.dto.request.IdRequest;
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
-import org.sesac.slopedbe.member.model.dto.request.RegisterSocialMemberRequest;
-import org.sesac.slopedbe.member.model.dto.request.UpdateRequest;
-import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.DTO.request.MemberRequest;
+import org.sesac.slopedbe.member.model.DTO.request.MemberSimpleRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.type.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -34,69 +32,122 @@ public class MemberController {
 
     private final MemberService memberService;
 
+    @Operation(summary = "중복 아이디 검사", description = "회원 가입용, 동일 아이디가 존재하는 지 검사한다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "MemberId가 중복되지 않습니다."),
+        @ApiResponse(responseCode = "409", description = "MemberId가 중복됩니다.")
+    })
     @PostMapping("/duplicate-check/id")
-    public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
-        // 회원 가입 시 중복 아이디 검사 용도
-        memberService.checkDuplicateId(checkDuplicateIdRequest.id());
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<Map<String, String>> checkDuplicateId(@RequestBody MemberSimpleRequest memberRequest) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String memberId = memberRequest.memberId();
+            memberService.checkDuplicateId(memberId);
+            response.put("message", "MemberId가 중복되지 않습니다.");
+            return ResponseEntity.ok(response);
+        } catch (MemberException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+        }
     }
 
+    @Operation(summary = "중복 아이디 검사", description = "아이디 찾기용, 중복 아이디가 존재하는 지 검사한다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "MemberId가 존재합니다."),
+        @ApiResponse(responseCode = "404", description = "MemberId가 존재하지 않습니다.")
+    })
     @PostMapping("/duplicate-check/find-id")
-    public ResponseEntity<String> checkExistedId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
-        // 아이디 찾기 시 중복 아이디 검사 용도
-        memberService.checkExistedId(checkDuplicateIdRequest.id());
-        return ResponseEntity.ok().build();
+    public ResponseEntity<Map<String, String>> checkExistedId(@RequestBody MemberSimpleRequest memberRequest) {
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            String memberId = memberRequest.memberId();
+            memberService.checkExistedId(memberId);
+            response.put("message", "MemberId가 존재합니다.");
+            return ResponseEntity.ok(response);
+        } catch (MemberException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
+    @Operation(summary = "회원 가입", description = "로컬 유저 정보를 DB에 저장한다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "201", description = "로컬 유저 가입 성공")
+    })
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, String>> registerLocalMember(@RequestBody MemberRequest memberRequest) {
+
+        memberService.registerMember(memberRequest);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "로컬 유저 가입 성공");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @Operation(summary = "아이디 찾기", description = "로컬 유저 아이디를 반환한다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "아이디 찾기 성공")
+    })
+    @PostMapping("/find-id")
+    public ResponseEntity<Map<String, String>> findMemberIdByEmail(@RequestBody MemberSimpleRequest memberRequest) {
+
+        String email = memberRequest.email();
+        String memberId = memberService.findMemberIdByEmail(email);
+        Map<String, String> response = new HashMap<>();
+        response.put("memberId", memberId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "비밀번호 찾기", description = "로컬 유저 비밀번호를 재설정한다.")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "비밀번호 재설정 성공")
+    })
+    @PutMapping("/request-reset")
+    public ResponseEntity<Map<String, String>> updatePassword(@RequestBody MemberRequest memberRequest){
+        Map<String, String> response = new HashMap<>();
+        try {
+            memberService.updateMemberPassword(memberRequest.memberId(), memberRequest.password());
+            response.put("message", "비밀번호 재설정 성공");
+            return ResponseEntity.ok(response);
+        } catch (MemberException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @Operation(summary = "회원 정보 수정", description = "마이페이지용, 요청된 회원 정보로 DB를 수정한다.")
     @PutMapping("")
-    public ResponseEntity<Member> updateMemberInfo(@RequestParam IdRequest idRequest, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
-        // 마이페이지에서 회원 정보 수정 기능 용도
-        Member updatedMember = memberService.updateMemberInfo(idRequest, newNickname, newPassword, newDisability);
+    public ResponseEntity<Member> updateMemberInfo(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        Member updatedMember = memberService.updateMemberInfo(memberRequest);
         return ResponseEntity.ok(updatedMember);
     }
 
+    @Operation(summary = "회원 탈퇴", description = "마이페이지용, 요청된 회원 정보를 DB에서 삭제한다.")
     @DeleteMapping("")
-    public ResponseEntity<Void> deleteMember(@RequestParam IdRequest idRequest) {
-        // 마이 페이지, 회원 탈퇴 용도
-        memberService.deleteMember(idRequest);
+    public ResponseEntity<Void> deleteMember(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        String email = memberRequest.email();
+        MemberOauthType oauthType = memberRequest.oauthType();
+
+        memberService.deleteMember(email, oauthType);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "회원 정지", description = "어드민: Member Status를 수정해 회원 기능을 정지시킨다.")
     @PutMapping("/blacklist")
-    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal GeneralUserDetails userDetails, @RequestParam IdRequest idRequest, @RequestParam MemberStatus status) {
-        // 관리자 페이지, Status를 수정해 회원 정지 용도
-        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), idRequest, status);
+    public ResponseEntity<Map<String, String>> updateStatus(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        Map<String, String> response = new HashMap<>();
 
-        Member updatedMember = memberService.updateMemberStatus(idRequest, status);
-        return ResponseEntity.ok(updatedMember);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
-        // Local 회원 가입
-        Member savedMember = memberService.registerMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getId().getEmail()));
-    }
-
-    @PostMapping("/find-id")
-    public ResponseEntity<String> findMemberIdByEmail(@Valid @RequestBody EmailRequest emailRequest) {
-        // 아이디 찾기
-        String email = emailRequest.email();
-        String memberId = memberService.findMemberIdByEmail(email);
-        return ResponseEntity.ok(memberId);
-    }
-
-    @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
-        // 비밀 번호 찾기, 비밀 번호 재설정 method
-        Member updatedMember = memberService.updateMemberPassword(updateRequest.getMemberId(), updateRequest.getNewPassword());
-        return ResponseEntity.ok(updatedMember);
-    }
-
-    @PostMapping("/register/social")
-    public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterSocialMemberRequest request) {
-        // 소셜 유저 회원 가입
-        Member savedMember = memberService.registerSocialMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getId().getEmail()));
+        try {
+            memberService.updateMemberStatus(memberRequest);
+            response.put("message", "Member Status를 수정 성공");
+            return ResponseEntity.ok(response);
+        } catch (MemberException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 }
