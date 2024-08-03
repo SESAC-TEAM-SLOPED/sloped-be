@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoUserInfoResponseDto {
+public class KakaoUserInfoResponse {
 
 	//카카오 계정 정보
 	@JsonProperty("kakao_account")

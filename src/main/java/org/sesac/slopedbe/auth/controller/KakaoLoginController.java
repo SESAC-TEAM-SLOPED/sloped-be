@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponseDto;
+import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponse;
 import org.sesac.slopedbe.auth.service.KakaoLoginService;
 import org.sesac.slopedbe.auth.service.OAuth2UserService;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +50,7 @@ public class KakaoLoginController {
 	@GetMapping("/login/oauth2/code/kakao")
 	public void getKakaoRedirectUri(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
 		String accessToken = kakaoLoginService.getAccessTokenFromKakao(code);
-		KakaoUserInfoResponseDto userInfo = kakaoLoginService.getUserInfo(accessToken);
+		KakaoUserInfoResponse userInfo = kakaoLoginService.getUserInfo(accessToken);
 
 		oAuth2UserService.loginSocialUser(userInfo.kakaoAccount.email,"kakao", response);
 	}

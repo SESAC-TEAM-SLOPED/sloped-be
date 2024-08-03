@@ -1,7 +1,7 @@
 package org.sesac.slopedbe.auth.service;
 
-import org.sesac.slopedbe.auth.model.dto.response.KakaoTokenResponseDto;
-import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponseDto;
+import org.sesac.slopedbe.auth.model.dto.response.KakaoTokenResponse;
+import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
@@ -26,7 +26,7 @@ public class KakaoLoginService {
 	private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
 	public String getAccessTokenFromKakao(String code) {
-		KakaoTokenResponseDto kakaoTokenResponseDto = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
+		KakaoTokenResponse kakaoTokenResponse = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
 			.uri(uriBuilder -> uriBuilder
 				.scheme("https")
 				.path("/oauth/token")
@@ -39,14 +39,14 @@ public class KakaoLoginService {
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-			.bodyToMono(KakaoTokenResponseDto.class)
+			.bodyToMono(KakaoTokenResponse.class)
 			.block();
 
-		return kakaoTokenResponseDto.getAccessToken();
+		return kakaoTokenResponse.getAccessToken();
 	}
 
-	public KakaoUserInfoResponseDto getUserInfo(String accessToken) {
-		KakaoUserInfoResponseDto userInfo = WebClient.create(KAUTH_USER_URL_HOST)
+	public KakaoUserInfoResponse getUserInfo(String accessToken) {
+		KakaoUserInfoResponse userInfo = WebClient.create(KAUTH_USER_URL_HOST)
 			.get()
 			.uri(uriBuilder -> uriBuilder
 				.scheme("https")
@@ -57,7 +57,7 @@ public class KakaoLoginService {
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
-			.bodyToMono(KakaoUserInfoResponseDto.class)
+			.bodyToMono(KakaoUserInfoResponse.class)
 			.block();
 
 		return userInfo;

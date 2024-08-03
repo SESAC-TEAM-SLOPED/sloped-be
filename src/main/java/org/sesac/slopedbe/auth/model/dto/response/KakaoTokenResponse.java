@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class KakaoTokenResponseDto {
+public class KakaoTokenResponse {
 
 	@JsonProperty("token_type")
 	public String tokenType;
