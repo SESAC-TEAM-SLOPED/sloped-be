@@ -35,7 +35,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		boolean shouldNotFilter = path.startsWith("/api/auth/") || path.startsWith("/api/facilities") || path.startsWith("/api/roads") || path.startsWith("/favicon.ico") || path.startsWith("/login/oauth2");
+		boolean shouldNotFilter = path.startsWith("/api/auth/") || path.startsWith("/api/facilities") || path.startsWith("/api/roads") || path.startsWith("/favicon.ico") || path.startsWith("/login/oauth2")
+			|| path.startsWith("/api/v1/");
 		log.info("Request path: {}, ShouldNotFilter: {}", path, shouldNotFilter);
 		return shouldNotFilter;
 	}
@@ -93,10 +94,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey) {
 		UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
 		log.info("Loaded UserDetails: {}", userDetails.getUsername());
+
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
 			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 		usernamePasswordAuthenticationToken
 			.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
 		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 		log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 	}
