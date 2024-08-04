@@ -3,8 +3,6 @@ package org.sesac.slopedbe.config;
 import java.util.Arrays;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
-import org.sesac.slopedbe.auth.handler.SocialAuthenticationFailureHandler;
-import org.sesac.slopedbe.auth.handler.SocialAuthenticationSuccessHandler;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
@@ -38,8 +36,7 @@ public class SecurityConfig {
 	private final JwtRequestFilter jwtRequestFilter;
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http,
-		SocialAuthenticationSuccessHandler socialAuthenticationSuccessHandler, SocialAuthenticationFailureHandler socialAuthenticationFailureHandler) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.cors(Customizer.withDefaults())
@@ -58,11 +55,6 @@ public class SecurityConfig {
 			)
 			.formLogin(AbstractHttpConfigurer::disable)
 			.httpBasic(AbstractHttpConfigurer::disable)
-			// .oauth2Login(oauth2 ->
-			// 	oauth2
-			// 		.successHandler(socialAuthenticationSuccessHandler)
-			// 		.failureHandler(socialAuthenticationFailureHandler)
-			// )
 			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
