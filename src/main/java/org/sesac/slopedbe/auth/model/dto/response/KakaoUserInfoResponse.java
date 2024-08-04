@@ -22,7 +22,7 @@ public class KakaoUserInfoResponse {
 
 		//카카오계정 대표 이메일
 		@JsonProperty("email")
-		public String email;
+		private String email;
 
 	}
 

@@ -29,7 +29,7 @@ public class KakaoLoginController {
 	private String kakaoClientId;
 
 	@Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
-	private String redirectUri;
+	private String kakaoRedirectUri;
 
 	public KakaoLoginController(KakaoLoginService kakaoLoginService, OAuth2UserService oAuth2UserService){
 		this.kakaoLoginService = kakaoLoginService;
@@ -42,7 +42,7 @@ public class KakaoLoginController {
 	public ResponseEntity<Map<String, String>> getKakaoLoginInfo() {
 		Map<String, String> response = new HashMap<>();
 		response.put("kakaoClientId", kakaoClientId);
-		response.put("redirectUri", redirectUri);
+		response.put("redirectUri", kakaoRedirectUri);
 		return ResponseEntity.ok(response);
 	}
 
@@ -52,6 +52,6 @@ public class KakaoLoginController {
 		String accessToken = kakaoLoginService.getAccessTokenFromKakao(code);
 		KakaoUserInfoResponse userInfo = kakaoLoginService.getUserInfo(accessToken);
 
-		oAuth2UserService.loginSocialUser(userInfo.kakaoAccount.email,"kakao", response);
+		oAuth2UserService.loginSocialUser(userInfo.kakaoAccount.getEmail(),"kakao", response);
 	}
 }

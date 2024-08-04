@@ -18,10 +18,11 @@ import reactor.core.publisher.Mono;
 @Service
 public class KakaoLoginService {
 
-	@Value("${KAKAO_CLIENT_ID}")
+	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
 	private String clientId;
-	@Value("${KAKAO_CLIENT_SECRET}")
+	@Value("${spring.security.oauth2.client.registration.kakao.client-secret}")
 	private String clientSecret;
+
 	private final String KAUTH_TOKEN_URL_HOST = "https://kauth.kakao.com";
 	private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
