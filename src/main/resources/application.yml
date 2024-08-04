@@ -86,6 +86,9 @@ logging:
     org:
       sesac:
         slopedbe: INFO
+openai:
+  secret-key: ${OPENAI_API_KEY}
+
 ---
 
 spring:
