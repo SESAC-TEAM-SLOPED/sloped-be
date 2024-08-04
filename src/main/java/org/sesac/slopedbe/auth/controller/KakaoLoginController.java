@@ -25,10 +25,10 @@ public class KakaoLoginController {
 	private final KakaoLoginService kakaoLoginService;
 	private final OAuth2UserService oAuth2UserService;
 
-	@Value("${KAKAO_CLIENT_ID}")
+	@Value("${spring.security.oauth2.client.registration.kakao.client-id}")
 	private String kakaoClientId;
 
-	@Value("${KAKAO_REDIRECT_URI}")
+	@Value("${spring.security.oauth2.client.registration.kakao.redirect-uri}")
 	private String redirectUri;
 
 	public KakaoLoginController(KakaoLoginService kakaoLoginService, OAuth2UserService oAuth2UserService){
