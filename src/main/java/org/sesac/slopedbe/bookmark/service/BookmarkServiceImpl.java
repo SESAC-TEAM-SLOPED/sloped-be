@@ -19,7 +19,6 @@ import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
-import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -68,9 +67,7 @@ public class BookmarkServiceImpl implements BookmarkService {
 
     @Override
     public List<BookmarkResponseDTO> getBookmarksById(MemberCompositeKey memberCompositeKey) {
-        String email = memberCompositeKey.getEmail();
-        MemberOauthType oauthType = memberCompositeKey.getOauthType();
-        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMemberEmailAndMemberOauthType(email, oauthType);
+        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMemberId(memberCompositeKey);
         List<BookmarkResponseDTO> bookmarks = new ArrayList<>();
 
         for (Bookmark bookmarkEntity : bookmarkEntities) {
