@@ -46,7 +46,7 @@ public class KakaoLoginController {
 		return ResponseEntity.ok(response);
 	}
 
-	@Operation(summary = "Kakao Social login", description = "Redirect URI로 전달된 code 활용, 유저 정보 추출, login logic 실행")
+	@Operation(summary = "Kakao Social login, Get User Info", description = "Redirect URI로 전달된 code 활용, 유저 정보 추출, login logic 실행")
 	@GetMapping("/login/oauth2/code/kakao")
 	public void getKakaoRedirectUri(@RequestParam("code") String code, HttpServletResponse response) throws IOException {
 		String accessToken = kakaoLoginService.getAccessTokenFromKakao(code);

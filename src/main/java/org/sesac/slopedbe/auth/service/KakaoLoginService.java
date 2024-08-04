@@ -53,7 +53,7 @@ public class KakaoLoginService {
 				.scheme("https")
 				.path("/v2/user/me")
 				.build(true))
-			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken) // access token 인가
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
 			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
