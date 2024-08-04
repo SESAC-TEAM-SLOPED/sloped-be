@@ -32,7 +32,6 @@ spring:
     redis:
       host: localhost
       port: 6379
-
   jwt:
     access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
     refresh-expiration-time : ${JWT_REFRESH_EXPIRATION_TIME}
@@ -89,6 +88,21 @@ logging:
 openai:
   secret-key: ${OPENAI_API_KEY}
 
+cloud:
+  aws:
+    stack:
+      auto: false
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_ACCESSKEY}
+      secretKey: ${S3_SECRETKEY}
+    region:
+      static: ${S3_REGION_STATIC}
+roadReportDir: ${ROAD_REPORT_DIR}
+file:
+  max-size: ${S3_FILE_MAX_SIZE}  # 20MB
+
 ---
 
 spring:
@@ -109,8 +123,13 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+
 logging:
   level:
     root: INFO
     org.springframework.web: DEBUG
     org.hibernate: DEBUG
+
+roadReportDir: ${ROAD_REPORT_DIR}
+file:
+  max-size: ${S3_FILE_MAX_SIZE} # 20MB
