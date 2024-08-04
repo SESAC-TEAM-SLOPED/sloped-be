@@ -9,10 +9,10 @@ import org.sesac.slopedbe.auth.model.dto.response.NaverUserInfoResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import io.netty.handler.codec.http.HttpHeaderValues;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
@@ -47,22 +47,29 @@ public class SocialLoginService {
 	private final String KAUTH_USER_URL_HOST = "https://kapi.kakao.com";
 
 	public String getAccessTokenFromGoogle(String code) {
-		GoogleTokenResponse googleTokenResponse = WebClient.create(GAUTH_TOKEN_URL_HOST).post()
+		WebClient webClient = WebClient.builder()
+			.baseUrl(GAUTH_TOKEN_URL_HOST)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+
+		GoogleTokenResponse googleTokenResponse = webClient.post()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
 				.path("/token")
 				.queryParam("code", code)
 				.queryParam("client_id", googleClientId)
-				.queryParam("client_secret",googleClientSecret)
+				.queryParam("client_secret", googleClientSecret)
 				.queryParam("redirect_uri", googleRedirectUri)
 				.queryParam("grant_type", "authorization_code")
-				.build(true))
-			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+				.build())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
 			.bodyToMono(GoogleTokenResponse.class)
 			.block();
+
+		if (googleTokenResponse == null) {
+			throw new RuntimeException("Failed to retrieve access token from Google");
+		}
 
 		return googleTokenResponse.getAccessToken();
 	}
@@ -84,37 +91,45 @@ public class SocialLoginService {
 		return userInfo;
 	}
 
-	public String getAccessTokenFromNaver(String code, String state){
-		NaverTokenResponse naverTokenResponse = WebClient.create(NAUTH_TOKEN_URL_HOST).post()
+	public String getAccessTokenFromNaver(String code, String state) {
+		WebClient webClient = WebClient.builder()
+			.baseUrl(NAUTH_TOKEN_URL_HOST)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+
+		NaverTokenResponse naverTokenResponse = webClient.post()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
 				.path("/oauth2.0/token")
 				.queryParam("grant_type", "authorization_code")
 				.queryParam("client_id", naverClientId)
-				.queryParam("client_secret",naverClientSecret)
+				.queryParam("client_secret", naverClientSecret)
 				.queryParam("code", code)
 				.queryParam("state", state)
-				.build(true)
-			)
-			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+				.build())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
 			.bodyToMono(NaverTokenResponse.class)
 			.block();
 
+		if (naverTokenResponse == null) {
+			throw new RuntimeException("Failed to retrieve access token from Naver");
+		}
+
 		return naverTokenResponse.getAccessToken();
 	}
 
 	public NaverUserInfoResponse getNaverUserInfo(String accessToken) {
-		NaverUserInfoResponse userInfo = WebClient.create(NAUTH_USER_URL_HOST)
-			.get()
+		WebClient webClient = WebClient.builder()
+			.baseUrl(NAUTH_USER_URL_HOST)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+
+		NaverUserInfoResponse userInfo = webClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
 				.path("/v1/nid/me")
-				.build(true))
+				.build())
 			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
@@ -125,39 +140,52 @@ public class SocialLoginService {
 	}
 
 	public String getAccessTokenFromKakao(String code) {
-		KakaoTokenResponse kakaoTokenResponse = WebClient.create(KAUTH_TOKEN_URL_HOST).post()
+		WebClient webClient = WebClient.builder()
+			.baseUrl(KAUTH_TOKEN_URL_HOST)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+
+		KakaoTokenResponse kakaoTokenResponse = webClient.post()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
 				.path("/oauth/token")
 				.queryParam("grant_type", "authorization_code")
 				.queryParam("client_id", kakaoClientId)
+				.queryParam("client_secret", kakaoClientSecret)
 				.queryParam("code", code)
-				.queryParam("client_secret",kakaoClientSecret)
-				.build(true))
-			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
+				.build())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
 			.bodyToMono(KakaoTokenResponse.class)
 			.block();
 
+		if (kakaoTokenResponse == null) {
+			throw new RuntimeException("Failed to retrieve access token from Kakao");
+		}
+
 		return kakaoTokenResponse.getAccessToken();
 	}
 
 	public KakaoUserInfoResponse getKakaoUserInfo(String accessToken) {
-		KakaoUserInfoResponse userInfo = WebClient.create(KAUTH_USER_URL_HOST)
-			.get()
+		WebClient webClient = WebClient.builder()
+			.baseUrl(KAUTH_USER_URL_HOST)
+			.defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+			.build();
+
+		KakaoUserInfoResponse userInfo = webClient.get()
 			.uri(uriBuilder -> uriBuilder
-				.scheme("https")
 				.path("/v2/user/me")
-				.build(true))
+				.build())
 			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.header(HttpHeaders.CONTENT_TYPE, HttpHeaderValues.APPLICATION_X_WWW_FORM_URLENCODED.toString())
 			.retrieve()
 			.onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Invalid Parameter")))
 			.onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Internal Server Error")))
 			.bodyToMono(KakaoUserInfoResponse.class)
 			.block();
+
+		if (userInfo == null) {
+			throw new RuntimeException("Failed to retrieve user info from Kakao");
+		}
 
 		return userInfo;
 	}
