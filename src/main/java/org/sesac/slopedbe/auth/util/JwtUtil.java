@@ -111,6 +111,22 @@ public class JwtUtil {
 		}
 	}
 
+	public String extractNicknameFromToken(String token) {
+		log.info("Extracting nickname from token: {}", token);
+
+		try {
+			String nickname = getClaimFromToken(token, claims -> claims.get("nickname", String.class));
+			return nickname;
+		} catch (ExpiredJwtException e) {
+			Claims body = e.getClaims();
+			String nickname = body.get("nickname", String.class);
+			return nickname;
+		} catch (Exception e) {
+			log.error("Error extracting nickname from token", e);
+			return null;
+		}
+	}
+
 	private Date extractExpirationDate(String token) {
 		return extractAllClaims(token).getExpiration();
 	}

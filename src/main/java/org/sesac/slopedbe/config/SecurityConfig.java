@@ -48,6 +48,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
 					.requestMatchers("/**").permitAll()
+					.requestMatchers("/api/roadReport/upload").authenticated()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
@@ -57,6 +58,7 @@ public class SecurityConfig {
 				oauth2
 					.successHandler(socialAuthenticationSuccessHandler)
 					.failureHandler(socialAuthenticationFailureHandler)
+
 			)
 			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 

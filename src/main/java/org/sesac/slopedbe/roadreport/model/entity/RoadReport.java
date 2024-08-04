@@ -68,4 +68,16 @@ public class RoadReport extends BaseTimeEntity {
             .build();
     }
 
+    @Override
+    public String toString() {
+        return "RoadReport{" +
+            "id=" + id +
+            ", content='" + content + '\'' +
+            ", status=" + status +
+            ", reasonForReject='" + reasonForReject + '\'' +
+            ", road=" + road +
+            ", member=" + member +
+            ", roadReportImages=" + roadReportImages +
+            '}';
+    }
 }

@@ -42,9 +42,18 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	// 		path.startsWith("/login");
 	// }
 
+	// @Override
+	// protected boolean shouldNotFilter(HttpServletRequest request){
+	// 	return true;
+	// }
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request){
-		return true;
+		String path = request.getRequestURI();
+		return path.startsWith("/api/auth/") ||
+			path.startsWith("/api/users/") ||
+			"/joinpage".equals(path) ||
+			path.startsWith("/login") ||
+			!path.equals("/api/roadReport/upload");
 	}
 
 	@Override

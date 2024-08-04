@@ -8,6 +8,12 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.type.ReportStatus;
+import org.sesac.slopedbe.member.exception.MemberErrorCode;
+import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
+import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.sesac.slopedbe.road.model.entity.Road;
 import org.sesac.slopedbe.road.repository.RoadRepository;
 import org.sesac.slopedbe.roadreport.exception.RoadReportErrorCode;
@@ -35,8 +41,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
-@Service
 @Slf4j
+@Service
 public class RoadReportServiceImpl implements RoadReportService {
 	private final RoadRepository roadRepository;
 	private final RoadReportRepository roadReportRepository;
@@ -44,7 +50,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 	private final S3UploadImages s3UploadImages;
 	private final RoadReportCenterRepository roadReportCenterRepository;
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
-
+	private final MemberRepository memberRepository;
 
 	@Value("${roadReportDir}")
 	private String roadReportDir;
@@ -58,11 +64,11 @@ public class RoadReportServiceImpl implements RoadReportService {
 
 	// 2. RoadReport 저장
 	@Transactional
-	public RoadReport addRoadReport(RoadReportFormDTO request) throws IOException {
+	public RoadReport addRoadReport(String email, MemberOauthType oauthType, RoadReportFormDTO request) throws IOException {
 		log.info("통행 불편 제보 업로드 시작");
 		try {
 			Road road = createAndSaveRoad(request.getLatitude(), request.getLongitude(), request.getAddress());
-			RoadReport newRoadReport = saveRoadReport(request, road);
+			RoadReport newRoadReport = saveRoadReport(email, oauthType, request, road);
 			saveRoadReportImages(request.getFiles(), newRoadReport);
 			log.info("통행 불편 제보가 성공적으로 제출되었습니다.");
 			return newRoadReport;
@@ -75,11 +81,16 @@ public class RoadReportServiceImpl implements RoadReportService {
 		}
 	}
 
-	private RoadReport saveRoadReport(RoadReportFormDTO request, Road road) {
+	private RoadReport saveRoadReport(String email, MemberOauthType oauthType, RoadReportFormDTO request, Road road) {
+		// member 정보 가져오기 (닉네임과 OAuth 타입 이용)
+		Member member = memberRepository.findById(new MemberCompositeKey(email, oauthType))
+			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
+
 		RoadReport newRoadReport = RoadReport.builder()
 			.content(request.getContent())
 			.status(ReportStatus.PENDING)
 			.road(road)
+			.member(member)
 			.build();
 		return roadReportRepository.save(newRoadReport);
 	}

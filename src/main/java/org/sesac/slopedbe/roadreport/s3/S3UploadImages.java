@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import org.sesac.slopedbe.roadreport.exception.RoadReportErrorCode;
 import org.sesac.slopedbe.roadreport.exception.RoadReportException;
+import org.sesac.slopedbe.roadreport.s3.exception.FileSizeLimitExceededException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class S3UploadImages {
 	@Value("${cloud.aws.s3.bucket}")
 	private String bucket;
 
-	@Value("${file.max-size}")
+	@Value("${file.max-size:20971520}")  // 기본값을 20MB로 설정
 	private long maxFileSize;
 
 
@@ -41,7 +42,7 @@ public class S3UploadImages {
 
 	private void validateFile(MultipartFile multipartFile) {
 		if (multipartFile.getSize() > maxFileSize) {
-			throw new RoadReportException(RoadReportErrorCode.FILE_SIZE_EXCEEDED);
+			throw new FileSizeLimitExceededException("파일 크기 제한을 초과했습니다. 최대 허용 크기: " + (maxFileSize / 1024 / 1024) + "MB");
 		}
 
 		String contentType = multipartFile.getContentType();

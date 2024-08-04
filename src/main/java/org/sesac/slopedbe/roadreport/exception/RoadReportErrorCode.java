@@ -28,7 +28,6 @@ public enum RoadReportErrorCode implements ErrorCode {
 
 	FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "파일 크기가 제한을 초과했습니다.");
 
-	
 	private final HttpStatus status;
 	private final String message;
 }

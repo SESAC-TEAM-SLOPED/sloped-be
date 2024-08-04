@@ -3,20 +3,25 @@ package org.sesac.slopedbe.roadreport.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.common.type.AddressMapping;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCallTaxiDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportCenterDTO;
 import org.sesac.slopedbe.roadreport.model.dto.RoadReportFormDTO;
+import org.sesac.slopedbe.roadreport.s3.exception.FileSizeLimitExceededException;
 import org.sesac.slopedbe.roadreport.service.RoadReportCenterService;
 import org.sesac.slopedbe.roadreport.service.RoadReportService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,6 +39,7 @@ public class RoadReportController {
 
     private final RoadReportService roadReportService;
     private final RoadReportCenterService roadReportCenterService;
+    private final JwtUtil jwtUtil;
 
     @Operation(summary = "도로 제보 업로드", description = "통행 불편 제보를 업로드합니다.")
     @ApiResponses(value = {
@@ -42,15 +48,25 @@ public class RoadReportController {
         @ApiResponse(responseCode = "500", description = "서버 내부 오류가 발생했습니다.")
     })
     @PostMapping("/upload")
-    public ResponseEntity<String> addRoadReport(RoadReportFormDTO request) {
+    public ResponseEntity<String> addRoadReport(@RequestHeader("Authorization") String token, RoadReportFormDTO request) {
         try {
-            roadReportService.addRoadReport(request);
+            String email = jwtUtil.extractEmailFromToken(token.substring(7));
+            MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token.substring(7));
+
+            roadReportService.addRoadReport(email, oauthType, request);
             return ResponseEntity.status(HttpStatus.CREATED).body("통행 불편 제보가 성공적으로 제출되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (FileSizeLimitExceededException e){
+            return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("서버 내부 오류가 발생했습니다.");
         }
+    }
+
+    @ExceptionHandler(FileSizeLimitExceededException.class)
+    public ResponseEntity<String> handleFileSizeLimitExceededException(FileSizeLimitExceededException e) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE).body(e.getMessage());
     }
 
     @Operation(summary = "민원기관 연결", description = "통행불편 마커 위치에서 가장 가까운 민원기관을 반환합니다.")

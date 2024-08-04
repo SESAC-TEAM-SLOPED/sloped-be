@@ -1,11 +1,13 @@
 package org.sesac.slopedbe.road.repository;
 
+import java.util.Optional;
+
 import org.sesac.slopedbe.road.model.entity.Road;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
-public interface RoadRepository extends CrudRepository<Road, Long> {
+public interface RoadRepository extends JpaRepository<Road, Long> {
 	// @Query(value = "SELECT r.* FROM road r " +
 	// 	"ORDER BY ST_Distance(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)::geography, r.point::geography) / 1000 " +
 	// 	"LIMIT 1", nativeQuery = true)
@@ -17,4 +19,7 @@ public interface RoadRepository extends CrudRepository<Road, Long> {
 		@Param("longitude") Double longitude,
 		@Param("address") String address);
 
+
+	@Query("SELECT r FROM Road r WHERE r.id = :roadId")
+	Optional<Road> findRoadByRoadId(@Param("roadId") Long roadId);
 }
