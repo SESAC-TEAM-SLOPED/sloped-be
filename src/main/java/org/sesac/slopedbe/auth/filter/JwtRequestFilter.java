@@ -94,10 +94,12 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey) {
 		UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
 		log.info("Loaded UserDetails: {}", userDetails.getUsername());
+
 		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
 			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 		usernamePasswordAuthenticationToken
 			.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
 		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
 		log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 	}
