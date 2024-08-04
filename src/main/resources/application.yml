@@ -32,11 +32,16 @@ spring:
     redis:
       host: localhost
       port: 6379
+
   jwt:
     access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
     refresh-expiration-time : ${JWT_REFRESH_EXPIRATION_TIME}
     prefix: ${JWT_PREFIX}
     secret-key: ${JWT_SECRET_KEY}
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 60MB
 
   security:
     oauth2:
@@ -122,7 +127,10 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
-
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 60MB
 
 logging:
   level:
@@ -130,6 +138,17 @@ logging:
     org.springframework.web: DEBUG
     org.hibernate: DEBUG
 
+cloud:
+  aws:
+    stack:
+      auto: false
+    s3:
+      bucket: ${S3_BUCKET}
+    credentials:
+      accessKey: ${S3_ACCESSKEY}
+      secretKey: ${S3_SECRETKEY}
+    region:
+      static: ${S3_REGION_STATIC}
 roadReportDir: ${ROAD_REPORT_DIR}
 file:
-  max-size: ${S3_FILE_MAX_SIZE} # 20MB
+  max-size: ${S3_FILE_MAX_SIZE:20971520} # 20MB, 기본값 설정

@@ -58,7 +58,7 @@ public class RoadReportCsvDataLoader {
 					String centerContact = csvRecord.values()[2];
 
 					if (roadReportCenterRepository.existsByLocationAndCenterNameAndCenterContact(
-						latitude.doubleValue(), longitude.doubleValue(), centerName, centerContact)) {
+						latitude.doubleValue(), longitude.doubleValue(), centerName, centerContact, address)) {
 						log.info("중복된 데이터: " + centerName);
 						continue; // 중복된 데이터는 건너뜁니다.
 					}
@@ -72,8 +72,8 @@ public class RoadReportCsvDataLoader {
 					}
 
 					RoadReportCenter roadReportCenter = RoadReportCenter.builder()
-						.centerName(csvRecord.values()[1])
-						.centerContact(csvRecord.values()[2])
+						.centerName(centerName)
+						.centerContact(centerContact)
 						.road(road)
 						.city(koreaCity)
 						.build();

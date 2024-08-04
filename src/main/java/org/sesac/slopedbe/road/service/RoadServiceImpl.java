@@ -61,7 +61,7 @@ public class RoadServiceImpl implements RoadService {
 
 	@Transactional
 	public RoadMarkerInfoDTO findByRoaId(Long roadId) {
-		Optional<Road> roadOptional = roadReportRepository.findRoadByRoadId(roadId);
+		Optional<Road> roadOptional = roadRepository.findRoadByRoadId(roadId);
 		if (roadOptional.isPresent()) {
 			Road road = roadOptional.get();
 			Point point = road.getPoint();

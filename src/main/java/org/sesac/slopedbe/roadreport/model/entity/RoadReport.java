@@ -48,9 +48,12 @@ public class RoadReport extends BaseTimeEntity {
     @JoinColumn(name = "road_id", nullable = false)
     private Road road;
 
-    // @ManyToOne
-    // @JoinColumn(name = "email", nullable = false)
-    // private Member member;
+    @ManyToOne
+    @JoinColumns({
+        @JoinColumn(name = "email", referencedColumnName = "email"),
+        @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
+    })
+    private Member member;
 
     @OneToMany(mappedBy = "roadReport")
     private List<RoadReportImage> roadReportImages;
@@ -63,4 +66,16 @@ public class RoadReport extends BaseTimeEntity {
             .build();
     }
 
+    @Override
+    public String toString() {
+        return "RoadReport{" +
+            "id=" + id +
+            ", content='" + content + '\'' +
+            ", status=" + status +
+            ", reasonForReject='" + reasonForReject + '\'' +
+            ", road=" + road +
+            ", member=" + member +
+            ", roadReportImages=" + roadReportImages +
+            '}';
+    }
 }

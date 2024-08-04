@@ -1,6 +1,7 @@
 spring:
   config:
     import: optional:file:.env.local[.properties]
+    activate.on-profile: test
   datasource:
     url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}
     username: ${DB_USER}
@@ -15,6 +16,12 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
+  main:
+    allow-bean-definition-overriding: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 60MB
   mail:
     host: smtp.gmail.com
     port: 587
@@ -47,3 +54,6 @@ cloud:
       secretKey: ${S3_SECRETKEY}
     region:
       static: ${S3_REGION_STATIC}
+roadReportDir: ${ROAD_REPORT_DIR}
+file:
+  max-size: ${S3_FILE_MAX_SIZE:20971520} # 20MB, 기본값 설정
