@@ -3,8 +3,6 @@ package org.sesac.slopedbe.config;
 import java.util.Arrays;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
-import org.sesac.slopedbe.auth.service.LoginServiceImpl;
-import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,8 +29,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityConfig {
 
-	private final LoginServiceImpl memberService;
-	private final JwtUtil jwtUtil;
 	private final JwtRequestFilter jwtRequestFilter;
 
 	@Bean
