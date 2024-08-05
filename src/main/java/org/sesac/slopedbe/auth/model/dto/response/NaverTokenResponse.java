@@ -1,0 +1,27 @@
+package org.sesac.slopedbe.auth.model.dto.response;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+@Getter
+@NoArgsConstructor
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class NaverTokenResponse {
+
+	@JsonProperty("access_token")
+	public String accessToken;
+	@JsonProperty("refresh_token")
+	public String refreshToken;
+	@JsonProperty("token_type")
+	public String tokenType;
+	@JsonProperty("expires_in")
+	public Integer expiresIn;
+	@JsonProperty("error")
+	public String error;
+	@JsonProperty("error_description")
+	public String errorDescription;
+
+}

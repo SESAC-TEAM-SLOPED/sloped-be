@@ -6,8 +6,9 @@ import org.sesac.slopedbe.auth.exception.JwtErrorCode;
 import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.service.LoginServiceImpl;
 import org.sesac.slopedbe.auth.util.JwtUtil;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -34,19 +35,21 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 	@Override
 	protected boolean shouldNotFilter(HttpServletRequest request) {
 		String path = request.getRequestURI();
-		return path.startsWith("/api/auth/")
-			|| "/api/users/register".equals(path)
-			|| path.startsWith("/api/roadReport")
-			|| path.startsWith("/api/v1/gpt")
-			|| path.startsWith("/swagger-ui/")
-			|| path.startsWith("/v3/api-docs")
-			|| path.startsWith("/swagger-resources")
-			|| path.startsWith("/webjars");
+		boolean shouldNotFilter = path.startsWith("/api/auth/") || path.startsWith("/api/facilities") || path.startsWith("/api/roads") || path.startsWith("/favicon.ico") || path.startsWith("/login/oauth2")
+			|| path.startsWith("/api/gpt");
+		log.info("Request path: {}, ShouldNotFilter: {}", path, shouldNotFilter);
+		return shouldNotFilter;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
 		throws ServletException, IOException {
+
+		if (shouldNotFilter(request)) {
+			log.info("Skipping JWT filter for path: {}", request.getRequestURI());
+			chain.doFilter(request, response);
+			return;
+		}
 
 		final String authorizationHeader = request.getHeader("Authorization");
 		validateAuthorizationHeader(authorizationHeader);
@@ -54,8 +57,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		String token = authorizationHeader.substring(7);
 		validateToken(token);
 
-		String username = extractUsername(token);
-		authenticateUser(request, username, token);
+		MemberCompositeKey compositeKey = extractCompositeKey(token);
+		authenticateUser(request, compositeKey);
 
 		chain.doFilter(request, response);
 	}
@@ -76,9 +79,11 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private String extractUsername(String token) {
+	private MemberCompositeKey extractCompositeKey(String token) {
 		try {
-			return jwtUtil.extractUserId(token);
+			String email = jwtUtil.extractEmailFromToken(token);
+			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token);
+			return new MemberCompositeKey(email, oauthType);
 		} catch (SignatureException e) {
 			throw new JwtException(JwtErrorCode.JWT_INVALID);
 		} catch (ExpiredJwtException e) {
@@ -86,19 +91,14 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 		}
 	}
 
-	private void authenticateUser(HttpServletRequest request, String username, String token) {
-		Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
-
-		if (existingAuth == null || !existingAuth.getName().equals(username)) {
-			UserDetails userDetails = this.memberService.loadUserByUsername(username);
-
-			if (userDetails != null && jwtUtil.validateToken(token, userDetails.getUsername())) {
-				UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-					new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-				usernamePasswordAuthenticationToken
-					.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-			}
-		}
+	private void authenticateUser(HttpServletRequest request, MemberCompositeKey compositeKey) {
+		UserDetails userDetails = this.memberService.loadUserByUsername(LoginServiceImpl.createCompositeKey(compositeKey.getEmail(), compositeKey.getOauthType()));
+		log.info("Loaded UserDetails: {}", userDetails.getUsername());
+		UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+			new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+		usernamePasswordAuthenticationToken
+			.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+		SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+		log.info("Authentication set in SecurityContextHolder: {}", usernamePasswordAuthenticationToken.getPrincipal());
 	}
 }

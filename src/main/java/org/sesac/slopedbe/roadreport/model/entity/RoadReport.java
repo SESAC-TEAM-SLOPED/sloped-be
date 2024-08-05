@@ -13,6 +13,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -43,6 +44,9 @@ public class RoadReport extends BaseTimeEntity {
     private Road road;
 
     @ManyToOne
-    @JoinColumn(name = "email", nullable = false)
+    @JoinColumns({
+        @JoinColumn(name = "email", referencedColumnName = "email"),
+        @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
+    })
     private Member member;
 }

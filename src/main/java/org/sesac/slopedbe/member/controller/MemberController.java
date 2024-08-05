@@ -1,26 +1,22 @@
 package org.sesac.slopedbe.member.controller;
 
-import org.sesac.slopedbe.auth.model.CustomUserDetails;
-import org.sesac.slopedbe.auth.model.dto.MailVerificationRequest;
-import org.sesac.slopedbe.member.model.dto.UpdateRequest;
-import org.sesac.slopedbe.member.model.dto.request.CheckDuplicateIdRequest;
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
-import org.sesac.slopedbe.member.model.dto.response.RegisterMemberResponse;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.type.MemberStatus;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.service.MemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,48 +28,38 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping("/duplicate-check/id")
-    public ResponseEntity<String> checkDuplicateId(@Valid @RequestBody CheckDuplicateIdRequest checkDuplicateIdRequest) {
-        memberService.checkDuplicateId(checkDuplicateIdRequest.id());
-        return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/find-id")
-    public ResponseEntity<String> findIdByEmail(@Valid @RequestBody MailVerificationRequest mailVerificationRequest) {
-        String email = mailVerificationRequest.email();
-        String id = memberService.findIdByEmail(email);
-        return ResponseEntity.ok(id);
-    }
-
+    @Operation(summary = "회원 정보 수정", description = "마이페이지용, 요청된 회원 정보로 DB를 수정한다.")
     @PutMapping("")
-    public ResponseEntity<Member> updateMemberInfo(@RequestParam String email, @RequestParam String newNickname, @RequestParam String newPassword, boolean newDisability) {
-        Member updatedMember = memberService.updateMemberInfo(email, newNickname, newPassword, newDisability);
+    public ResponseEntity<Member> updateMemberInfo(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        Member updatedMember = memberService.updateMemberInfo(memberRequest);
         return ResponseEntity.ok(updatedMember);
     }
 
+    @Operation(summary = "회원 탈퇴", description = "마이페이지용, 요청된 회원 정보를 DB에서 삭제한다.")
     @DeleteMapping("")
-    public ResponseEntity<Void> deleteMember(@RequestParam String email) {
-        memberService.deleteMember(email);
+    public ResponseEntity<Void> deleteMember(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        String email = memberRequest.email();
+        MemberOauthType oauthType = memberRequest.oauthType();
+
+        memberService.deleteMember(email, oauthType);
         return ResponseEntity.noContent().build();
     }
 
+    @Operation(summary = "회원 정지", description = "어드민: Member Status를 수정해 회원 기능을 정지시킨다.")
     @PutMapping("/blacklist")
-    public ResponseEntity<Member> updateStatus(@AuthenticationPrincipal CustomUserDetails userDetails, @RequestParam String email, @RequestParam MemberStatus status) {
-        log.info("User {} updated status of member {} to {}", userDetails.getUsername(), email, status);
+    public ResponseEntity<Map<String, String>> updateStatus(@RequestBody MemberRequest memberRequest) {
+        // 경로 업데이트 예정!
+        Map<String, String> response = new HashMap<>();
 
-        Member updatedMember = memberService.updateMemberStatus(email, status);
-        return ResponseEntity.ok(updatedMember);
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<RegisterMemberResponse> register(@Valid @RequestBody RegisterMemberRequest request) {
-        Member savedMember = memberService.registerMember(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new RegisterMemberResponse(savedMember.getEmail()));
-    }
-
-    @PutMapping("/request-reset")
-    public ResponseEntity<Member> updatePassword(@RequestBody UpdateRequest updateRequest){
-        Member updatedMember = memberService.updateMemberPassword(updateRequest.getId(), updateRequest.getNewPassword());
-        return ResponseEntity.ok(updatedMember);
+        try {
+            memberService.updateMemberStatus(memberRequest);
+            response.put("message", "Member Status를 수정 성공");
+            return ResponseEntity.ok(response);
+        } catch (MemberException e) {
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 }
