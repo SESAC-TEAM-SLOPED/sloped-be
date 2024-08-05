@@ -1,19 +1,24 @@
 package org.sesac.slopedbe.member.service;
 
+import java.io.IOException;
 import java.util.Optional;
 
+import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
-import org.sesac.slopedbe.member.model.dto.request.RegisterMemberRequest;
+import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
-import org.sesac.slopedbe.member.model.type.MemberStatus;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 
 @Service
 @Slf4j
@@ -24,83 +29,131 @@ public class MemberServiceImpl implements MemberService {
 	private final PasswordEncoder passwordEncoder;
 
 	@Override
-	public Member registerMember(RegisterMemberRequest registerMemberRequest) {
-		String email = registerMemberRequest.email();
-
-		if (memberRepository.findByEmail(email).isPresent()) {
-			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
-		}
-
-		return memberRepository.save(
-			new Member(
-				registerMemberRequest.id(),
-				passwordEncoder.encode(registerMemberRequest.password()),
-				registerMemberRequest.email(),
-				registerMemberRequest.nickname(),
-				registerMemberRequest.isDisabled()
-		));
-
-	}
-
-	@Override
-	public void checkDuplicateId(String id) {
-		log.info("checkDuplicateId: {}", memberRepository.existsByMemberId(id));
-
-		if(memberRepository.existsByMemberId(id)) {
+	public void checkDuplicateId(String memberId) {
+		if (memberRepository.existsByMemberId(memberId)) {
 			throw new MemberException(MemberErrorCode.MEMBER_ID_ALREADY_EXISTS);
 		}
 	}
 
 	@Override
-	public String findIdByEmail(String email) {
-		Member member = memberRepository.findByEmail(email)
+	public void checkExistedId(String memberId) {
+		if(!memberRepository.existsByMemberId(memberId)) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+		}
+	}
+
+	@Override
+	public void registerMember(MemberRequest memberRequest) {
+		String email = memberRequest.email();
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
+			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
+		}
+
+		Member member = new Member(
+			memberRequest.memberId(),
+			passwordEncoder.encode(memberRequest.password()),
+			memberRequest.email(),
+			memberRequest.nickname(),
+			memberRequest.isDisabled(),
+			oauthType
+		);
+		memberRepository.save(member);
+	}
+
+	@Override
+	public void registerSocialMember(MemberRequest memberRequest) {
+		String email = memberRequest.email();
+		MemberOauthType oauthType = memberRequest.oauthType();
+
+		if (memberRepository.findById(new MemberCompositeKey(email, oauthType)).isPresent()) {
+			throw new MemberException(MemberErrorCode.MEMBER_EMAIL_ALREADY_EXISTS);
+		}
+
+		Member member = new Member(
+			memberRequest.email(),
+			memberRequest.nickname(),
+			memberRequest.isDisabled(),
+			memberRequest.oauthType()
+		);
+		memberRepository.save(member);
+	}
+
+	@Override
+	public String findMemberIdByEmail(String email) {
+		MemberOauthType oauthType = MemberOauthType.LOCAL;
+		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+
+		Member member = memberRepository.findById(compositeKey)
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
 		return member.getMemberId();
 	}
 
 	@Override
-	public void deleteMember(String email) {
-		memberRepository.deleteByEmail(email);
+	public void deleteMember(String email, MemberOauthType oauthType) {
+		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
+		memberRepository.deleteById(compositeKey);
 	}
 
 	@Override
-	public Member updateMemberPassword(String id, String newPassword) {
-		//비밀번호 모르는 경우, 인증번호 받아서 비밀번호 변경
-		Optional<Member> member = memberRepository.findByMemberId(id);
+	public void updateMemberPassword(String memberId, String newPassword) {
+		Optional<Member> member = memberRepository.findByMemberId(memberId);
+
 		if (member.isPresent()) {
 			Member existingMember = member.get();
 			existingMember.setPassword(passwordEncoder.encode(newPassword));
-			return memberRepository.save(existingMember);
+			memberRepository.save(existingMember);
 		} else {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 	}
 
 	@Override
-	public Member updateMemberStatus(String email, MemberStatus status) {
-		Optional<Member> member = memberRepository.findByEmail(email);
+	public void updateMemberStatus(MemberRequest memberRequest) {
+		String email = memberRequest.email();
+		MemberOauthType oauthType = memberRequest.oauthType();
+
+		Optional<Member> member = memberRepository.findById(new MemberCompositeKey(email, oauthType));
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		Member existingMember = member.get();
-		existingMember.setMemberStatus(status);
+		existingMember.setMemberStatus(memberRequest.status());
+		memberRepository.save(existingMember);
+	}
+
+	@Override
+	public Member updateMemberInfo(MemberRequest memberRequest) {
+		String email = memberRequest.email();
+		MemberOauthType oauthType = memberRequest.oauthType();
+
+		Optional<Member> member = memberRepository.findById(new MemberCompositeKey(email, oauthType));
+		if (member.isEmpty()) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+		}
+
+		Member existingMember = member.get();
+		existingMember.setNickname(memberRequest.nickname());
+		existingMember.setPassword(passwordEncoder.encode(memberRequest.password()));
+		existingMember.setDisability(memberRequest.isDisabled());
 		return memberRepository.save(existingMember);
 	}
 
 	@Override
-	public Member updateMemberInfo(String email, String newNickname, String newPassword, boolean newDisability) {
-		//마이페이지에서 회원정보 수정
-		Optional<Member> member = memberRepository.findByEmail(email);
-		if (member.isEmpty()) {
-			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
+		IOException {
+		if (exception.getCause() instanceof SocialMemberNotExistsException) {
+			String email = (String)request.getAttribute("email");
+			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
+
+			if (email != null && oauthType != null) {
+				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
+				response.sendRedirect(redirectUrl);
+			} else {
+				response.sendRedirect("http://localhost:3000/login?error=true");
+			}
 		}
-
-		Member existingMember = member.get();
-		existingMember.setNickname(newNickname);
-		existingMember.setPassword(passwordEncoder.encode(newPassword));
-		existingMember.setDisability(newDisability);
-		return memberRepository.save(existingMember);
 	}
-
 }

@@ -1,11 +1,18 @@
 package org.sesac.slopedbe.facility.model.entity;
 
-import jakarta.persistence.*;
+import org.sesac.slopedbe.common.entity.BaseTimeEntity;
+import org.sesac.slopedbe.member.model.entity.Member;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sesac.slopedbe.common.entity.BaseTimeEntity;
-import org.sesac.slopedbe.member.model.entity.Member;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -20,6 +27,9 @@ public class FacilityRegistrar extends BaseTimeEntity {
 
     @Id
     @ManyToOne
-    @JoinColumn(name = "email", nullable = false)
+    @JoinColumns({
+        @JoinColumn(name = "email", referencedColumnName = "email"),
+        @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
+    })
     private Member member;
 }
