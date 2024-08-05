@@ -86,9 +86,13 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public void deleteMember(String email, MemberOauthType oauthType) {
-		MemberCompositeKey compositeKey = new MemberCompositeKey(email, oauthType);
-		memberRepository.deleteById(compositeKey);
+	public void deleteMember(MemberCompositeKey memberCompositeKey) {
+		Optional<Member> member = memberRepository.findById(memberCompositeKey);
+		if (member.isEmpty()) {
+			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
+		}
+
+		memberRepository.deleteById(memberCompositeKey);
 	}
 
 	@Override

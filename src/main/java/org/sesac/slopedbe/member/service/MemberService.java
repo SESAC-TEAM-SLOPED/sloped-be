@@ -2,7 +2,6 @@ package org.sesac.slopedbe.member.service;
 
 import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
-import org.sesac.slopedbe.member.model.type.MemberOauthType;
 
 public interface MemberService {
     void registerMember(MemberRequest memberRequest);
@@ -15,7 +14,7 @@ public interface MemberService {
 
     String findMemberIdByEmail(String email);
 
-    void deleteMember(String email, MemberOauthType oauthType);
+    void deleteMember(MemberCompositeKey compositeKey);
 
     void updateMemberPassword(String memberId, String newPassword);
 
