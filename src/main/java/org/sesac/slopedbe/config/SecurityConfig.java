@@ -40,10 +40,10 @@ public class SecurityConfig {
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
 					// 로그인 필요 없는 경로 && 로그인/비로그인 모두 가능한 경로
-					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**",
+					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**", "/api/v1/**",
 						"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/login/oauth2/**").permitAll()
 					// 로그인 필요한 경로
-					.requestMatchers("/api/users").authenticated()
+					.requestMatchers("/api/users/**").authenticated()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
