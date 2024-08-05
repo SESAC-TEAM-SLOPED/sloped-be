@@ -138,7 +138,7 @@ public class TokenAuthenticationService {
 				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
 				saveRefreshToken(member, newRefreshToken);
 
-				setCookie(response, "accessToken", accessToken, 60 * 5);
+				setCookie(response, "accessToken", accessToken, 60 * 60);
 				setCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24 * 7);
 
 				Map<String, String> successResponse = new HashMap<>();
@@ -158,7 +158,7 @@ public class TokenAuthenticationService {
 		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
 
 		saveRefreshToken(member, refreshToken);
-		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
+		setCookie(response, "accessToken", accessToken, 60 * 60);  // 1시간
 		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);  // 7일
 
 		log.info("Generated access token: {}", accessToken);
