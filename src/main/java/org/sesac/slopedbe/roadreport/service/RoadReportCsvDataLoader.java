@@ -22,7 +22,6 @@ import org.sesac.slopedbe.roadreport.repository.RoadReportCenterRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,12 +34,12 @@ public class RoadReportCsvDataLoader {
 	private final RoadReportCenterRepository roadReportCenterRepository;
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 	private final RoadKoreaCityRepository cityRepository;
-	@PostConstruct
-	public void loadCsvData() {
-		saveCitiesFromCsv();
-		loadCenterCsvData();
-		loadTaxiCsvData();
-	}
+	// @PostConstruct
+	// public void loadCsvData() {
+	// 	saveCitiesFromCsv();
+	// 	loadCenterCsvData();
+	// 	loadTaxiCsvData();
+	// }
 
 
 	public void loadCenterCsvData() {

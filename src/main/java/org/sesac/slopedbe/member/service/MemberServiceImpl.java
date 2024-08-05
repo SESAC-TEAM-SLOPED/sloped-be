@@ -1,9 +1,7 @@
 package org.sesac.slopedbe.member.service;
 
-import java.io.IOException;
 import java.util.Optional;
 
-import org.sesac.slopedbe.auth.exception.SocialMemberNotExistsException;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
@@ -11,12 +9,9 @@ import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -125,35 +120,22 @@ public class MemberServiceImpl implements MemberService {
 	}
 
 	@Override
-	public Member updateMemberInfo(MemberRequest memberRequest) {
-		String email = memberRequest.email();
-		MemberOauthType oauthType = memberRequest.oauthType();
-
-		Optional<Member> member = memberRepository.findById(new MemberCompositeKey(email, oauthType));
+	public void updateMemberInfo(MemberCompositeKey memberCompositeKey, MemberRequest memberRequest) {
+		Optional<Member> member = memberRepository.findById(memberCompositeKey);
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
 
 		Member existingMember = member.get();
-		existingMember.setNickname(memberRequest.nickname());
-		existingMember.setPassword(passwordEncoder.encode(memberRequest.password()));
-		existingMember.setDisability(memberRequest.isDisabled());
-		return memberRepository.save(existingMember);
-	}
-
-	@Override
-	public void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws
-		IOException {
-		if (exception.getCause() instanceof SocialMemberNotExistsException) {
-			String email = (String)request.getAttribute("email");
-			MemberOauthType oauthType = (MemberOauthType)request.getAttribute("oauthType");
-
-			if (email != null && oauthType != null) {
-				String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
-				response.sendRedirect(redirectUrl);
-			} else {
-				response.sendRedirect("http://localhost:3000/login?error=true");
-			}
+		if (memberRequest.nickname() != null) {
+			existingMember.setNickname(memberRequest.nickname());
 		}
+		if (memberRequest.password() != null) {
+			existingMember.setPassword(passwordEncoder.encode(memberRequest.password()));
+		}
+		existingMember.setDisability(memberRequest.isDisabled());
+		memberRepository.save(existingMember);
 	}
+
+
 }

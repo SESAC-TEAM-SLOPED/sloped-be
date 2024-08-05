@@ -1,14 +1,8 @@
 package org.sesac.slopedbe.member.service;
 
-import java.io.IOException;
-
 import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
-import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
-import org.springframework.security.core.AuthenticationException;
-
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 public interface MemberService {
     void registerMember(MemberRequest memberRequest);
@@ -27,7 +21,5 @@ public interface MemberService {
 
     void updateMemberStatus(MemberRequest memberRequest);
 
-    Member updateMemberInfo(MemberRequest memberRequest);
-
-    void sendSocialRegisterInformation(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException;
+    void updateMemberInfo(MemberCompositeKey memberCompositeKey, MemberRequest memberRequest);
 }
