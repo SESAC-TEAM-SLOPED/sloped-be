@@ -38,6 +38,9 @@ spring:
     prefix: ${JWT_PREFIX}
     secret-key: ${JWT_SECRET_KEY}
 
+openai:
+  secret-key: ${OPENAI_API_KEY}
+
 ---
 
 spring:
