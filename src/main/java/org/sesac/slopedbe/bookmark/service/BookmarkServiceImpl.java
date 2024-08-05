@@ -18,6 +18,7 @@ import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.stereotype.Service;
 
@@ -34,8 +35,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     private final FacilityRepository facilityRepository;
 
     @Override
-    public void addBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->
+    public void addBookmark(MemberCompositeKey memberCompositeKey, BookmarkRequestDTO bookmarkRequestDTO) {
+        Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
         Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
@@ -54,8 +55,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void removeBookmark(String email, BookmarkRequestDTO bookmarkRequestDTO) {
-        Member member = memberRepository.findByEmail(email).orElseThrow(()->
+    public void removeBookmark(MemberCompositeKey memberCompositeKey, BookmarkRequestDTO bookmarkRequestDTO) {
+        Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
         Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
@@ -66,8 +67,8 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public List<BookmarkResponseDTO> getBookmarksByEmail(String email) {
-        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMemberEmail(email);
+    public List<BookmarkResponseDTO> getBookmarksById(MemberCompositeKey memberCompositeKey) {
+        List<Bookmark> bookmarkEntities = bookmarkRepository.findByMemberId(memberCompositeKey);
         List<BookmarkResponseDTO> bookmarks = new ArrayList<>();
 
         for (Bookmark bookmarkEntity : bookmarkEntities) {

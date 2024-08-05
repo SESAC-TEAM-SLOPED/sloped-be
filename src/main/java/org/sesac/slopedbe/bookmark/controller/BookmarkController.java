@@ -6,6 +6,7 @@ import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.bookmark.model.dto.BookmarkRequestDTO;
 import org.sesac.slopedbe.bookmark.model.dto.BookmarkResponseDTO;
 import org.sesac.slopedbe.bookmark.service.BookmarkService;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,9 +32,11 @@ public class BookmarkController {
     @Operation(summary = "회원별 즐겨찾기 조회", description = "회원의 email로 즐겨찾기 목록을 조회한다.")
     @ApiResponse(responseCode = "200", description = "즐겨찾기 조회 성공", content = @Content(schema = @Schema(implementation = BookmarkResponseDTO.class)))
     @GetMapping("/")
-    public ResponseEntity<List<BookmarkResponseDTO>> getBookmarksByUserEmail(@RequestHeader("x-access-token") String token) {
-        String email = jwtUtil.extractEmailFromToken(token.substring(7));
-        List<BookmarkResponseDTO> bookmark = bookmarkService.getBookmarksByEmail(email);
+    public ResponseEntity<List<BookmarkResponseDTO>> getBookmarksByUserEmail(@RequestHeader("Authorization") String token) {
+        String accessToken = token.substring(7);
+        MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
+
+        List<BookmarkResponseDTO> bookmark = bookmarkService.getBookmarksById(compositeKey);
         return ResponseEntity.ok(bookmark);
     }
 
@@ -42,10 +45,12 @@ public class BookmarkController {
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @ApiResponse(responseCode = "409", description = "해당 시설은 이미 회원의 즐겨찾기 목록에 있습니다.")
     @PostMapping("/")
-    public ResponseEntity<Void> addBookmark(@RequestHeader("x-access-token") String token, @RequestBody
+    public ResponseEntity<Void> addBookmark(@RequestHeader("Authorization") String token, @RequestBody
     BookmarkRequestDTO bookmarkRequestDTO) {
-        String email = jwtUtil.extractEmailFromToken(token.substring(7));
-        bookmarkService.addBookmark(email, bookmarkRequestDTO);
+        String accessToken = token.substring(7);
+        MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
+
+        bookmarkService.addBookmark(compositeKey, bookmarkRequestDTO);
         return ResponseEntity.noContent().build();
     }
 
@@ -53,10 +58,12 @@ public class BookmarkController {
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @DeleteMapping("/")
-    public ResponseEntity<Void> removeBookmark(@RequestHeader("x-access-token") String token, @RequestBody
+    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestBody
     BookmarkRequestDTO bookmarkRequestDTO) {
-        String email = jwtUtil.extractEmailFromToken(token.substring(7));
-        bookmarkService.removeBookmark(email, bookmarkRequestDTO);
+        String accessToken = token.substring(7);
+        MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
+
+        bookmarkService.removeBookmark(compositeKey, bookmarkRequestDTO);
         return ResponseEntity.noContent().build();
     }
 }
