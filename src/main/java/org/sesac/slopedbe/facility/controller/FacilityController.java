@@ -2,12 +2,14 @@ package org.sesac.slopedbe.facility.controller;
 
 import java.util.List;
 
+import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.facility.exception.FacilityErrorCode;
 import org.sesac.slopedbe.facility.exception.FacilityException;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
 import org.sesac.slopedbe.facility.service.FacilityService;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -34,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 public class FacilityController {
 
     private final FacilityService facilityService;
+    private final JwtUtil jwtUtil;
 
     @Operation(summary = "Facility 조회", description = "시설 ID로 시설을 간단 조회한다. (Bottom Sheet)")
     @ApiResponse(responseCode = "200", description = "시설 조회 성공",
@@ -43,7 +46,8 @@ public class FacilityController {
     public ResponseEntity<FacilityResponse> getFacilityById(
         @Parameter(description = "시설 ID (필수)", required = true)
         @PathVariable Long id) {
-        return ResponseEntity.ok(facilityService.getFacility(id));
+        MemberCompositeKey memberCK = jwtUtil.getMemberCKFromHeader();
+        return ResponseEntity.ok(facilityService.getFacility(id, memberCK));
     }
 
     @Operation(summary = "Facility 상세 조회", description = "시설 ID로 시설을 상세 조회한다.")
