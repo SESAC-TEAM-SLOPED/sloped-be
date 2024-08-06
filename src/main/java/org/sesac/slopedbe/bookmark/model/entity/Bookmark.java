@@ -12,11 +12,13 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @IdClass(BookmarkId.class)
 @Table(name = "bookmark")
 @Entity
@@ -33,4 +35,8 @@ public class Bookmark extends BaseTimeEntity {
         @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
     })
     private Member member;
+
+    public static Bookmark create(Facility facility, Member member) {
+		return new Bookmark(facility, member);
+    }
 }
