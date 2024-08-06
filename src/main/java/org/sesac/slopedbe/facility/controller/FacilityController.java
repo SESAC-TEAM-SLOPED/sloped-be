@@ -1,13 +1,17 @@
 package org.sesac.slopedbe.facility.controller;
 
+import java.net.URI;
 import java.util.List;
 
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.facility.exception.FacilityErrorCode;
 import org.sesac.slopedbe.facility.exception.FacilityException;
+import org.sesac.slopedbe.facility.model.dto.request.CreateFacilityRequest;
+import org.sesac.slopedbe.facility.model.dto.response.CreateFacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
+import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.service.FacilityService;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.data.domain.Page;
@@ -16,9 +20,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -109,5 +116,20 @@ public class FacilityController {
         @PathVariable Long id) {
         facilityService.deleteFacility(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @Operation(summary = "Facility 등록", description = "시설 ID로 시설을 삭제한다.")
+    @ApiResponse(responseCode = "201", description = "시설 등록 성공")
+    @PostMapping
+    public ResponseEntity<CreateFacilityResponse> createFacility(@RequestBody CreateFacilityRequest request) {
+        Long facilityId = facilityService.saveFacility(new Facility(request));
+
+        URI location = ServletUriComponentsBuilder
+            .fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(facilityId)
+            .toUri();
+
+        return ResponseEntity.created(location).body(new CreateFacilityResponse(facilityId));
     }
 }

@@ -1,5 +1,6 @@
 package org.sesac.slopedbe.facility.repository;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,4 +59,14 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
 		"LIMIT 20",
 		nativeQuery = true)
 	List<FacilitySimpleVO> findByNameWithDistance(String name, double latitude, double longitude);
+
+	@Query(value = "INSERT INTO facility (name, address, content, contact, facility_type, " +
+		"business_hours, has_slope, is_entrance_barrier, has_elevator, point, created_at, updated_at) " +
+		"VALUES (:name, :address, :content, :contact, :facilityType, " +
+		":businessHours, :hasSlope, :isEntranceBarrier, :hasElevator, " +
+		"ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), now(), now()) " +
+		"RETURNING id", nativeQuery = true)
+	Long saveFacilityAndReturnId(String name,
+		String address, String content, String contact, String facilityType, String businessHours, Boolean hasSlope,
+		Boolean isEntranceBarrier, Boolean hasElevator, BigDecimal longitude, BigDecimal latitude);
 }

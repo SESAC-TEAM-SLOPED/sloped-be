@@ -71,4 +71,20 @@ public class FacilityService {
                 .orElseThrow(() -> new FacilityException(FacilityErrorCode.FACILITY_NOT_FOUND));
         facilityRepository.delete(facility);
     }
+
+    public Long saveFacility(Facility facility) {
+        return facilityRepository.saveFacilityAndReturnId(
+            facility.getName(),
+            facility.getAddress(),
+            facility.getContent(),
+            facility.getContact(),
+            facility.getFacilityType().name(),
+            facility.getBusinessHours(),
+            facility.getHasSlope(),
+            facility.getIsEntranceBarrier(),
+            facility.getHasElevator(),
+            facility.getLongitude(),
+            facility.getLatitude()
+        );
+    }
 }

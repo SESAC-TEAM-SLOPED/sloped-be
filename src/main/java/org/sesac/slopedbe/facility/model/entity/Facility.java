@@ -9,6 +9,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 import org.sesac.slopedbe.common.entity.BaseTimeEntity;
+import org.sesac.slopedbe.facility.model.dto.request.CreateFacilityRequest;
 import org.sesac.slopedbe.facility.model.type.FacilityType;
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReview;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -105,5 +106,18 @@ public class Facility extends BaseTimeEntity {
             GeometryFactory geometryFactory = new GeometryFactory();
             this.point = geometryFactory.createPoint(new Coordinate(longitude.doubleValue(), latitude.doubleValue()));
         }
+    }
+
+    public Facility(CreateFacilityRequest request) {
+        this.name = request.name();
+        this.address = request.address();
+        this.content = request.content();
+        this.contact = request.contact();
+        this.facilityType = FacilityType.valueOf(request.facilityType());
+        this.businessHours = request.businessHours();
+        this.hasSlope = request.hasSlope();
+        this.isEntranceBarrier = request.isEntranceBarrier();
+        this.hasElevator = request.hasElevator();
+        setLatitudeAndLongitude(request.latitude(), request.longitude());
     }
 }
