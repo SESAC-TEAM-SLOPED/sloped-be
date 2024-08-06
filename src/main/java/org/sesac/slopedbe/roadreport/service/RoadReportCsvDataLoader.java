@@ -22,7 +22,6 @@ import org.sesac.slopedbe.roadreport.repository.RoadReportCenterRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,13 +34,13 @@ public class RoadReportCsvDataLoader {
 	private final RoadReportCenterRepository roadReportCenterRepository;
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 	private final RoadKoreaCityRepository cityRepository;
-	@PostConstruct
-	public void loadCsvData() {
-		saveCitiesFromCsv();
-		loadCenterCsvData();
-		loadTaxiCsvData();
-	}
-
+	// 프로그램 시작 시, data loading 주석 처리!, 실제 사용 때는 해제할 예정
+	// @PostConstruct
+	// public void loadCsvData() {
+	// 	saveCitiesFromCsv();
+	// 	loadCenterCsvData();
+	// 	loadTaxiCsvData();
+	// }
 
 	public void loadCenterCsvData() {
 		log.info("민원기관 CSV 파일 로딩 시작");
