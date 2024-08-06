@@ -20,6 +20,8 @@ spring:
     multipart:
       max-file-size: 20MB
       max-request-size: 60MB
+    show-sql: true
+
   mail:
     host: smtp.gmail.com
     port: 587

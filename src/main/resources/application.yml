@@ -105,6 +105,9 @@ roadReportDir: ${ROAD_REPORT_DIR}
 file:
   max-size: ${S3_FILE_MAX_SIZE}  # 20MB
 
+openai:
+  secret-key: ${OPENAI_API_KEY}
+
 ---
 
 spring:

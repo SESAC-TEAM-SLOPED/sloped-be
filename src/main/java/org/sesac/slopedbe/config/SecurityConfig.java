@@ -3,11 +3,6 @@ package org.sesac.slopedbe.config;
 import java.util.Arrays;
 
 import org.sesac.slopedbe.auth.filter.JwtRequestFilter;
-import org.sesac.slopedbe.auth.handler.SocialAuthenticationFailureHandler;
-import org.sesac.slopedbe.auth.handler.SocialAuthenticationSuccessHandler;
-import org.sesac.slopedbe.auth.service.LoginServiceImpl;
-import org.sesac.slopedbe.auth.util.JwtUtil;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,43 +29,31 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityConfig {
 
-	private final LoginServiceImpl memberService;
-	private final JwtUtil jwtUtil;
 	private final JwtRequestFilter jwtRequestFilter;
 
 	@Bean
-	public SecurityFilterChain securityFilterChain(HttpSecurity http,
-		SocialAuthenticationSuccessHandler socialAuthenticationSuccessHandler, SocialAuthenticationFailureHandler socialAuthenticationFailureHandler) throws Exception {
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
 		http
 			.csrf(AbstractHttpConfigurer::disable)  // CSRF 보호 비활성화
 			.cors(Customizer.withDefaults())
 			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
 			.authorizeHttpRequests(authorizeRequests ->
 				authorizeRequests
-					.requestMatchers("/**").permitAll()
-					.requestMatchers("/api/roadReport/upload").authenticated()
+					// 로그인 필요 없는 경로 && 로그인/비로그인 모두 가능한 경로
+					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**","/api/gpt/**",
+						"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/login/oauth2/**").permitAll()
+					// 로그인 필요한 경로
+					.requestMatchers("/api/users").authenticated()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
 				sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 			)
-			.oauth2Login(oauth2 ->
-				oauth2
-					.successHandler(socialAuthenticationSuccessHandler)
-					.failureHandler(socialAuthenticationFailureHandler)
-
-			)
+			.formLogin(AbstractHttpConfigurer::disable)
+			.httpBasic(AbstractHttpConfigurer::disable)
 			.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
 
 		return http.build();
-	}
-
-	@Bean
-	public FilterRegistrationBean<JwtRequestFilter> jwtFilter() {
-		FilterRegistrationBean<JwtRequestFilter> filter = new FilterRegistrationBean<>();
-		filter.setFilter(new JwtRequestFilter(memberService, jwtUtil));
-		filter.addUrlPatterns("/api/*");
-		return filter;
 	}
 
 	@Bean

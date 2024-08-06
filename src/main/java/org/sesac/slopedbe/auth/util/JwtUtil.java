@@ -3,14 +3,20 @@ package org.sesac.slopedbe.auth.util;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 
 import javax.crypto.SecretKey;
 
+import org.sesac.slopedbe.auth.exception.JwtErrorCode;
+import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,6 +24,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -35,7 +43,6 @@ public class JwtUtil {
 		this.refreshTokenExpirationTime = refreshTokenExpirationTime;
 	}
 
-	// Access Token 생성
 	public String generateAccessToken(GeneralUserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
 		claims.put("nickname", userDetails.getMember().getNickname());
@@ -43,23 +50,19 @@ public class JwtUtil {
 
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername()) // email 주소 포함
+			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
 	}
 
-	// Refresh Token 생성
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
 		Map<String, Object> claims = new HashMap<>();
-		// 탈취되어도 문제 없게 Refresh Token에는 다른 정보들 제외 예정 !!
-		claims.put("nickname", userDetails.getMember().getNickname());
 		claims.put("oauthType", userDetails.getUserOauthType());
-
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername()) // email 주소 포함
+			.setSubject(userDetails.getUsername())
 			.setIssuedAt(new Date(System.currentTimeMillis()))
 			.setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
@@ -111,20 +114,34 @@ public class JwtUtil {
 		}
 	}
 
-	public String extractNicknameFromToken(String token) {
-		log.info("Extracting nickname from token: {}", token);
-
+	public MemberCompositeKey extractCompositeKey(String token) {
 		try {
-			String nickname = getClaimFromToken(token, claims -> claims.get("nickname", String.class));
-			return nickname;
+			String email = extractEmailFromToken(token);
+			MemberOauthType oauthType = extractOAuthTypeFromToken(token);
+
+			log.info("Extracted email: {}, oauthType: {}", email, oauthType);
+			return new MemberCompositeKey(email, oauthType);
+		} catch (SignatureException e) {
+			throw new JwtException(JwtErrorCode.JWT_INVALID);
 		} catch (ExpiredJwtException e) {
-			Claims body = e.getClaims();
-			String nickname = body.get("nickname", String.class);
-			return nickname;
-		} catch (Exception e) {
-			log.error("Error extracting nickname from token", e);
+			throw new JwtException(JwtErrorCode.JWT_EXPIRED);
+		}
+	}
+
+	public MemberCompositeKey getMemberCKFromHeader() {
+		HttpServletRequest request = ((ServletRequestAttributes)Objects.requireNonNull(
+			RequestContextHolder.getRequestAttributes())).getRequest();
+		final String authorizationHeader = request.getHeader("Authorization");
+
+		if (authorizationHeader == null || authorizationHeader.isBlank()) {
 			return null;
 		}
+
+		String token = authorizationHeader.substring(7);
+		if(token.isBlank()) {
+			return null;
+		}
+		return extractCompositeKey(token);
 	}
 
 	private Date extractExpirationDate(String token) {
@@ -143,13 +160,5 @@ public class JwtUtil {
 	public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
 		final Claims claims = extractAllClaims(token);
 		return claimsResolver.apply(claims);
-	}
-
-	public long getAccessTokenExpirationTime() {
-		return accessTokenExpirationTime;
-	}
-
-	public long getRefreshTokenExpirationTime() {
-		return refreshTokenExpirationTime;
 	}
 }
