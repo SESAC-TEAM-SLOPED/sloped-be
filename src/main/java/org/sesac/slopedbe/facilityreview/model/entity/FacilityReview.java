@@ -43,4 +43,7 @@ public class FacilityReview extends BaseTimeEntity {
         @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
     })
     private Member member;
+
+    private Long accessibilityScore;
+    private String accessibilityDescription;
 }
