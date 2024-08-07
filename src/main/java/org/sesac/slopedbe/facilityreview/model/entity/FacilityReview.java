@@ -52,4 +52,6 @@ public class FacilityReview extends BaseTimeEntity {
         this.facility = facility;
         this.member = member;
     }
+
+    private Long accessibilityScore;
 }
