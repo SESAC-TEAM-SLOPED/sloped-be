@@ -29,7 +29,7 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
 		"FROM facility f " +
 		"WHERE f.id = :facilityId",
 		nativeQuery = true)
-	Optional<FacilityVO> findFacilityById(Long facilityId);
+	Optional<FacilityVO> findFacilityById(@Param("facilityId") Long facilityId);
 
 	@Query(value = "SELECT " +
 		"f.id, f.name, f.address, f.facility_type as type, " +
