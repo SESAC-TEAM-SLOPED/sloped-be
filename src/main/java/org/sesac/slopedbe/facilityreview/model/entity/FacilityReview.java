@@ -43,4 +43,11 @@ public class FacilityReview extends BaseTimeEntity {
         @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
     })
     private Member member;
+
+    public FacilityReview(Boolean isConvenient, String content, Facility facility, Member member) {
+        this.isConvenient = isConvenient;
+        this.content = content;
+        this.facility = facility;
+        this.member = member;
+    }
 }

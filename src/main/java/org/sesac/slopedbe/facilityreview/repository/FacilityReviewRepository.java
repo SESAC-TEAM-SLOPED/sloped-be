@@ -3,8 +3,10 @@ package org.sesac.slopedbe.facilityreview.repository;
 import java.util.List;
 
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReview;
+import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface FacilityReviewRepository extends CrudRepository<FacilityReview, Long> {
 	@Query(value = "SELECT fri.url " +
@@ -14,4 +16,7 @@ public interface FacilityReviewRepository extends CrudRepository<FacilityReview,
 		"ORDER BY fr.created_at DESC, fri.created_at DESC " +
 		"LIMIT 3", nativeQuery = true)
 	List<String> findTop3ReviewImageUrlsByFacilityId(Long facilityId);
+
+	@Query("SELECT fr FROM FacilityReview fr WHERE fr.member.id = :id")
+	List<FacilityReview> findByMemberId(@Param("id") MemberCompositeKey id);
 }
