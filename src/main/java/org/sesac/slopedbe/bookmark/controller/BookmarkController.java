@@ -59,7 +59,7 @@ public class BookmarkController {
     @Operation(summary = "즐겨찾기 삭제", description = "token과 시설 ID로 즐겨찾기를 삭제한다.")
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
-    @DeleteMapping("/")
+    @DeleteMapping
     public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestParam("facilityId") Long facilityId) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
