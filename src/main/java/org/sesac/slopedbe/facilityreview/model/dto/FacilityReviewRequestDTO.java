@@ -7,7 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import lombok.Getter;
 
 @Getter
-public class FacilityReviewDTO {
+public class FacilityReviewRequestDTO {
 	private Long facilityId;
 	private Long facilityReviewId;
 	private Boolean isConvenient;

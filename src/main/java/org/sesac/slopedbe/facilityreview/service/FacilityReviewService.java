@@ -14,7 +14,7 @@ import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.facilityreview.exception.FacilityReviewErrorCode;
 import org.sesac.slopedbe.facilityreview.exception.FacilityReviewException;
-import org.sesac.slopedbe.facilityreview.model.dto.FacilityReviewDTO;
+import org.sesac.slopedbe.facilityreview.model.dto.FacilityReviewRequestDTO;
 import org.sesac.slopedbe.facilityreview.model.dto.FacilityReviewResponseDTO;
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReview;
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReviewImage;
@@ -44,10 +44,10 @@ public class FacilityReviewService {
     @Value("${REVIEW_DIR}")
     private String reviewImageDir;
 
-    public void createFacilityReview (MemberCompositeKey memberCompositeKey, FacilityReviewDTO facilityReviewDTO){
+    public void createFacilityReview (MemberCompositeKey memberCompositeKey, Long facilityId, FacilityReviewRequestDTO facilityReviewDTO){
         Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
-        Facility facility = facilityRepository.findById(facilityReviewDTO.getFacilityId()).orElseThrow(()->new BaseException(
+        Facility facility = facilityRepository.findById(facilityId).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
 
         FacilityReview facilityReview = new FacilityReview(
@@ -65,82 +65,64 @@ public class FacilityReviewService {
         }
     }
 
-    public List<FacilityReviewResponseDTO> readFacilityReview (MemberCompositeKey memberCompositeKey){
+    public List<FacilityReviewResponseDTO> readAllFacilityReviews(MemberCompositeKey memberCompositeKey) {
         List<FacilityReview> reviewEntities = facilityReviewRepository.findByMemberId(memberCompositeKey);
         List<FacilityReviewResponseDTO> reviews = new ArrayList<>();
 
         for (FacilityReview reviewEntity : reviewEntities) {
-            reviews.add(FacilityReviewResponseDTO.toReviewResponseDTO(reviewEntity));
+            List<String> urls = readFacilityReviewImages(reviewEntity.getId());
+            reviews.add(FacilityReviewResponseDTO.toReviewResponseDTO(reviewEntity, urls));
         }
         return reviews;
     }
 
-    public List<String> readFacilityReviewImages(Long facilityReviewId) {
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewId);
-
-        List<String> urls = reviewImageList.stream()
-            .map(FacilityReviewImage::getUrl)
-            .collect(Collectors.toList());
-
-        return urls;
-    }
-
-    public void updateFacilityReview(FacilityReviewDTO facilityReviewDTO){
-        Facility facility = facilityRepository.findById(facilityReviewDTO.getFacilityId()).orElseThrow(()->
-            new BaseException(GlobalErrorCode.BAD_REQUEST));
-
-        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
-
+    public void updateFacilityReview(Long facilityReviewId, FacilityReviewRequestDTO facilityReviewRequestDTO){
+        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewId);
         if(facilityReview.isEmpty()) {
             throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
         }
         FacilityReview existingFacilityReview = facilityReview.get();
-        existingFacilityReview.setContent(facilityReviewDTO.getContent());
+        existingFacilityReview.setContent(facilityReviewRequestDTO.getContent());
         facilityReviewRepository.save(existingFacilityReview);
-    }
 
-    public void updateFacilityReviewImages(FacilityReviewDTO facilityReviewDTO){
-        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
-
-        if(facilityReview.isEmpty()) {
-            throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
-        }
-
-        FacilityReview existingFacilityReview = facilityReview.get();
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewDTO.getFacilityReviewId());
+        //기존 image 모두 제거
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
 
         for (FacilityReviewImage facilityReviewImage : reviewImageList) {
             s3UploadImages.deleteFile(facilityReviewImage.getUrl());
             facilityReviewImageRepository.deleteById(facilityReviewImage.getUrl());
         }
 
+        //새로운 이미지 등록
         try {
-            createFacilityReviewImages(facilityReviewDTO.getFiles(), existingFacilityReview);
+            createFacilityReviewImages(facilityReviewRequestDTO.getFiles(), existingFacilityReview);
         } catch (IOException e) {
             throw new FacilityReviewException(FacilityReviewErrorCode.GENERAL_ERROR);
         }
-
     }
 
-    public void deleteFacilityReview(FacilityReviewDTO facilityReviewDTO){
-        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
-
+    public void deleteFacilityReview(Long facilityReviewId){
+        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewId);
         if(facilityReview.isEmpty()) {
             throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
         }
 
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewDTO.getFacilityReviewId());
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
 
         for (FacilityReviewImage facilityReviewImage : reviewImageList) {
             s3UploadImages.deleteFile(facilityReviewImage.getUrl());
             facilityReviewImageRepository.deleteById(facilityReviewImage.getUrl());
         }
 
-        facilityReviewRepository.deleteById(facilityReviewDTO.getFacilityReviewId());
+        facilityReviewRepository.deleteById(facilityReviewId);
     }
 
     private void createFacilityReviewImages(List<MultipartFile> files, FacilityReview facilityReview) throws IOException {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+
+        if (files == null || files.isEmpty()) {
+            return;
+        }
 
         for (int i = 0; i < files.size(); i++) {
             MultipartFile file = files.get(i);
@@ -159,6 +141,14 @@ public class FacilityReviewService {
 
             facilityReviewImageRepository.save(facilityReviewImage);
         }
+    }
+
+    private List<String> readFacilityReviewImages(Long facilityReviewId) {
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
+
+        return reviewImageList.stream()
+            .map(FacilityReviewImage::getUrl)
+            .collect(Collectors.toList());
     }
 
 }
