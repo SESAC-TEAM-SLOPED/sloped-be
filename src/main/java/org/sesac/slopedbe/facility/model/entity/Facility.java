@@ -92,6 +92,8 @@ public class Facility extends BaseTimeEntity {
         @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
     })
     private Member registrar;
+    private Long averageAccessibilityScore;
+    private String accessibilityDescription;
 
     public BigDecimal getLatitude() {
         return point != null ? BigDecimal.valueOf(point.getY()) : null;

@@ -45,5 +45,4 @@ public class FacilityReview extends BaseTimeEntity {
     private Member member;
 
     private Long accessibilityScore;
-    private String accessibilityDescription;
 }
