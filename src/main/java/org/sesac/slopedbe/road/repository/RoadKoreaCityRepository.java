@@ -11,6 +11,13 @@ public interface RoadKoreaCityRepository extends JpaRepository<RoadKoreaCity, Lo
 	@Query("SELECT r FROM RoadKoreaCity r WHERE r.regionName = :cityName")
 	RoadKoreaCity findByRegionName(@Param("cityName") String cityName);
 
-	boolean existsByCityNameAndRegionNameAndComplaintRegion(String cityName, String regionName, String complaintRegion);
-
+	@Query(value = "SELECT CASE WHEN COUNT(r) > 0 THEN TRUE ELSE FALSE END " +
+		"FROM road_korea_city r " +
+		"WHERE r.city_name = :cityName " +
+		"AND r.region_name = :regionName " +
+		"AND r.complaint_region = :complaintRegion", nativeQuery = true)
+	boolean existsByCityNameAndRegionNameAndComplaintRegion(
+		@Param("cityName") String cityName,
+		@Param("regionName") String regionName,
+		@Param("complaintRegion") String complaintRegion);
 }
