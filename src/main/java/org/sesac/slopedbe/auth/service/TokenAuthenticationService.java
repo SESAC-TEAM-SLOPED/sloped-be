@@ -18,6 +18,7 @@ import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -30,13 +31,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Service
-@AllArgsConstructor
 @Slf4j
 public class TokenAuthenticationService {
 
@@ -44,6 +44,25 @@ public class TokenAuthenticationService {
 	private final JwtUtil jwtUtil;
 	private final LoginServiceImpl loginService;
 	private final AuthenticationManager authenticationManager;
+
+	@Value("${JWT_ACCESS_EXPIRATION_TIME}")
+	private int accessTokenExpirationTime;
+
+	@Value("${JWT_REFRESH_EXPIRATION_TIME}")
+	private int refreshTokenExpirationTime;
+
+	@PostConstruct
+	private void init() {
+		accessTokenExpirationTime = accessTokenExpirationTime / 1000;
+		refreshTokenExpirationTime = refreshTokenExpirationTime / 1000;
+	}
+
+	public TokenAuthenticationService (MemberRepository memberRepository, JwtUtil jwtUtil, LoginServiceImpl loginService, AuthenticationManager authenticationManager){
+		this.memberRepository = memberRepository;
+		this.jwtUtil = jwtUtil;
+		this.loginService = loginService;
+		this.authenticationManager = authenticationManager;
+	}
 
 	private void saveRefreshToken(Member member, String refreshToken) throws MemberException {
 		member.setRefreshToken(refreshToken);
@@ -98,8 +117,8 @@ public class TokenAuthenticationService {
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 		final String refreshToken = generateAndSaveRefreshTokenIfNeeded((GeneralUserDetails) userDetails);
 
-		setCookie(response, "accessToken", accessToken, 60 * 5);
-		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);
+		setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
+		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
 		Map<String, String> successResponse = new HashMap<>();
 		successResponse.put("message", "Login successful");
@@ -126,7 +145,7 @@ public class TokenAuthenticationService {
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 
-				setCookie(response, "accessToken", accessToken, 60 * 5);
+				setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
 
 				Map<String, String> successResponse = new HashMap<>();
 				successResponse.put("message", "Access token 갱신 완료");
@@ -138,8 +157,8 @@ public class TokenAuthenticationService {
 				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
 				saveRefreshToken(member, newRefreshToken);
 
-				setCookie(response, "accessToken", accessToken, 60 * 5);
-				setCookie(response, "refreshToken", newRefreshToken, 60 * 60 * 24 * 7);
+				setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
+				setCookie(response, "refreshToken", newRefreshToken, refreshTokenExpirationTime);
 
 				Map<String, String> successResponse = new HashMap<>();
 				successResponse.put("message", "Access token, refresh token 갱신 완료");
@@ -158,8 +177,8 @@ public class TokenAuthenticationService {
 		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
 
 		saveRefreshToken(member, refreshToken);
-		setCookie(response, "accessToken", accessToken, 60 * 5);  // 5분
-		setCookie(response, "refreshToken", refreshToken, 60 * 60 * 24 * 7);  // 7일
+		setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
+		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
 		log.info("Generated access token: {}", accessToken);
 		log.info("Generated refresh token: {}", refreshToken);
