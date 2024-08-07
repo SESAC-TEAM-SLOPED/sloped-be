@@ -62,8 +62,8 @@ public class BookmarkController {
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @DeleteMapping("/")
-    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestBody
-    BookmarkRequestDTO bookmarkRequestDTO) {
+    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token,
+        @Parameter(description = "삭제 Facility id (필수)", required = true) @RequestParam("facilityId") Long facilityId) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
