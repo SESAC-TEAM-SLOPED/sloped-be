@@ -74,11 +74,11 @@ public class FacilityController {
     @ApiResponse(responseCode = "400", description = "요청 시설 수가 너무 많습니다.")
     @GetMapping("")
     public ResponseEntity<List<FacilityResponse>> getNearbyFacilities(
-        @Parameter(description = "현재 위치 Latitude (필수)", required = true) @RequestParam double latitude,
-        @Parameter(description = "현재 위치 Longitude (필수)", required = true) @RequestParam double longitude,
-        @Parameter(description = "반경 거리(단위: 미터) (필수)", required = true) @RequestParam double distance_meters,
-        @Parameter(description = "검색할 시설 개수 (필수)", required = true) @RequestParam int limit,
-        @Parameter(description = "시설 타입(카테고리)") @RequestParam(required = false) String type
+        @Parameter(description = "현재 위치 Latitude (필수)", required = true) @RequestParam("latitude") double latitude,
+        @Parameter(description = "현재 위치 Longitude (필수)", required = true) @RequestParam("longitude") double longitude,
+        @Parameter(description = "반경 거리(단위: 미터) (필수)", required = true) @RequestParam("distance_meters") double distance_meters,
+        @Parameter(description = "검색할 시설 개수 (필수)", required = true) @RequestParam("limit") int limit,
+        @Parameter(description = "시설 타입(카테고리)") @RequestParam(value="type", required = false) String type
     ) {
         if (limit > 100) {
             throw new FacilityException(FacilityErrorCode.FIND_FACILITY_LIMIT_EXCEEDED);

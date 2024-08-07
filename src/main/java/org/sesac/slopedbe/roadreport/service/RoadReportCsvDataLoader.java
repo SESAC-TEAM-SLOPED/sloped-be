@@ -22,6 +22,7 @@ import org.sesac.slopedbe.roadreport.repository.RoadReportCenterRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -35,12 +36,12 @@ public class RoadReportCsvDataLoader {
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 	private final RoadKoreaCityRepository cityRepository;
 	// 프로그램 시작 시, data loading 주석 처리!, 실제 사용 때는 해제할 예정
-	// @PostConstruct
-	// public void loadCsvData() {
-	// 	saveCitiesFromCsv();
-	// 	loadCenterCsvData();
-	// 	loadTaxiCsvData();
-	// }
+	@PostConstruct
+	public void loadCsvData() {
+		//saveCitiesFromCsv();
+		//loadCenterCsvData();
+		loadTaxiCsvData();
+	}
 
 	public void loadCenterCsvData() {
 		log.info("민원기관 CSV 파일 로딩 시작");
@@ -50,6 +51,7 @@ public class RoadReportCsvDataLoader {
 		) {
 			for (CSVRecord csvRecord : csvParser) {
 				try {
+					// [0]~[5] : 지역, 기관명, 전화번호, 주소, 위도, 경도
 					BigDecimal latitude = new BigDecimal(csvRecord.values()[4]);
 					BigDecimal longitude = new BigDecimal(csvRecord.values()[5]);
 					String address = csvRecord.values()[3];
@@ -65,9 +67,10 @@ public class RoadReportCsvDataLoader {
 					Road road = Road.createRoad(latitude, longitude, address);
 					roadRepository.save(road);
 
-					RoadKoreaCity koreaCity = cityRepository.findByRegionName(csvRecord.values()[0]);
+					String regionName = csvRecord.values()[0];
+					RoadKoreaCity koreaCity = cityRepository.findByRegionName(regionName);
 					if (koreaCity == null) {
-						throw new IllegalArgumentException("시/도명을 찾을 수 없습니다: " + csvRecord.values()[0]);
+						throw new IllegalArgumentException("시/도명을 찾을 수 없습니다: " + regionName);
 					}
 
 					RoadReportCenter roadReportCenter = RoadReportCenter.builder()
@@ -80,6 +83,7 @@ public class RoadReportCsvDataLoader {
 					roadReportCenterRepository.save(roadReportCenter);
 
 					log.info("DB에 저장된 민원기관 레코드: " + roadReportCenter.getCenterName());
+
 				} catch (Exception e) {
 					log.error("해당 민원기관 데이터 레코드 에러: " + csvRecord, e);
 				}
@@ -105,6 +109,7 @@ public class RoadReportCsvDataLoader {
 				String callTaxiName = csvRecord.values()[0];
 				String callTaxiContact = csvRecord.values()[4];
 				String homePage = csvRecord.values()[5];
+				String address = csvRecord.values()[1];
 				boolean canOnlineReserve = csvRecord.values()[6].equals("o");
 
 				try {
@@ -112,12 +117,11 @@ public class RoadReportCsvDataLoader {
 					BigDecimal longitude = new BigDecimal(csvRecord.values()[3]);
 
 					if (roadReportCallTaxiRepository.existsByLocationAndCallTaxiNameAndCallTaxiContact(
-						latitude.doubleValue(), longitude.doubleValue(), callTaxiName, callTaxiContact)) {
+						latitude.doubleValue(), longitude.doubleValue(), callTaxiName, callTaxiContact, address)) {
 						log.info("중복된 데이터: " + callTaxiName);
 						continue; // 중복된 데이터는 건너뜁니다.
 					}
 
-					String address = csvRecord.get("주소");
 					Road road = Road.createRoad(latitude, longitude, address);
 					roadRepository.save(road);
 
@@ -161,7 +165,7 @@ public class RoadReportCsvDataLoader {
 				String complaintRegion = csvRecord.values()[2];
 
 				if (cityRepository.existsByCityNameAndRegionNameAndComplaintRegion(cityName, regionName, complaintRegion)) {
-					log.info("중복된 데이터: " + cityName);
+					log.info("지역정보 중복된 데이터: " + cityName);
 					continue; // 중복된 데이터는 건너뜁니다.
 				}
 
@@ -173,7 +177,7 @@ public class RoadReportCsvDataLoader {
 
 				cities.add(city);
 				recordCount++;
-				log.debug("CSV 레코드 처리: {}, {}, {}", cityName, regionName, complaintRegion);
+				log.debug("지역정보 CSV 레코드 처리: {}, {}, {}", cityName, regionName, complaintRegion);
 
 			}
 

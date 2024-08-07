@@ -22,11 +22,13 @@ public interface RoadReportCallTaxiRepository extends JpaRepository<RoadReportCa
 	@Query(value = "SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END FROM road_report_call_taxi c " +
 		"JOIN road r ON c.road_id = r.id " +
 		"WHERE ST_Equals(r.point, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) " +
-		"AND c.call_taxi_name = :callTaxiName AND c.call_taxi_contact = :callTaxiContact", nativeQuery = true)
+		"AND c.call_taxi_name = :callTaxiName AND c.call_taxi_contact = :callTaxiContact  " +
+		"AND r.address = :address", nativeQuery = true)
 	boolean existsByLocationAndCallTaxiNameAndCallTaxiContact(@Param("latitude") double latitude,
 		@Param("longitude") double longitude,
 		@Param("callTaxiName") String callTaxiName,
-		@Param("callTaxiContact") String callTaxiContact);
+		@Param("callTaxiContact") String callTaxiContact,
+		@Param("address") String address);
 
 
 }
