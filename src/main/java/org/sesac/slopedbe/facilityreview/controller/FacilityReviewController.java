@@ -25,7 +25,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-@RequestMapping("/api/facilities")
+@RequestMapping("/api/reviews")
 @RestController
 public class FacilityReviewController {
 
@@ -39,7 +39,7 @@ public class FacilityReviewController {
     @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     @PostMapping("/{facilityId}/create-reviews")
     public ResponseEntity<Void> createFacilityReview(@RequestHeader("Authorization") String token,
-        @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("id") Long facilityId,
+        @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("facilityId") Long facilityId,
         @RequestBody FacilityReviewRequestDTO facilityReviewRequestDTO) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
@@ -67,7 +67,7 @@ public class FacilityReviewController {
     @ApiResponse(responseCode = "204", description = "리뷰 수정 성공")
     @PutMapping("/{facilityReviewId}/update-review")
     public ResponseEntity<Void> updateFacilityReview(
-        @Parameter(description = "시설 리뷰 ID (필수)", required = true) @PathVariable("id") Long facilityReviewId,
+        @Parameter(description = "시설 리뷰 ID (필수)", required = true) @PathVariable("facilityReviewId") Long facilityReviewId,
         @RequestBody FacilityReviewRequestDTO facilityReviewRequestDTO){
         facilityReviewService.updateFacilityReview(facilityReviewId, facilityReviewRequestDTO);
 

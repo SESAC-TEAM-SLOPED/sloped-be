@@ -43,7 +43,7 @@ public class SecurityConfig {
 					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**","/api/roadReport/**","/api/gpt/**",
 						"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/login/oauth2/**").permitAll()
 					// 로그인 필요한 경로
-					.requestMatchers("/api/users").authenticated()
+					.requestMatchers("/api/users/**","/api/reviews/**").authenticated()
 					.anyRequest().authenticated()
 			)
 			.sessionManagement(sessionManagement ->
