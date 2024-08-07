@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -60,7 +61,8 @@ public class BookmarkController {
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @DeleteMapping
-    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestParam("facilityId") Long facilityId) {
+    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token,
+        @Parameter(description = "삭제 Facility id (필수)", required = true) @RequestParam("facilityId") Long facilityId) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
