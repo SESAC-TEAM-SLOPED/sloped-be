@@ -86,7 +86,7 @@ public class FacilityReviewService {
         facilityReviewRepository.save(existingFacilityReview);
 
         //기존 image 모두 제거
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewId);
 
         for (FacilityReviewImage facilityReviewImage : reviewImageList) {
             s3UploadImages.deleteFile(facilityReviewImage.getUrl());
@@ -107,7 +107,7 @@ public class FacilityReviewService {
             throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
         }
 
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewId);
 
         for (FacilityReviewImage facilityReviewImage : reviewImageList) {
             s3UploadImages.deleteFile(facilityReviewImage.getUrl());
@@ -144,7 +144,7 @@ public class FacilityReviewService {
     }
 
     private List<String> readFacilityReviewImages(Long facilityReviewId) {
-        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findById(facilityReviewId);
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewId);
 
         return reviewImageList.stream()
             .map(FacilityReviewImage::getUrl)

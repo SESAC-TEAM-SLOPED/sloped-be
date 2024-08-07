@@ -6,5 +6,5 @@ import org.sesac.slopedbe.facilityreview.model.entity.FacilityReviewImage;
 import org.springframework.data.repository.CrudRepository;
 
 public interface FacilityReviewImageRepository extends CrudRepository<FacilityReviewImage, String> {
-	List<FacilityReviewImage> findById(Long facilityReviewId);
+	List<FacilityReviewImage> findByFacilityReviewId(Long facilityReviewId);
 }

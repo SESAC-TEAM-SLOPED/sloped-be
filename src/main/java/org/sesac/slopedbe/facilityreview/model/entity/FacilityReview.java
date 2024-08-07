@@ -46,6 +46,8 @@ public class FacilityReview extends BaseTimeEntity {
     })
     private Member member;
 
+    private Long accessibilityScore;
+
     public FacilityReview(Boolean isConvenient, String content, Facility facility, Member member) {
         this.isConvenient = isConvenient;
         this.content = content;
@@ -53,5 +55,5 @@ public class FacilityReview extends BaseTimeEntity {
         this.member = member;
     }
 
-    private Long accessibilityScore;
+
 }
