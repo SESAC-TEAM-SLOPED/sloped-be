@@ -34,7 +34,7 @@ public class BookmarkController {
 
     @Operation(summary = "회원별 즐겨찾기 조회", description = "회원의 email로 즐겨찾기 목록을 조회한다.")
     @ApiResponse(responseCode = "200", description = "즐겨찾기 조회 성공", content = @Content(schema = @Schema(implementation = BookmarkResponseDTO.class)))
-    @GetMapping("/")
+    @GetMapping("")
     public ResponseEntity<List<BookmarkResponseDTO>> getBookmarksByUserEmail(@RequestHeader("Authorization") String token) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
@@ -47,9 +47,10 @@ public class BookmarkController {
     @ApiResponse(responseCode = "201", description = "즐겨찾기 추가 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @ApiResponse(responseCode = "409", description = "해당 시설은 이미 회원의 즐겨찾기 목록에 있습니다.")
-    @PostMapping("/")
+    @PostMapping("")
     public ResponseEntity<Void> addBookmark(@RequestHeader("Authorization") String token, @RequestBody
     BookmarkRequestDTO bookmarkRequestDTO) {
+        System.out.println(bookmarkRequestDTO.getFacilityId());
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
@@ -60,13 +61,15 @@ public class BookmarkController {
     @Operation(summary = "즐겨찾기 삭제", description = "token과 시설 ID로 즐겨찾기를 삭제한다.")
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
-    @DeleteMapping
-    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token,
-        @Parameter(description = "삭제 Facility id (필수)", required = true) @RequestParam("facilityId") Long facilityId) {
+    @DeleteMapping("/")
+    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestBody
+    BookmarkRequestDTO bookmarkRequestDTO) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
-        bookmarkService.removeBookmark(compositeKey, facilityId);
+        BookmarkRequestDTO bookmarkRequestDTO = new BookmarkRequestDTO(facilityId);
+
+        bookmarkService.removeBookmark(compositeKey, bookmarkRequestDTO);
         return ResponseEntity.noContent().build();
     }
 }
