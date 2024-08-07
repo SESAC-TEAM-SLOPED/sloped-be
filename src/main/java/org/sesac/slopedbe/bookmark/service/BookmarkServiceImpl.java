@@ -55,10 +55,10 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public void removeBookmark(MemberCompositeKey memberCompositeKey, BookmarkRequestDTO bookmarkRequestDTO) {
+    public void removeBookmark(MemberCompositeKey memberCompositeKey, Long facilityId) {
         Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
-        Facility facility = facilityRepository.findById(bookmarkRequestDTO.getFacilityId()).orElseThrow(()->new BaseException(
+        Facility facility = facilityRepository.findById(facilityId).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
 
         BookmarkId bookmarkId = new BookmarkId(facility, member);

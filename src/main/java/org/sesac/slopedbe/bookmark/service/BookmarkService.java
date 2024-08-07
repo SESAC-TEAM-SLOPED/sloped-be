@@ -8,6 +8,6 @@ import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 
 public interface BookmarkService {
 	void addBookmark(MemberCompositeKey memberCompositeKey, BookmarkRequestDTO bookmarkRequestDTO);
-	void removeBookmark(MemberCompositeKey memberCompositeKey, BookmarkRequestDTO bookmarkRequestDTO);
+	void removeBookmark(MemberCompositeKey memberCompositeKey, Long facilityId);
 	List<BookmarkResponseDTO> getBookmarksById(MemberCompositeKey memberCompositeKey);
 }

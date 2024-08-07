@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,6 +22,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+
 @RequiredArgsConstructor
 @RequestMapping("/api/users/bookmark")
 @RestController
@@ -58,12 +60,11 @@ public class BookmarkController {
     @ApiResponse(responseCode = "204", description = "즐겨찾기 삭제 성공")
     @ApiResponse(responseCode = "400", description = "존재하지 않는 시설입니다.")
     @DeleteMapping("/")
-    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestBody
-    BookmarkRequestDTO bookmarkRequestDTO) {
+    public ResponseEntity<Void> removeBookmark(@RequestHeader("Authorization") String token, @RequestParam("facilityId") Long facilityId) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
-        bookmarkService.removeBookmark(compositeKey, bookmarkRequestDTO);
+        bookmarkService.removeBookmark(compositeKey, facilityId);
         return ResponseEntity.noContent().build();
     }
 }

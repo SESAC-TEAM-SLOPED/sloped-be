@@ -105,7 +105,11 @@ public class RoadReportServiceImpl implements RoadReportService {
 			}
 			String uuid = UUID.randomUUID().toString();
 			String saveFileName = uuid + "_" + file.getOriginalFilename();
-			String fileUrl = s3UploadImages.upload(file, roadReportDir, saveFileName);
+			String fileUrl = s3UploadImages.upload(file, roadReportDir, file.getOriginalFilename());
+
+			log.info("uuid: {}", uuid);
+			log.info("saveFileName: {}", saveFileName);
+			log.info("fileUrl: {}", fileUrl);
 
 			RoadReportImage roadReportImage = RoadReportImage.builder()
 				.url(fileUrl)
