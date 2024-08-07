@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,7 +39,7 @@ public class FacilityReviewController {
     @PostMapping("/{facilityId}/create-reviews")
     public ResponseEntity<Void> createFacilityReview(@RequestHeader("Authorization") String token,
         @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("facilityId") Long facilityId,
-        @RequestBody FacilityReviewRequestDTO facilityReviewRequestDTO) {
+        FacilityReviewRequestDTO facilityReviewRequestDTO) {
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
@@ -68,7 +67,7 @@ public class FacilityReviewController {
     @PutMapping("/{facilityReviewId}/update-review")
     public ResponseEntity<Void> updateFacilityReview(
         @Parameter(description = "시설 리뷰 ID (필수)", required = true) @PathVariable("facilityReviewId") Long facilityReviewId,
-        @RequestBody FacilityReviewRequestDTO facilityReviewRequestDTO){
+        FacilityReviewRequestDTO facilityReviewRequestDTO){
         facilityReviewService.updateFacilityReview(facilityReviewId, facilityReviewRequestDTO);
 
         return ResponseEntity.noContent().build();
@@ -76,9 +75,9 @@ public class FacilityReviewController {
 
     @Operation(summary = "작성 리뷰 내용 삭제", description = "마이페이지용, 본인이 작성한 리뷰 내용을 삭제한다.")
     @ApiResponse(responseCode = "204", description = "리뷰 삭제 성공")
-    @DeleteMapping
+    @DeleteMapping("/{facilityReviewId}")
     public ResponseEntity<Void> deleteFacilityReview(
-        @Parameter(description = "시설 리뷰 ID (필수)", required = true) @PathVariable("id") Long facilityReviewId){
+        @Parameter(description = "시설 리뷰 ID (필수)", required = true) @PathVariable("facilityReviewId") Long facilityReviewId){
         facilityReviewService.deleteFacilityReview(facilityReviewId);
 
         return ResponseEntity.noContent().build();

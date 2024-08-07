@@ -31,7 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class FacilityReviewService {
@@ -44,22 +46,22 @@ public class FacilityReviewService {
     @Value("${REVIEW_DIR}")
     private String reviewImageDir;
 
-    public void createFacilityReview (MemberCompositeKey memberCompositeKey, Long facilityId, FacilityReviewRequestDTO facilityReviewDTO){
+    public void createFacilityReview (MemberCompositeKey memberCompositeKey, Long facilityId, FacilityReviewRequestDTO facilityReviewRequestDTO){
         Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
         Facility facility = facilityRepository.findById(facilityId).orElseThrow(()->new BaseException(
             GlobalErrorCode.BAD_REQUEST));
 
         FacilityReview facilityReview = new FacilityReview(
-            facilityReviewDTO.getIsConvenient(),
-            facilityReviewDTO.getContent(),
+            facilityReviewRequestDTO.getIsConvenient(),
+            facilityReviewRequestDTO.getContent(),
             facility,
             member
         );
         facilityReviewRepository.save(facilityReview);
 
         try {
-            createFacilityReviewImages(facilityReviewDTO.getFiles(), facilityReview);
+            createFacilityReviewImages(facilityReviewRequestDTO.getFiles(), facilityReview);
         } catch (IOException e) {
             throw new FacilityReviewException(FacilityReviewErrorCode.GENERAL_ERROR);
         }
@@ -73,6 +75,7 @@ public class FacilityReviewService {
             List<String> urls = readFacilityReviewImages(reviewEntity.getId());
             reviews.add(FacilityReviewResponseDTO.toReviewResponseDTO(reviewEntity, urls));
         }
+        log.info("reviews : {}", reviews);
         return reviews;
     }
 
