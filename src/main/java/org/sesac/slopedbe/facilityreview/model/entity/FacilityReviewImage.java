@@ -21,20 +21,12 @@ public class FacilityReviewImage extends BaseTimeEntity {
     @Column(nullable = false)
     private String url;
 
-    @Column(nullable = false)
-    private String fileName;
-
-    @Column(nullable = false)
-    private int uploadOrder;
-
     @ManyToOne
     @JoinColumn(name = "facility_review_id", nullable = false)
     private FacilityReview facilityReview;
 
-    public FacilityReviewImage(String url, String fileName, int uploadOrder, FacilityReview facilityReview) {
+    public FacilityReviewImage(String url, FacilityReview facilityReview) {
         this.url = url;
-        this.fileName = fileName;
-        this.uploadOrder = uploadOrder;
         this.facilityReview = facilityReview;
     }
 

@@ -32,7 +32,6 @@ public class S3UploadImages {
 	@Value("${file.max-size:20971520}")  // 기본값을 20MB로 설정
 	private long maxFileSize;
 
-
 	public String upload(MultipartFile multipartFile, String dirName, String saveFileName) throws IOException {
 		validateFile(multipartFile); // 파일 크기, 형식 제한
 
@@ -65,5 +64,19 @@ public class S3UploadImages {
 		}
 
 		return amazonS3Client.getUrl(bucket, fileName).toString();
+	}
+
+	public void deleteFile(String fileUrl) {
+		try {
+			String key = extractKeyFromUrl(fileUrl);
+			amazonS3Client.deleteObject(bucket, key);
+		} catch (Exception e) {
+			log.error("S3에서 파일 삭제 중 오류 발생: {}", e.getMessage(), e);
+			throw new RoadReportException(RoadReportErrorCode.REPORT_IMAGE_UPLOAD_FAILED);
+		}
+	}
+
+	private String extractKeyFromUrl(String fileUrl) {
+		return fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 	}
 }

@@ -11,6 +11,6 @@ public class FacilityReviewDTO {
 	private Long facilityId;
 	private Long facilityReviewId;
 	private Boolean isConvenient;
-	private String context;
+	private String content;
 	private List<MultipartFile> files;
 }

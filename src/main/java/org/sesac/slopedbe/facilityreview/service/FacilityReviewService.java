@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.exception.BaseException;
 import org.sesac.slopedbe.common.exception.GlobalErrorCode;
@@ -42,11 +43,6 @@ public class FacilityReviewService {
 
     @Value("${REVIEW_DIR}")
     private String reviewImageDir;
-    // Service 목적: facility_report에 리뷰 저장, 리뷰 수정, 리뷰 조회, 리뷰 삭제 기능
-
-    // 1. facility id로 Facility 검색 facilityService.getFacility //FacilityResponse로 반환
-    // 2. Facility_review 테이블 저장
-    // 3. Facility_review_image 테이블 저장
 
     public void createFacilityReview (MemberCompositeKey memberCompositeKey, FacilityReviewDTO facilityReviewDTO){
         Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
@@ -56,7 +52,7 @@ public class FacilityReviewService {
 
         FacilityReview facilityReview = new FacilityReview(
             facilityReviewDTO.getIsConvenient(),
-            facilityReviewDTO.getContext(),
+            facilityReviewDTO.getContent(),
             facility,
             member
         );
@@ -79,12 +75,31 @@ public class FacilityReviewService {
         return reviews;
     }
 
-    public void updateFacilityReview(MemberCompositeKey memberCompositeKey, FacilityReviewDTO facilityReviewDTO){
-        Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
-            new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
-        Facility facility = facilityRepository.findById(facilityReviewDTO.getFacilityId()).orElseThrow(()->new BaseException(
-            GlobalErrorCode.BAD_REQUEST));
+    public List<String> readFacilityReviewImages(Long facilityReviewId) {
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewId);
 
+        List<String> urls = reviewImageList.stream()
+            .map(FacilityReviewImage::getUrl)
+            .collect(Collectors.toList());
+
+        return urls;
+    }
+
+    public void updateFacilityReview(FacilityReviewDTO facilityReviewDTO){
+        Facility facility = facilityRepository.findById(facilityReviewDTO.getFacilityId()).orElseThrow(()->
+            new BaseException(GlobalErrorCode.BAD_REQUEST));
+
+        Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
+
+        if(facilityReview.isEmpty()) {
+            throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
+        }
+        FacilityReview existingFacilityReview = facilityReview.get();
+        existingFacilityReview.setContent(facilityReviewDTO.getContent());
+        facilityReviewRepository.save(existingFacilityReview);
+    }
+
+    public void updateFacilityReviewImages(FacilityReviewDTO facilityReviewDTO){
         Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
 
         if(facilityReview.isEmpty()) {
@@ -92,20 +107,33 @@ public class FacilityReviewService {
         }
 
         FacilityReview existingFacilityReview = facilityReview.get();
-        existingFacilityReview.setContent(facilityReviewDTO.getContext());
-        facilityReviewRepository.save(existingFacilityReview);
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewDTO.getFacilityReviewId());
+
+        for (FacilityReviewImage facilityReviewImage : reviewImageList) {
+            s3UploadImages.deleteFile(facilityReviewImage.getUrl());
+            facilityReviewImageRepository.deleteById(facilityReviewImage.getUrl());
+        }
+
+        try {
+            createFacilityReviewImages(facilityReviewDTO.getFiles(), existingFacilityReview);
+        } catch (IOException e) {
+            throw new FacilityReviewException(FacilityReviewErrorCode.GENERAL_ERROR);
+        }
+
     }
 
-    public void deleteFacilityReview(MemberCompositeKey memberCompositeKey, FacilityReviewDTO facilityReviewDTO){
-        Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
-            new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
-        Facility facility = facilityRepository.findById(facilityReviewDTO.getFacilityId()).orElseThrow(()->new BaseException(
-            GlobalErrorCode.BAD_REQUEST));
-
+    public void deleteFacilityReview(FacilityReviewDTO facilityReviewDTO){
         Optional<FacilityReview> facilityReview = facilityReviewRepository.findById(facilityReviewDTO.getFacilityReviewId());
 
         if(facilityReview.isEmpty()) {
             throw new FacilityReviewException(FacilityReviewErrorCode.FACILITY_REVIEW_NOT_FOUND);
+        }
+
+        List<FacilityReviewImage> reviewImageList = facilityReviewImageRepository.findByFacilityReviewId(facilityReviewDTO.getFacilityReviewId());
+
+        for (FacilityReviewImage facilityReviewImage : reviewImageList) {
+            s3UploadImages.deleteFile(facilityReviewImage.getUrl());
+            facilityReviewImageRepository.deleteById(facilityReviewImage.getUrl());
         }
 
         facilityReviewRepository.deleteById(facilityReviewDTO.getFacilityReviewId());
@@ -123,12 +151,9 @@ public class FacilityReviewService {
             String timestamp = dateFormat.format(new Date());
             String saveFileName = timestamp + "_" + file.getOriginalFilename();
             String fileUrl = s3UploadImages.upload(file, reviewImageDir, saveFileName);
-            int uploadOrder = i;
 
             FacilityReviewImage facilityReviewImage = new FacilityReviewImage(
                 fileUrl,
-                file.getOriginalFilename(),
-                uploadOrder,
                 facilityReview
             );
 
