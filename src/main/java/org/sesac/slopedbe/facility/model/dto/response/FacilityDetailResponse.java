@@ -14,6 +14,7 @@ public record FacilityDetailResponse (
 	Boolean hasElevator,
 	String businessHours,
 	String contact,
+	String content,
 	String createdAt,
 	String updatedAt
 ) {
@@ -30,6 +31,7 @@ public record FacilityDetailResponse (
 			facility.getHasElevator(),
 			facility.getBusinessHours(),
 			facility.getContact(),
+			facility.getContent(),
 			facility.getCreatedAt().toString(),
 			facility.getUpdatedAt().toString()
 		);

@@ -2,9 +2,10 @@ package org.sesac.slopedbe.roadreport.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.type.ReportStatus;
@@ -98,18 +99,17 @@ public class RoadReportServiceImpl implements RoadReportService {
 	// 3. RoadReportImage 저장
 	@Transactional
 	public void saveRoadReportImages(List<MultipartFile> files, RoadReport newRoadReport) throws IOException {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+
 		for (int i = 0; i < files.size(); i++) {
 			MultipartFile file = files.get(i);
 			if (!file.getContentType().startsWith("image")) {
 				throw new RoadReportException(RoadReportErrorCode.REPORT_IMAGE_UPLOAD_FAILED);
 			}
-			String uuid = UUID.randomUUID().toString();
-			String saveFileName = uuid + "_" + file.getOriginalFilename();
-			String fileUrl = s3UploadImages.upload(file, roadReportDir, file.getOriginalFilename());
 
-			log.info("uuid: {}", uuid);
-			log.info("saveFileName: {}", saveFileName);
-			log.info("fileUrl: {}", fileUrl);
+			String timestamp = dateFormat.format(new Date());
+			String saveFileName = timestamp + "_" + file.getOriginalFilename();
+			String fileUrl = s3UploadImages.upload(file, roadReportDir, saveFileName);
 
 			RoadReportImage roadReportImage = RoadReportImage.builder()
 				.url(fileUrl)
