@@ -19,4 +19,18 @@ public interface FacilityReviewRepository extends CrudRepository<FacilityReview,
 
 	@Query("SELECT fr FROM FacilityReview fr WHERE fr.member.id = :id")
 	List<FacilityReview> findByMemberId(@Param("id") MemberCompositeKey id);
+
+	@Query(value = "SELECT * FROM facility_review fr " +
+		"WHERE fr.facility_id = :facilityId " +
+		"ORDER BY fr.updated_at DESC " +
+		"LIMIT 5", nativeQuery = true)
+	List<FacilityReview> findTop5RecentReviewsByFacilityId(@Param("facilityId") Long facilityId);
+
+	@Query(value = "SELECT COUNT(*) FROM facility_review fr WHERE fr.facility_id = :facilityId", nativeQuery = true)
+	Long countReviewsByFacilityId(@Param("facilityId") Long facilityId);
+
+	@Query(value = "SELECT COUNT(*) FROM facility_review fr WHERE fr.facility_id = :facilityId AND fr.is_convenient = true", nativeQuery = true)
+	Long countConvenientReviewsByFacilityId(@Param("facilityId") Long facilityId);
+
 }
+

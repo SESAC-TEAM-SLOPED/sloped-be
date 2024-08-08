@@ -47,15 +47,15 @@ public class FacilityReviewController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @Operation(summary = "작성한 모든 리뷰 확인", description = "마이페이지용, 본인이 작성한 모든 리뷰 text, image를 확인한다.")
+    @Operation(summary = "유저가 작성한 모든 리뷰 확인", description = "마이페이지용, 본인이 작성한 모든 리뷰 text, image를 확인한다.")
     @ApiResponse(responseCode = "200", description = "리뷰 조회 성공")
     @ApiResponse(responseCode = "404", description = "작성한 리뷰가 없음")
     @GetMapping("/get-all-reviews")
-    public ResponseEntity<List<FacilityReviewResponseDTO>> readFacilityReviews(@RequestHeader("Authorization") String token){
+    public ResponseEntity<List<FacilityReviewResponseDTO>> readUserFacilityReviews(@RequestHeader("Authorization") String token){
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
-        List<FacilityReviewResponseDTO> reviews = facilityReviewService.readAllFacilityReviews(compositeKey);
+        List<FacilityReviewResponseDTO> reviews = facilityReviewService.readAllUserFacilityReviews(compositeKey);
         if (reviews.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }

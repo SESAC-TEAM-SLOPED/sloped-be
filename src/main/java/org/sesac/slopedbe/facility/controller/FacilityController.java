@@ -13,9 +13,12 @@ import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.service.FacilityService;
+import org.sesac.slopedbe.facilityreview.model.dto.FacilityReviewResponseDTO;
+import org.sesac.slopedbe.facilityreview.service.FacilityReviewService;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +47,7 @@ public class FacilityController {
 
     private final FacilityService facilityService;
     private final JwtUtil jwtUtil;
+    private final FacilityReviewService facilityReviewService;
 
     @Operation(summary = "Facility 조회", description = "시설 ID로 시설을 간단 조회한다. (Bottom Sheet)")
     @ApiResponse(responseCode = "200", description = "시설 조회 성공",
@@ -98,6 +102,33 @@ public class FacilityController {
     ) {
         return ResponseEntity.ok(facilityService.searchFacilities(name, latitude, longitude));
     }
+
+    @Operation(summary = "시설의 모든 리뷰 확인", description = "시설에 작성된 상위 5개 리뷰 text, image를 확인한다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공")
+    @ApiResponse(responseCode = "404", description = "작성한 리뷰가 없음")
+    @GetMapping("/{facilityId}/get-facility-reviews")
+    public ResponseEntity<List<FacilityReviewResponseDTO>> getFacilityReviews(
+        @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("facilityId") Long facilityId){
+        List<FacilityReviewResponseDTO> reviews = facilityReviewService.readTop5FacilityReviews(facilityId);
+        if (reviews.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(reviews);
+    }
+
+    @Operation(summary = "시설의 리뷰 개수, 편리함 개수 확인", description = "시설에 작성된 모든 리뷰 개수, 편리함, 개수를 확인한다.")
+    @ApiResponse(responseCode = "200", description = "리뷰 조회 성공")
+    @ApiResponse(responseCode = "404", description = "작성한 리뷰가 없음")
+    @GetMapping("/{facilityId}/get-facility-reviews-count")
+    public ResponseEntity<List<Long>> getFacilityReviewsCount(
+        @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("facilityId") Long facilityId){
+        List<Long> reviewCounts = facilityReviewService.findReviewCounts(facilityId);
+        if (reviewCounts.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.ok(reviewCounts);
+    }
+
 
     @Operation(summary = "모든 Facility List 조회", description = "어드민: 모든 시설 리스트를 조회한다.")
     @ApiResponse(responseCode = "200", description = "시설 리스트 조회 성공",

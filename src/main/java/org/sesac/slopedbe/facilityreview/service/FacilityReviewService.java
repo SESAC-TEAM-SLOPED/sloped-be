@@ -3,6 +3,8 @@ package org.sesac.slopedbe.facilityreview.service;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +69,7 @@ public class FacilityReviewService {
         }
     }
 
-    public List<FacilityReviewResponseDTO> readAllFacilityReviews(MemberCompositeKey memberCompositeKey) {
+    public List<FacilityReviewResponseDTO> readAllUserFacilityReviews(MemberCompositeKey memberCompositeKey) {
         List<FacilityReview> reviewEntities = facilityReviewRepository.findByMemberId(memberCompositeKey);
         List<FacilityReviewResponseDTO> reviews = new ArrayList<>();
 
@@ -75,7 +77,19 @@ public class FacilityReviewService {
             List<String> urls = readFacilityReviewImages(reviewEntity.getId());
             reviews.add(FacilityReviewResponseDTO.toReviewResponseDTO(reviewEntity, urls));
         }
-        log.info("reviews : {}", reviews);
+        reviews.sort(Comparator.comparing(FacilityReviewResponseDTO::getUpdatedAt).reversed());
+        return reviews;
+    }
+
+    public List<FacilityReviewResponseDTO> readTop5FacilityReviews(Long facilityId) {
+        List<FacilityReview> reviewEntities = facilityReviewRepository.findTop5RecentReviewsByFacilityId(facilityId);
+        List<FacilityReviewResponseDTO> reviews = new ArrayList<>();
+
+        for (FacilityReview reviewEntity : reviewEntities) {
+            List<String> urls = readFacilityReviewImages(reviewEntity.getId());
+            reviews.add(FacilityReviewResponseDTO.toReviewResponseDTO(reviewEntity, urls));
+        }
+        reviews.sort(Comparator.comparing(FacilityReviewResponseDTO::getUpdatedAt).reversed());
         return reviews;
     }
 
@@ -118,6 +132,12 @@ public class FacilityReviewService {
         }
 
         facilityReviewRepository.deleteById(facilityReviewId);
+    }
+
+    public List<Long> findReviewCounts(Long facilityId) {
+        Long totalReviews = facilityReviewRepository.countReviewsByFacilityId(facilityId);
+        Long convenientReviews = facilityReviewRepository.countConvenientReviewsByFacilityId(facilityId);
+        return Arrays.asList(totalReviews, convenientReviews);
     }
 
     private void createFacilityReviewImages(List<MultipartFile> files, FacilityReview facilityReview) throws IOException {
