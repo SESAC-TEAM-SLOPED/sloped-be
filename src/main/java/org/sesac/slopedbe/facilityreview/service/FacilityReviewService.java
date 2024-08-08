@@ -22,6 +22,7 @@ import org.sesac.slopedbe.facilityreview.model.entity.FacilityReview;
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReviewImage;
 import org.sesac.slopedbe.facilityreview.repository.FacilityReviewImageRepository;
 import org.sesac.slopedbe.facilityreview.repository.FacilityReviewRepository;
+import org.sesac.slopedbe.gpt.service.GPTService;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -44,6 +45,7 @@ public class FacilityReviewService {
     private final MemberRepository memberRepository;
     private final S3UploadImages s3UploadImages;
     private final FacilityReviewImageRepository facilityReviewImageRepository;
+    private final GPTService gptService;
 
     @Value("${REVIEW_DIR}")
     private String reviewImageDir;
@@ -156,11 +158,16 @@ public class FacilityReviewService {
             String timestamp = dateFormat.format(new Date());
             String saveFileName = timestamp + "_" + file.getOriginalFilename();
             String fileUrl = s3UploadImages.upload(file, reviewImageDir, saveFileName);
+            String imageCaption = gptService.sendImageWithMessage(fileUrl, "이 이미지를 보고 교통약자가 이용하기 적합한 공간인지 설명해줘");
 
             FacilityReviewImage facilityReviewImage = new FacilityReviewImage(
                 fileUrl,
-                facilityReview
+                facilityReview,
+                imageCaption
             );
+
+            log.info("[시설 리뷰 이미지 url]: {}", fileUrl);
+            log.info("[시설 리뷰 이미지 캡셔닝]: {}", imageCaption);
 
             facilityReviewImageRepository.save(facilityReviewImage);
         }
