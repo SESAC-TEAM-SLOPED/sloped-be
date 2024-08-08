@@ -52,7 +52,7 @@ public class FacilityController {
     @GetMapping("/{id}")
     public ResponseEntity<FacilityResponse> getFacilityById(
         @Parameter(description = "시설 ID (필수)", required = true)
-        @PathVariable Long id) {
+        @PathVariable(value = "id") Long id) {
         MemberCompositeKey memberCK = jwtUtil.getMemberCKFromHeader();
         return ResponseEntity.ok(facilityService.getFacility(id, memberCK));
     }
@@ -64,7 +64,7 @@ public class FacilityController {
     @GetMapping("/{id}/detail")
     public ResponseEntity<FacilityDetailResponse> getFacilityDetailById(
         @Parameter(description = "시설 ID (필수)", required = true)
-        @PathVariable Long id) {
+        @PathVariable(value = "id") Long id) {
         return ResponseEntity.ok(facilityService.getFacilityDetail(id));
     }
 
