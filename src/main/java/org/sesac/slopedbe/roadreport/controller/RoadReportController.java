@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.sesac.slopedbe.auth.util.JwtUtil;
 import org.sesac.slopedbe.common.type.AddressMapping;
+import org.sesac.slopedbe.gpt.service.GPTService;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.roadreport.model.dto.ReportModalInfoDTO;
@@ -41,6 +42,8 @@ public class RoadReportController {
     private final RoadReportCenterService roadReportCenterService;
     private final JwtUtil jwtUtil;
 
+    private final GPTService gptService;
+
     @Operation(summary = "도로 제보 업로드", description = "통행 불편 제보를 업로드합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "통행 불편 제보가 성공적으로 제출되었습니다."),
@@ -54,6 +57,9 @@ public class RoadReportController {
             MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token.substring(7));
 
             roadReportService.addRoadReport(email, oauthType, request);
+
+            //gptService.sendImageWithMessage()
+
             return ResponseEntity.status(HttpStatus.CREATED).body("통행 불편 제보가 성공적으로 제출되었습니다.");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());

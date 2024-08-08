@@ -17,5 +17,5 @@ public class ReportModalInfoDTO {
 	private Long id;
 	private List<RoadReportImageDTO> reportImageList;
 	private String content;
-
+	private String imageCaption;
 }
