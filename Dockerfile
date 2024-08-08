@@ -1,6 +1,5 @@
-FROM azul/zulu-openjdk:17-jre-latest
-WORKDIR /app
-ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} app.jar
+FROM openjdk:17-alpine
+COPY ./build/libs/*.jar backend.jar
+COPY .env .env
 EXPOSE 8080
-ENTRYPOINT ["java", "-Djava.security.egd=file:/dev/./urandom","-jar","app.jar"]
+ENTRYPOINT ["java", "-jar", "-Dspring.profiles.active=prod", "backend.jar"]

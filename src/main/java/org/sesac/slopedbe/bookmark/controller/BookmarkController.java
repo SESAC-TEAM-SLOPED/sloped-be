@@ -50,7 +50,6 @@ public class BookmarkController {
     @PostMapping("")
     public ResponseEntity<Void> addBookmark(@RequestHeader("Authorization") String token, @RequestBody
     BookmarkRequestDTO bookmarkRequestDTO) {
-        System.out.println(bookmarkRequestDTO.getFacilityId());
         String accessToken = token.substring(7);
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
 
