@@ -17,7 +17,7 @@ public interface RoadReportCallTaxiRepository extends JpaRepository<RoadReportCa
 		"WHERE r.address LIKE CONCAT(:cityName, '%') " +
 		"ORDER BY distance_km " +
 		"LIMIT 1", nativeQuery = true)
-	Optional<RoadReportCallTaxi> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude, String cityName);
+	Optional<RoadReportCallTaxi> findClosestCallTaxi(@Param("latitude") BigDecimal latitude, @Param("longitude") BigDecimal longitude, @Param("cityName") String cityName);
 
 	@Query(value = "SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END FROM road_report_call_taxi c " +
 		"JOIN road r ON c.road_id = r.id " +

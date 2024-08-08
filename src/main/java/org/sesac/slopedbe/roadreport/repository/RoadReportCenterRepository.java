@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface RoadReportCenterRepository extends JpaRepository<RoadReportCenter, Long> {
 	@Query("SELECT rrc FROM RoadReportCenter rrc WHERE rrc.road.id = :roadId")
-	Optional<RoadReportCenter> findByRoadId(Long roadId);
+	Optional<RoadReportCenter> findByRoadId(@Param("roadId") Long roadId);
 
 
 	@Query(value = "SELECT rrc.* " +
@@ -20,7 +20,7 @@ public interface RoadReportCenterRepository extends JpaRepository<RoadReportCent
 		"WHERE c.city_name LIKE CONCAT(:mappingCity, '%') " +
 		"ORDER BY ST_Distance(ST_SetSRID(ST_MakePoint(CAST(:longitude AS DOUBLE PRECISION), CAST(:latitude AS DOUBLE PRECISION)), 4326)::geography, r.point::geography) / 1000 ASC " +
 		"LIMIT 1", nativeQuery = true)
-	Optional<RoadReportCenter> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String mappingCity);
+	Optional<RoadReportCenter> findClosestCenter(@Param("latitude") BigDecimal latitude, @Param("longitude") BigDecimal longitude, @Param("mappingCity") String mappingCity);
 
 	@Query(value = "SELECT CASE WHEN COUNT(c) > 0 THEN TRUE ELSE FALSE END FROM road_report_center c " +
 		"JOIN road r ON c.road_id = r.id WHERE ST_DWithin(r.point, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), 0) " +
