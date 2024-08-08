@@ -8,4 +8,6 @@ import org.springframework.data.repository.CrudRepository;
 
 public interface RoadReportImageRepository extends CrudRepository<RoadReportImage, String>{
 	Optional<List<RoadReportImage>> findByRoadReportId(Long roadReportId);
+
+	List<RoadReportImage> findByFileName(String originalFileName);
 }

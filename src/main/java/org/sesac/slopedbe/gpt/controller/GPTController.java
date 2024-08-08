@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
@@ -21,10 +19,17 @@ public class GPTController {
 
 	private final GPTService gptService;
 
-	@PostMapping("")
-	public ResponseEntity<JsonNode> uploadImageWithMessage(
+	@PostMapping("/image")
+	public ResponseEntity<String> uploadImageWithMessage(
 		@RequestBody GPTRequestDTO gptRequestDTO) throws IOException {
-		JsonNode response = gptService.sendImageWithMessage(gptRequestDTO.getImage(), gptRequestDTO.getMessage());
+		String response = gptService.sendImageWithMessage(gptRequestDTO.getImage(), gptRequestDTO.getMessage());
+
+		return ResponseEntity.ok(response);
+	}
+
+	@PostMapping("")
+	public ResponseEntity<String> sendMessage(@RequestBody String message) throws IOException {
+		String response = gptService.sendMessage(message);
 
 		return ResponseEntity.ok(response);
 	}

@@ -33,4 +33,3 @@ public interface FacilityReviewRepository extends CrudRepository<FacilityReview,
 	Long countConvenientReviewsByFacilityId(@Param("facilityId") Long facilityId);
 
 }
-
