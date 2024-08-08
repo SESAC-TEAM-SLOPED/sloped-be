@@ -1,5 +1,7 @@
 package org.sesac.slopedbe.bookmark.model.dto;
 
+import java.math.BigDecimal;
+
 import org.sesac.slopedbe.bookmark.model.entity.Bookmark;
 import org.sesac.slopedbe.facility.model.type.FacilityType;
 
@@ -15,6 +17,8 @@ public class BookmarkResponseDTO {
 	private String name;
 	private FacilityType facilityType;
 	private String address;
+	private BigDecimal latitude;
+	private BigDecimal longitude;
 	private int countOfReviews;
 
 	public static BookmarkResponseDTO toBookmarkDTO(Bookmark bookmark) {
@@ -23,6 +27,8 @@ public class BookmarkResponseDTO {
 			bookmark.getFacility().getName(),
 			bookmark.getFacility().getFacilityType(),
 			bookmark.getFacility().getAddress(),
+			bookmark.getFacility().getLatitude(),
+			bookmark.getFacility().getLongitude(),
 			bookmark.getFacility().getFacilityReviews().size()
 		);
 	}
