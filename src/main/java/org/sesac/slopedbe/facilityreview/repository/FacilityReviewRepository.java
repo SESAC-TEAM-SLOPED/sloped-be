@@ -5,6 +5,7 @@ import java.util.List;
 import org.sesac.slopedbe.facilityreview.model.entity.FacilityReview;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 
 public interface FacilityReviewRepository extends CrudRepository<FacilityReview, Long> {
 	@Query(value = "SELECT fri.url " +
@@ -13,5 +14,5 @@ public interface FacilityReviewRepository extends CrudRepository<FacilityReview,
 		"WHERE fr.facility_id = :facilityId " +
 		"ORDER BY fr.created_at DESC, fri.created_at DESC " +
 		"LIMIT 3", nativeQuery = true)
-	List<String> findTop3ReviewImageUrlsByFacilityId(Long facilityId);
+	List<String> findTop3ReviewImageUrlsByFacilityId(@Param("facilityId") Long facilityId);
 }

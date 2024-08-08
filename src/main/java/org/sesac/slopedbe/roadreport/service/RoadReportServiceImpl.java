@@ -38,6 +38,7 @@ import org.sesac.slopedbe.roadreport.s3.S3UploadImages;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import lombok.RequiredArgsConstructor;
@@ -102,7 +103,6 @@ public class RoadReportServiceImpl implements RoadReportService {
 	}
 
 	private RoadReport saveRoadReport(String email, MemberOauthType oauthType, RoadReportFormDTO request, Road road) {
-		// member 정보 가져오기 (닉네임과 OAuth 타입 이용)
 		Member member = memberRepository.findById(new MemberCompositeKey(email, oauthType))
 			.orElseThrow(() -> new MemberException(MemberErrorCode.MEMBER_NOT_FOUND));
 
@@ -131,8 +131,26 @@ public class RoadReportServiceImpl implements RoadReportService {
 				throw new RoadReportException(RoadReportErrorCode.REPORT_IMAGE_UPLOAD_FAILED);
 			}
 
-			String timestamp = dateFormat.format(new Date());
-			String saveFileName = timestamp + "_" + file.getOriginalFilename();
+			String fileExtension = StringUtils.getFilenameExtension(file.getOriginalFilename()); // 확장자명
+			String originalFileName = file.getOriginalFilename();
+			String baseFileName = originalFileName;
+
+			// 확장자 제거된 파일명
+			if (fileExtension != null && !fileExtension.isEmpty()) {
+				baseFileName = originalFileName.substring(0, originalFileName.length() - fileExtension.length() - 1);
+			}
+			String saveFileName =  baseFileName;
+
+			// db에 중복 파일명 찾고, 있는 개수만큼 s3에는 파일명에 넘버링하는 로직
+			List<RoadReportImage> existingFiles = roadReportImageRepository.findByFileName(originalFileName);
+			if (!existingFiles.isEmpty()) {
+				int duplicateCount = existingFiles.size();
+				saveFileName = baseFileName + "_" + duplicateCount + "." + fileExtension;
+			} else {
+				saveFileName = originalFileName;
+			}
+				log.info("[도로 제보] 파일명: {}", saveFileName);
+
 			String fileUrl = s3UploadImages.upload(file, roadReportDir, saveFileName);
 
 			RoadReportImage roadReportImage = RoadReportImage.builder()

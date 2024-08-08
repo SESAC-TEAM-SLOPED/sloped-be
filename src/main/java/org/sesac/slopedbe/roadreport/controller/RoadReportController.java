@@ -115,7 +115,7 @@ public class RoadReportController {
         @ApiResponse(responseCode = "404", description = "통행불편 제보를 찾을 수 없음")
     })
     @GetMapping("/info/{roadReportId}")
-    public ResponseEntity<ReportModalInfoDTO> getReportInfo(@PathVariable Long roadReportId) {
+    public ResponseEntity<ReportModalInfoDTO> getReportInfo(@PathVariable(value = "roadReportId") Long roadReportId) {
         Optional<ReportModalInfoDTO> reportInfo = roadReportService.getReportInfo(roadReportId);
         return reportInfo.map(info -> new ResponseEntity<>(info, HttpStatus.OK))
             .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));

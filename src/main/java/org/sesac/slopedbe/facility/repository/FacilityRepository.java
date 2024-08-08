@@ -59,7 +59,7 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
 		"ORDER BY distance_meters ASC " +
 		"LIMIT 20",
 		nativeQuery = true)
-	List<FacilitySimpleVO> findByNameWithDistance(String name, double latitude, double longitude);
+	List<FacilitySimpleVO> findByNameWithDistance(@Param("name") String name, @Param("latitude") double latitude, @Param("longitude") double longitude);
 
 	@Query(value = "INSERT INTO facility (name, address, content, contact, facility_type, " +
 		"business_hours, has_slope, is_entrance_barrier, has_elevator, point, created_at, updated_at) " +
@@ -67,7 +67,15 @@ public interface FacilityRepository extends JpaRepository<Facility, Long> {
 		":businessHours, :hasSlope, :isEntranceBarrier, :hasElevator, " +
 		"ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), now(), now()) " +
 		"RETURNING id", nativeQuery = true)
-	Long saveFacilityAndReturnId(String name,
-		String address, String content, String contact, String facilityType, String businessHours, Boolean hasSlope,
-		Boolean isEntranceBarrier, Boolean hasElevator, BigDecimal longitude, BigDecimal latitude);
+	Long saveFacilityAndReturnId(@Param("name") String name,
+		@Param("address") String address,
+		@Param("content") String content,
+		@Param("contact") String contact,
+		@Param("facilityType") String facilityType,
+		@Param("businessHours") String businessHours,
+		@Param("hasSlope") Boolean hasSlope,
+		@Param("isEntranceBarrier") Boolean isEntranceBarrier,
+		@Param("hasElevator") Boolean hasElevator,
+		@Param("longitude") BigDecimal longitude,
+		@Param("latitude") BigDecimal latitude);
 }
