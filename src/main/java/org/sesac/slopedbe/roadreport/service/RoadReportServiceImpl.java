@@ -2,11 +2,15 @@ package org.sesac.slopedbe.roadreport.service;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.sesac.slopedbe.common.type.ReportStatus;
+import org.sesac.slopedbe.gpt.service.GPTService;
 import org.sesac.slopedbe.member.exception.MemberErrorCode;
 import org.sesac.slopedbe.member.exception.MemberException;
 import org.sesac.slopedbe.member.model.entity.Member;
@@ -51,6 +55,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 	private final RoadReportCenterRepository roadReportCenterRepository;
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 	private final MemberRepository memberRepository;
+	private final GPTService gptService;
 
 	@Value("${roadReportDir}")
 	private String roadReportDir;
@@ -68,8 +73,24 @@ public class RoadReportServiceImpl implements RoadReportService {
 		log.info("통행 불편 제보 업로드 시작");
 		try {
 			Road road = createAndSaveRoad(request.getLatitude(), request.getLongitude(), request.getAddress());
+
 			RoadReport newRoadReport = saveRoadReport(email, oauthType, request, road);
-			saveRoadReportImages(request.getFiles(), newRoadReport);
+			List<String> images = saveRoadReportImages(request.getFiles(), newRoadReport);
+
+			StringBuilder answers = new StringBuilder();
+
+			for (int i = 0; i < images.size(); i++) {
+				String answer = gptService.sendImageWithMessage(images.get(i), "이 사진에 나온 길이 교통약자가 이용하기 적합한 공간인지 설명해줘");
+				answers.append(i).append(". ").append(answer);
+				log.info("[통행불편 제보] 이미지 url: {}", images.get(i));
+				log.info("[통행불편 제보] 이미지 캡셔닝 결과: {}", answer);
+			}
+
+			String message = answers + "\n 이 설명들을 한줄로 요약해줘";
+			String imageCaption = gptService.sendMessage(message);
+
+			addImageCaption(imageCaption, newRoadReport);
+
 			log.info("통행 불편 제보가 성공적으로 제출되었습니다.");
 			return newRoadReport;
 		} catch (IllegalArgumentException e) {
@@ -94,9 +115,15 @@ public class RoadReportServiceImpl implements RoadReportService {
 		return roadReportRepository.save(newRoadReport);
 	}
 
+	private void addImageCaption(String imageCaption,RoadReport roadReport) {
+		roadReport.addImageCaption(imageCaption);
+	}
+
 	// 3. RoadReportImage 저장
 	@Transactional
-	public void saveRoadReportImages(List<MultipartFile> files, RoadReport newRoadReport) throws IOException {
+	public List<String> saveRoadReportImages(List<MultipartFile> files, RoadReport newRoadReport) throws IOException {
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMddHHmmss");
+		List<String> images = new ArrayList<>();
 
 		for (int i = 0; i < files.size(); i++) {
 			MultipartFile file = files.get(i);
@@ -133,7 +160,11 @@ public class RoadReportServiceImpl implements RoadReportService {
 				.uploadOrder(i)
 				.build();
 			roadReportImageRepository.save(roadReportImage);
+
+			images.add(fileUrl);
 		}
+
+		return images;
 	}
 
 	@Override
@@ -182,6 +213,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 				.id(roadReport.getId())
 				.reportImageList(reportImageDTOs)
 				.content(roadReport.getContent())
+				.imageCaption(roadReport.getImageCaption())
 				.build();
 
 			return Optional.of(reportModalInfoDTO);

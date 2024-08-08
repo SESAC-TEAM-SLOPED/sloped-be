@@ -17,7 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface RoadReportService {
 	Road createAndSaveRoad(BigDecimal latitude, BigDecimal longitude, String address);	Optional<ReportModalInfoDTO> getReportInfo(Long roadId);
 	RoadReport addRoadReport(String email, MemberOauthType oauthType,  RoadReportFormDTO request) throws IOException;
-	void saveRoadReportImages(List<MultipartFile> files, RoadReport newRoadReport) throws IOException;
+	List<String> saveRoadReportImages(List<MultipartFile> files, RoadReport newRoadReport) throws IOException;
 	Optional<RoadReportCenterDTO> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String cityName);
 	Optional<RoadReportCallTaxiDTO> findClosestCallTaxi(BigDecimal latitude, BigDecimal longitude, String cityName);
 }

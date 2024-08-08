@@ -60,12 +60,18 @@ public class RoadReport extends BaseTimeEntity {
     @OneToMany(mappedBy = "roadReport")
     private List<RoadReportImage> roadReportImages;
 
+    private String imageCaption;
+
     public static RoadReport createRoadReport(String content, ReportStatus status, String reasonForReject, Road road){
         return RoadReport.builder()
             .road(road)
             .status(ReportStatus.PENDING)
             .content(content)
             .build();
+    }
+
+    public void addImageCaption(String caption){
+        this.imageCaption = caption;
     }
 
     @Override
