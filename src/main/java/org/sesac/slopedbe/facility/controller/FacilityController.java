@@ -103,7 +103,7 @@ public class FacilityController {
         return ResponseEntity.ok(facilityService.searchFacilities(name, latitude, longitude));
     }
 
-    @Operation(summary = "시설의 모든 리뷰 확인", description = "시설에 작성된 상위 5개 리뷰 text, image를 확인한다.")
+    @Operation(summary = "시설의 모든 리뷰 확인", description = "시설에 작성된 리뷰 text, image를 확인한다.")
     @ApiResponse(responseCode = "200", description = "리뷰 조회 성공")
     @ApiResponse(responseCode = "404", description = "작성한 리뷰가 없음")
     @GetMapping("/{facilityId}/get-facility-reviews")

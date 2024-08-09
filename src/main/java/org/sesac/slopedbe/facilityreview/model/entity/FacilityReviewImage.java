@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 @Entity
 public class FacilityReviewImage extends BaseTimeEntity {
     @Id
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String url;
 
     @ManyToOne
