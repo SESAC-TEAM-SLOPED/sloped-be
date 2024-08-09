@@ -17,7 +17,7 @@ public interface RoadReportCenterRepository extends JpaRepository<RoadReportCent
 		"FROM road_report_center rrc " +
 		"JOIN road r ON rrc.road_id = r.id " +
 		"JOIN road_korea_city c ON rrc.city_id = c.id " +
-		"WHERE c.city_name LIKE CONCAT(:mappingCity, '%') " +
+		"WHERE c.region_name LIKE CONCAT(:mappingCity, '%')" +
 		"ORDER BY ST_Distance(ST_SetSRID(ST_MakePoint(CAST(:longitude AS DOUBLE PRECISION), CAST(:latitude AS DOUBLE PRECISION)), 4326)::geography, r.point::geography) / 1000 ASC " +
 		"LIMIT 1", nativeQuery = true)
 	Optional<RoadReportCenter> findClosestCenter(@Param("latitude") BigDecimal latitude, @Param("longitude") BigDecimal longitude, @Param("mappingCity") String mappingCity);

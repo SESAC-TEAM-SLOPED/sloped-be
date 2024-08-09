@@ -91,7 +91,6 @@ public class MemberServiceImpl implements MemberService {
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
-
 		memberRepository.deleteById(memberCompositeKey);
 	}
 
