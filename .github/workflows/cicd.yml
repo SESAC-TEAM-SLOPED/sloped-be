@@ -85,7 +85,7 @@ jobs:
           echo "Deployment started..."
           
           echo "Changing to /home/ec2-user/spring directory..."
-          cd /home/ec2-user/docker/spring
+          cd /home/opc/docker/spring
           
           # Login to GitHub Container Registry
           echo "Logging in to GitHub Container Registry..."
