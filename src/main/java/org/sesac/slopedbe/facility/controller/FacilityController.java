@@ -109,7 +109,7 @@ public class FacilityController {
     @GetMapping("/{facilityId}/get-facility-reviews")
     public ResponseEntity<List<FacilityReviewResponseDTO>> getFacilityReviews(
         @Parameter(description = "시설 ID (필수)", required = true) @PathVariable("facilityId") Long facilityId){
-        List<FacilityReviewResponseDTO> reviews = facilityReviewService.readTop5FacilityReviews(facilityId);
+        List<FacilityReviewResponseDTO> reviews = facilityReviewService.readAllFacilityReviews(facilityId);
         if (reviews.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
