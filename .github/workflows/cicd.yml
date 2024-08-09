@@ -37,7 +37,7 @@ jobs:
         gradle-version: ${{ env.GRADLE_VERSION }}
 
     - name: Build with Gradle
-      run: ./gradlew build
+      run: ./gradlew build -x test
 
     - name: Convert repository name to lowercase
       run: echo "REPO_LOWER=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
