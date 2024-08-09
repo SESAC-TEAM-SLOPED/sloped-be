@@ -170,6 +170,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 		String cityName) {
 		log.info("가장 가까운 콜택시 요청 - 위도: {}, 경도: {}, 도시: {}", latitude, longitude, cityName);
 		Optional<RoadReportCallTaxi> reportCallTaxi = roadReportCallTaxiRepository.findClosestCallTaxi(latitude, longitude, cityName);
+		log.info("가장 가까운 콜택시 반환 결과: {}", reportCallTaxi.get().getCallTaxiName());
 		return reportCallTaxi.map(callTaxi -> RoadReportCallTaxiDTO.builder()
 			.callTaxiName(callTaxi.getCallTaxiName())
 			.callTaxiContact(callTaxi.getCallTaxiContact())
