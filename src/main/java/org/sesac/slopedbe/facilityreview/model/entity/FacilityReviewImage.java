@@ -25,9 +25,13 @@ public class FacilityReviewImage extends BaseTimeEntity {
     @JoinColumn(name = "facility_review_id", nullable = false)
     private FacilityReview facilityReview;
 
-    public FacilityReviewImage(String url, FacilityReview facilityReview) {
+    @Column
+    private String imageCaption;
+
+    public FacilityReviewImage(String url, FacilityReview facilityReview, String imageCaption) {
         this.url = url;
         this.facilityReview = facilityReview;
+        this.imageCaption = imageCaption;
     }
 
 }
