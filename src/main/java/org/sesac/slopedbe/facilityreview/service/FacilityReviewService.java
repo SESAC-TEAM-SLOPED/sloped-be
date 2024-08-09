@@ -102,6 +102,7 @@ public class FacilityReviewService {
         }
         FacilityReview existingFacilityReview = facilityReview.get();
         existingFacilityReview.setContent(facilityReviewRequestDTO.getContent());
+        existingFacilityReview.setIsConvenient(facilityReviewRequestDTO.getIsConvenient());
         facilityReviewRepository.save(existingFacilityReview);
 
         //기존 image 모두 제거
