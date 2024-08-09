@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -75,21 +74,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 			Road road = createAndSaveRoad(request.getLatitude(), request.getLongitude(), request.getAddress());
 
 			RoadReport newRoadReport = saveRoadReport(email, oauthType, request, road);
-			List<String> images = saveRoadReportImages(request.getFiles(), newRoadReport);
-
-			StringBuilder answers = new StringBuilder();
-
-			for (int i = 0; i < images.size(); i++) {
-				String answer = gptService.sendImageWithMessage(images.get(i), "이 사진에 나온 길이 교통약자가 이용하기 적합한 공간인지 설명해줘");
-				answers.append(i).append(". ").append(answer);
-				log.info("[통행불편 제보] 이미지 url: {}", images.get(i));
-				log.info("[통행불편 제보] 이미지 캡셔닝 결과: {}", answer);
-			}
-
-			String message = answers + "\n 이 설명들을 한줄로 요약해줘";
-			String imageCaption = gptService.sendMessage(message);
-
-			addImageCaption(imageCaption, newRoadReport);
+			List<String> roadReportImage = saveRoadReportImages(request.getFiles(), newRoadReport);
 
 			log.info("통행 불편 제보가 성공적으로 제출되었습니다.");
 			return newRoadReport;
@@ -113,10 +98,6 @@ public class RoadReportServiceImpl implements RoadReportService {
 			.member(member)
 			.build();
 		return roadReportRepository.save(newRoadReport);
-	}
-
-	private void addImageCaption(String imageCaption,RoadReport roadReport) {
-		roadReport.addImageCaption(imageCaption);
 	}
 
 	// 3. RoadReportImage 저장
@@ -163,6 +144,8 @@ public class RoadReportServiceImpl implements RoadReportService {
 
 			images.add(fileUrl);
 		}
+
+		gptService.generateRoadImageCaption(newRoadReport.getId(), images);
 
 		return images;
 	}

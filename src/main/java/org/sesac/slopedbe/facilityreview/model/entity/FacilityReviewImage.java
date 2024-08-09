@@ -33,4 +33,8 @@ public class FacilityReviewImage extends BaseTimeEntity {
         this.facilityReview = facilityReview;
     }
 
+    public void addImageCaption(String caption) {
+        this.imageCaption = caption;
+    }
+
 }
