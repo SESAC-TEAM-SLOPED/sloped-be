@@ -8,7 +8,6 @@ import org.sesac.slopedbe.member.model.dto.request.MemberRequest;
 import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
-import org.sesac.slopedbe.member.model.type.MemberStatus;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -92,11 +91,7 @@ public class MemberServiceImpl implements MemberService {
 		if (member.isEmpty()) {
 			throw new MemberException(MemberErrorCode.MEMBER_NOT_FOUND);
 		}
-		memberRepository.updateMemberStatusToWithdrawn(
-			memberCompositeKey.getEmail(),
-			memberCompositeKey.getOauthType().name(),
-			MemberStatus.WITHDRAWN.name()  // Enum을 문자열로 변환
-		);
+		memberRepository.deleteById(memberCompositeKey);
 	}
 
 	@Override
