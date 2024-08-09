@@ -7,10 +7,12 @@ import org.sesac.slopedbe.facility.exception.FacilityErrorCode;
 import org.sesac.slopedbe.facility.exception.FacilityException;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
+import org.sesac.slopedbe.facility.model.dto.response.FacilityScoreResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
-import org.sesac.slopedbe.facility.model.dto.vo.FacilitySimpleVO;
-import org.sesac.slopedbe.facility.model.dto.vo.FacilityVO;
 import org.sesac.slopedbe.facility.model.entity.Facility;
+import org.sesac.slopedbe.facility.model.vo.FacilityScoreVO;
+import org.sesac.slopedbe.facility.model.vo.FacilitySimpleVO;
+import org.sesac.slopedbe.facility.model.vo.FacilityVO;
 import org.sesac.slopedbe.facility.repository.FacilityRepository;
 import org.sesac.slopedbe.facilityreview.repository.FacilityReviewRepository;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
@@ -86,5 +88,12 @@ public class FacilityService {
             facility.getLongitude(),
             facility.getLatitude()
         );
+    }
+
+    public List<FacilityScoreResponse> getFacilityListOrderByScores(double latitude, double longitude, double distanceInMeters) {
+        List<FacilityScoreVO> facilities = facilityRepository.findNearbyFacilitiesSortedByAccessibilityScore(latitude, longitude, distanceInMeters);
+        return facilities.stream()
+                .map(FacilityScoreResponse::new)
+                .toList();
     }
 }
