@@ -51,17 +51,17 @@ public class TokenAuthenticationService {
 	@Value("${JWT_REFRESH_EXPIRATION_TIME}")
 	private int refreshTokenExpirationTime;
 
-	@PostConstruct
-	private void init() {
-		accessTokenExpirationTime = accessTokenExpirationTime / 1000;
-		refreshTokenExpirationTime = refreshTokenExpirationTime / 1000;
-	}
-
 	public TokenAuthenticationService (MemberRepository memberRepository, JwtUtil jwtUtil, LoginServiceImpl loginService, AuthenticationManager authenticationManager){
 		this.memberRepository = memberRepository;
 		this.jwtUtil = jwtUtil;
 		this.loginService = loginService;
 		this.authenticationManager = authenticationManager;
+	}
+
+	@PostConstruct
+	private void init() {
+		accessTokenExpirationTime = accessTokenExpirationTime / 1000;
+		refreshTokenExpirationTime = refreshTokenExpirationTime / 1000;
 	}
 
 	private void saveRefreshToken(Member member, String refreshToken) throws MemberException {
@@ -189,9 +189,10 @@ public class TokenAuthenticationService {
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
 		Cookie cookie = new Cookie(name, value);
 		cookie.setHttpOnly(false);  // 테스트 코드
-		cookie.setSecure(false);    // 테스트 코드
+		cookie.setSecure(true); // 테스트 코드
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
+		response.setHeader("Set-Cookie", "SameSite=None;");
 		response.addCookie(cookie);
 	}
 
