@@ -1,6 +1,6 @@
 package org.sesac.slopedbe.facility.model.dto.response;
 
-import org.sesac.slopedbe.facility.model.dto.vo.FacilitySimpleVO;
+import org.sesac.slopedbe.facility.model.vo.FacilitySimpleVO;
 import org.sesac.slopedbe.facility.model.type.FacilityType;
 
 public record FacilitySimpleResponse(

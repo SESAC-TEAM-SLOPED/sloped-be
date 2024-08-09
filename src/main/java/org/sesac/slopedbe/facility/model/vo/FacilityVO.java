@@ -1,4 +1,4 @@
-package org.sesac.slopedbe.facility.model.dto.vo;
+package org.sesac.slopedbe.facility.model.vo;
 
 import java.math.BigDecimal;
 

@@ -10,6 +10,7 @@ import org.sesac.slopedbe.facility.model.dto.request.CreateFacilityRequest;
 import org.sesac.slopedbe.facility.model.dto.response.CreateFacilityResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityDetailResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilityResponse;
+import org.sesac.slopedbe.facility.model.dto.response.FacilityScoreResponse;
 import org.sesac.slopedbe.facility.model.dto.response.FacilitySimpleResponse;
 import org.sesac.slopedbe.facility.model.entity.Facility;
 import org.sesac.slopedbe.facility.service.FacilityService;
@@ -163,4 +164,16 @@ public class FacilityController {
 
         return ResponseEntity.created(location).body(new CreateFacilityResponse(facilityId));
     }
+
+    @Operation(summary = "Facility 추천 리스트 조회", description = "현재 위치 근처 접근성 점수가 높은 10개를 점수가 높은 순서대로 반환합니다.")
+    @ApiResponse(responseCode = "200", description = "시설 조회 성공")
+    @GetMapping("/recommendation")
+    public ResponseEntity<List<FacilityScoreResponse>> getFacilityListOrderByScores(
+        @Parameter(description = "현재 위치 Latitude (필수)", required = true) @RequestParam("latitude") double latitude,
+        @Parameter(description = "현재 위치 Longitude (필수)", required = true) @RequestParam("longitude") double longitude,
+        @Parameter(description = "반경 거리(단위: 미터) (필수)", required = true) @RequestParam("distance_meters") double distance_meters
+    ) {
+        return ResponseEntity.ok(facilityService.getFacilityListOrderByScores(latitude, longitude, distance_meters));
+    }
+
 }
