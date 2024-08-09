@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,10 +47,12 @@ public class FacilityReviewService {
     private final S3UploadImages s3UploadImages;
     private final FacilityReviewImageRepository facilityReviewImageRepository;
     private final GPTService gptService;
+    private final ReviewAssessmentService reviewAssessmentService;
 
     @Value("${REVIEW_DIR}")
     private String reviewImageDir;
 
+    @Transactional
     public void createFacilityReview (MemberCompositeKey memberCompositeKey, Long facilityId, FacilityReviewRequestDTO facilityReviewRequestDTO){
         Member member = memberRepository.findById(memberCompositeKey).orElseThrow(()->
             new MemberException(MemberErrorCode.MEMBER_ID_NOT_FOUND));
@@ -66,9 +69,15 @@ public class FacilityReviewService {
 
         try {
             createFacilityReviewImages(facilityReviewRequestDTO.getFiles(), facilityReview);
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new FacilityReviewException(FacilityReviewErrorCode.GENERAL_ERROR);
         }
+
+        reviewAssessmentService.getAssessmentAsync(facility.getId(), facilityReview.getId())
+            .exceptionally(e -> {
+                log.error("리뷰 평가에 실패하였습니다.", e);
+                return null;
+            });
     }
 
     public List<FacilityReviewResponseDTO> readAllUserFacilityReviews(MemberCompositeKey memberCompositeKey) {
@@ -120,6 +129,12 @@ public class FacilityReviewService {
         } catch (IOException e) {
             throw new FacilityReviewException(FacilityReviewErrorCode.GENERAL_ERROR);
         }
+
+        reviewAssessmentService.getAssessmentAsync(existingFacilityReview.getFacility().getId(), existingFacilityReview.getId())
+            .exceptionally(e -> {
+                log.error("리뷰 평가에 실패하였습니다.", e);
+                return null;
+            });
     }
 
     public void deleteFacilityReview(Long facilityReviewId){
