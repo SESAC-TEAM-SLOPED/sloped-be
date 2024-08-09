@@ -101,7 +101,8 @@ jobs:
           
           # Stop and remove the existing Spring container if it exists
           echo "Stopping and removing existing Spring container..."
-          docker-compose down
+          docker-compose stop spring-app
+          docker-compose rm spring-app
           
           # Start the new Spring container
           echo "Starting new Spring container..."
