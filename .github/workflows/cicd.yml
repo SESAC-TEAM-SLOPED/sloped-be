@@ -84,7 +84,7 @@ jobs:
           set -e
           echo "Deployment started..."
           
-          echo "Changing to /home/ec2-user/spring-boot directory..."
+          echo "Changing to /home/ec2-user/spring directory..."
           cd /home/ec2-user/docker/spring
           
           # Login to GitHub Container Registry
@@ -99,21 +99,21 @@ jobs:
           echo "Creating .env file..."
           echo "${{ env.ENV_CONTENT }}" > .env
           
-          # Stop and remove the existing Spring Boot container if it exists
-          echo "Stopping existing Spring Boot container..."
-          docker stop spring-boot-container || true
-          docker rm spring-boot-container || true
+          # Stop and remove the existing Spring container if it exists
+          echo "Stopping existing Spring container..."
+          docker stop spring-container || true
+          docker rm spring-container || true
           
-          # Start the new Spring Boot container
-          echo "Starting new Spring Boot container..."
-          docker run -d --name spring-boot-container \
+          # Start the new Spring container
+          echo "Starting new Spring container..."
+          docker run -d --name spring-container \
             -p 8080:8080 \
             -v $(pwd)/.env:/app/.env \
             ${{ env.REGISTRY }}/${{ env.REPO_LOWER }}:latest
           
-          # Verify the Spring Boot container is running
-          echo "Verifying Spring Boot container status..."
-          docker ps | grep spring-boot-container
+          # Verify the Spring container is running
+          echo "Verifying Spring container status..."
+          docker ps | grep spring-container
           
           # Cleanup
           echo "Cleaning up old images..."
