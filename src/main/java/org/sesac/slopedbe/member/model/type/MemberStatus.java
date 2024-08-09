@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MemberStatus {
 	ACTIVE("STATUS_ACTIVE"),
-	BLOCKED("STATUS_BLOCKED");
+	BLOCKED("STATUS_BLOCKED"),
+	WITHDRAWN("STATUS_WITHDRAWN"); // 탈퇴
 
 	private final String value;
 }

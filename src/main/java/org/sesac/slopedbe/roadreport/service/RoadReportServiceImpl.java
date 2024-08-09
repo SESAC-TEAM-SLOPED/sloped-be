@@ -17,6 +17,7 @@ import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.sesac.slopedbe.road.model.entity.Road;
+import org.sesac.slopedbe.road.repository.RoadKoreaCityRepository;
 import org.sesac.slopedbe.road.repository.RoadRepository;
 import org.sesac.slopedbe.roadreport.exception.RoadReportErrorCode;
 import org.sesac.slopedbe.roadreport.exception.RoadReportException;
@@ -55,6 +56,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 	private final RoadReportCallTaxiRepository roadReportCallTaxiRepository;
 	private final MemberRepository memberRepository;
 	private final GPTService gptService;
+	private final RoadKoreaCityRepository roadKoreacityRepository;
 
 	@Value("${roadReportDir}")
 	private String roadReportDir;
@@ -153,8 +155,9 @@ public class RoadReportServiceImpl implements RoadReportService {
 	@Override
 	public Optional<RoadReportCenterDTO> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String cityName) {
 		log.info("가장 가까운 민원기관 요청 - 위도: {}, 경도: {}, 도시: {}", latitude, longitude, cityName);
+		String closetRegion = roadKoreacityRepository.findComplaintRegionByCityName(cityName);
 		Optional<RoadReportCenter> reportCenter = roadReportCenterRepository.findClosestCenter(latitude, longitude, cityName);
-		log.info("결과: {}", reportCenter);
+		log.info("가장 가까운 민원기관 반환 결과: {}", reportCenter.get().getCenterName());
 		return reportCenter.map(center -> RoadReportCenterDTO.builder()
 			.id(center.getId())
 			.centerName(center.getCenterName())

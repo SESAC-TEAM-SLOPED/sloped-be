@@ -49,7 +49,7 @@ public class MemberController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "회원 탈퇴", description = "마이페이지용, 요청된 회원 정보를 DB에서 삭제한다.")
+    @Operation(summary = "회원 탈퇴", description = "마이페이지용, 요청된 회원 정보에서 WITHDRAWN 상태로 변경합니다.")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "회원 탈퇴 성공"),
         @ApiResponse(responseCode = "404", description = "회원 정보를 찾을 수 없음.")

@@ -3,7 +3,6 @@ package org.sesac.slopedbe.road.repository;
 import java.util.Optional;
 
 import org.sesac.slopedbe.road.model.entity.Road;
-import org.springframework.context.annotation.Description;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
