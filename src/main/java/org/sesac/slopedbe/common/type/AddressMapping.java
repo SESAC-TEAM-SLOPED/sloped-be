@@ -15,6 +15,7 @@ public enum AddressMapping {
 	CHUNGBUK("충북", "충청북도"),
 	JEONNAM("전남", "전라남도"),
 	JEONBUK("전북", "전북특별자치도"),
+	JEOLLABUKDO("전라북도", "전북특별자치도"),
 	JEJU("제주도", "제주특별자치도"),
 	ULSAN("울산", "울산광역시"),
 	DAEGU("대구", "대구광역시"),
