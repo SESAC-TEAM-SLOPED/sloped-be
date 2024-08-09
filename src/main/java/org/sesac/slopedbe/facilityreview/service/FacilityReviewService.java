@@ -81,8 +81,8 @@ public class FacilityReviewService {
         return reviews;
     }
 
-    public List<FacilityReviewResponseDTO> readTop5FacilityReviews(Long facilityId) {
-        List<FacilityReview> reviewEntities = facilityReviewRepository.findTop5RecentReviewsByFacilityId(facilityId);
+    public List<FacilityReviewResponseDTO> readAllFacilityReviews(Long facilityId) {
+        List<FacilityReview> reviewEntities = facilityReviewRepository.findAllReviewsByFacilityId(facilityId);
         List<FacilityReviewResponseDTO> reviews = new ArrayList<>();
 
         for (FacilityReview reviewEntity : reviewEntities) {
