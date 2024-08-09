@@ -27,11 +27,12 @@ public class RoadServiceImpl implements RoadService {
 	private final RoadRepository roadRepository;
 
 	@Transactional
-	public List<RoadMarkerInfoDTO> getApprovedRoadPoints() {
+	public List<RoadMarkerInfoDTO> getApprovedRoadPoints(double latitude, double longitude, double distance_meters, int limit) {
 		try {
-			log.info("getApprovedRoadPoints 호출");
+			log.info("getApprovedRoadPoints 호출- 위도: {}, 경도: {}, 미터:{}, 제한개수: {}", latitude, longitude, distance_meters, limit);
 
-			List<RoadReport> approvedReports = roadReportRepository.findByStatus(ReportStatus.APPROVED);
+			String status = String.valueOf(ReportStatus.APPROVED);
+			List<RoadReport> approvedReports = roadReportRepository.findByLocationAndStatus(latitude, longitude, distance_meters, limit, status);
 
 			if (approvedReports.isEmpty()) {
 				log.info("승인된 통행 불편 제보가 없습니다.");

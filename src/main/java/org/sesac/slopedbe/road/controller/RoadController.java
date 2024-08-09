@@ -4,10 +4,13 @@ import java.util.List;
 
 import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
 import org.sesac.slopedbe.road.service.RoadService;
+import org.sesac.slopedbe.roadreport.exception.RoadReportErrorCode;
+import org.sesac.slopedbe.roadreport.exception.RoadReportException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,8 +31,17 @@ public class RoadController {
         @ApiResponse(responseCode = "500", description = "서버 내부 오류")
     })
     @GetMapping("/get-points")
-    public ResponseEntity<List<RoadMarkerInfoDTO>> getApprovedRoadPoints() {
-        List<RoadMarkerInfoDTO> approvedPoints = roadService.getApprovedRoadPoints();
+    public ResponseEntity<List<RoadMarkerInfoDTO>> getApprovedRoadPoints(
+        @Parameter(description = "현재 위치 Latitude (필수)", required = true) @RequestParam("latitude") double latitude,
+        @Parameter(description = "현재 위치 Longitude (필수)", required = true) @RequestParam("longitude") double longitude,
+        @Parameter(description = "반경 거리(단위: 미터) (필수)", required = true) @RequestParam("distance_meters") double distance_meters,
+        @Parameter(description = "검색할 도로 제보 개수 (필수)", required = true) @RequestParam("limit") int limit
+    ) {
+        List<RoadMarkerInfoDTO> approvedPoints = roadService.getApprovedRoadPoints(latitude, longitude, distance_meters, limit);
+
+        if (limit > 100) {
+            throw new RoadReportException(RoadReportErrorCode.ROAD_REPORT_LIMIT_EXCEEDED);
+        }
         return ResponseEntity.ok(approvedPoints);
     }
 

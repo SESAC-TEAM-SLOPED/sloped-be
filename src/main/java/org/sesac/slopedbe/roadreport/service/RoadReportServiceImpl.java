@@ -108,7 +108,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 
 		RoadReport newRoadReport = RoadReport.builder()
 			.content(request.getContent())
-			.status(ReportStatus.PENDING)
+			.status(ReportStatus.APPROVED)
 			.road(road)
 			.member(member)
 			.build();
@@ -171,6 +171,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 	public Optional<RoadReportCenterDTO> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String cityName) {
 		log.info("가장 가까운 민원기관 요청 - 위도: {}, 경도: {}, 도시: {}", latitude, longitude, cityName);
 		Optional<RoadReportCenter> reportCenter = roadReportCenterRepository.findClosestCenter(latitude, longitude, cityName);
+		log.info("결과: {}", reportCenter);
 		return reportCenter.map(center -> RoadReportCenterDTO.builder()
 			.id(center.getId())
 			.centerName(center.getCenterName())
@@ -225,6 +226,7 @@ public class RoadReportServiceImpl implements RoadReportService {
 	private RoadReportImageDTO convertToDTO(RoadReportImage roadReportImage) {
 		return RoadReportImageDTO.builder()
 			.url(roadReportImage.getUrl())
+			.roadReportId(roadReportImage.getRoadReport().getId())
 			.fileName(roadReportImage.getFileName())
 			.uploadOrder(roadReportImage.getUploadOrder())
 			.build();

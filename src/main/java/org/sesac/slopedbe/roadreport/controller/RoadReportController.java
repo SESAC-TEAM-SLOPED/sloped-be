@@ -83,6 +83,7 @@ public class RoadReportController {
     @PostMapping("/connect-center")
     public ResponseEntity<RoadReportCenterDTO> getClosestRoad(@RequestBody RoadMarkerInfoDTO request) {
         String cityName = AddressMapping.getMappedCity(request.getAddress());
+        log.info("매핑된 도시명: {}", cityName);
         Optional<RoadReportCenterDTO> reportCenter = roadReportService.findClosestCenter(request.getLatitude(), request.getLongitude(), cityName);
 
         if (reportCenter.isPresent()) {
