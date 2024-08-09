@@ -188,8 +188,8 @@ public class TokenAuthenticationService {
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
 		Cookie cookie = new Cookie(name, value);
-		cookie.setHttpOnly(false); //test
-		cookie.setSecure(false); //test
+		cookie.setHttpOnly(true); //test
+		cookie.setSecure(true); //test
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
 		response.addCookie(cookie);
