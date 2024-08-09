@@ -16,7 +16,9 @@ public record FacilityDetailResponse (
 	String contact,
 	String content,
 	String createdAt,
-	String updatedAt
+	String updatedAt,
+	String accessibilityDescription,
+	Long averageAccessibilityScore
 ) {
 	public FacilityDetailResponse(Facility facility) {
 		this(
@@ -33,7 +35,9 @@ public record FacilityDetailResponse (
 			facility.getContact(),
 			facility.getContent(),
 			facility.getCreatedAt().toString(),
-			facility.getUpdatedAt().toString()
+			facility.getUpdatedAt().toString(),
+			facility.getAccessibilityDescription(),
+			facility.getAverageAccessibilityScore()
 		);
 	}
 }
