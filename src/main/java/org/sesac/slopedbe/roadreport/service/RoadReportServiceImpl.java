@@ -155,8 +155,8 @@ public class RoadReportServiceImpl implements RoadReportService {
 	@Override
 	public Optional<RoadReportCenterDTO> findClosestCenter(BigDecimal latitude, BigDecimal longitude, String cityName) {
 		log.info("가장 가까운 민원기관 요청 - 위도: {}, 경도: {}, 도시: {}", latitude, longitude, cityName);
-		String closetRegion = roadKoreacityRepository.findComplaintRegionByCityName(cityName);
-		Optional<RoadReportCenter> reportCenter = roadReportCenterRepository.findClosestCenter(latitude, longitude, cityName);
+		String complaintRegion = roadKoreacityRepository.findComplaintRegionByCityName(cityName);
+		Optional<RoadReportCenter> reportCenter = roadReportCenterRepository.findClosestCenter(latitude, longitude, complaintRegion);
 		log.info("가장 가까운 민원기관 반환 결과: {}", reportCenter.get().getCenterName());
 		return reportCenter.map(center -> RoadReportCenterDTO.builder()
 			.id(center.getId())
