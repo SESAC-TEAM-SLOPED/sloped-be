@@ -40,7 +40,7 @@ public class OAuth2UserService {
 
 		if (memberOptional.isEmpty()) {
 			log.info("{} 소셜 회원, 회원 가입 필요", oauthType);
-			String redirectUrl = String.format("http://localhost:3000/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
+			String redirectUrl = String.format("https://www.togetheroad.me/login/register/social?email=%s&oauthType=%s", email, oauthType.name());
 			response.sendRedirect(redirectUrl);
 		}
 

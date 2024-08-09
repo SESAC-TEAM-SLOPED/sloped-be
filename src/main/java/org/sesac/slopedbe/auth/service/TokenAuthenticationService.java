@@ -183,7 +183,7 @@ public class TokenAuthenticationService {
 		log.info("Generated access token: {}", accessToken);
 		log.info("Generated refresh token: {}", refreshToken);
 
-		response.sendRedirect("http://localhost:3000/get-jwt");
+		response.sendRedirect("https://www.togetheroad.me/get-jwt");
 	}
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
@@ -192,6 +192,7 @@ public class TokenAuthenticationService {
 		cookie.setSecure(true); // 테스트 코드
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
+		cookie.setAttribute("SameSite", "None");
 		response.addCookie(cookie);
 	}
 
