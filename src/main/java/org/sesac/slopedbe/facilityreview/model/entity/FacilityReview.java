@@ -16,8 +16,10 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "facility_review")
 @Entity
@@ -45,4 +47,13 @@ public class FacilityReview extends BaseTimeEntity {
     private Member member;
 
     private Long accessibilityScore;
+
+    public FacilityReview(Boolean isConvenient, String content, Facility facility, Member member) {
+        this.isConvenient = isConvenient;
+        this.content = content;
+        this.facility = facility;
+        this.member = member;
+    }
+
+
 }
