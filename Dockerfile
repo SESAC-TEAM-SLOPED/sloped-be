@@ -1,4 +1,5 @@
 FROM openjdk:17-alpine
+WORKDIR /app
 COPY ./build/libs/*.jar backend.jar
 COPY .env .env
 EXPOSE 8080
