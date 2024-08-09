@@ -21,7 +21,6 @@ public class FacilityReviewResponseDTO {
 	private String content;
 	private List<String> urls;
 	private LocalDateTime updatedAt;
-	private String aiDescription;
 
 	public static FacilityReviewResponseDTO toReviewResponseDTO(FacilityReview facilityReview, List<String> urls) {
 		return new FacilityReviewResponseDTO(
@@ -32,8 +31,7 @@ public class FacilityReviewResponseDTO {
 			facilityReview.getIsConvenient(),
 			facilityReview.getContent(),
 			urls,
-			facilityReview.getUpdatedAt(),
-			facilityReview.getFacility().getAccessibilityDescription()
+			facilityReview.getUpdatedAt()
 		);
 	}
 }

@@ -22,14 +22,14 @@ public class GPTController {
 	@PostMapping("/image")
 	public ResponseEntity<String> uploadImageWithMessage(
 		@RequestBody GPTRequestDTO gptRequestDTO) throws IOException {
-		String response = gptService.sendImageWithMessage(gptRequestDTO.getImage(), gptRequestDTO.getMessage());
+		String response = "";
 
 		return ResponseEntity.ok(response);
 	}
 
 	@PostMapping("")
 	public ResponseEntity<String> sendMessage(@RequestBody String message) throws IOException {
-		String response = gptService.sendMessage(message);
+		String response = "";
 
 		return ResponseEntity.ok(response);
 	}

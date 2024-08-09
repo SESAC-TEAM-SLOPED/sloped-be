@@ -28,10 +28,13 @@ public class FacilityReviewImage extends BaseTimeEntity {
     @Column
     private String imageCaption;
 
-    public FacilityReviewImage(String url, FacilityReview facilityReview, String imageCaption) {
+    public FacilityReviewImage(String url, FacilityReview facilityReview) {
         this.url = url;
         this.facilityReview = facilityReview;
-        this.imageCaption = imageCaption;
+    }
+
+    public void addImageCaption(String caption) {
+        this.imageCaption = caption;
     }
 
 }

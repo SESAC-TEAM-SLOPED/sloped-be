@@ -1,18 +1,13 @@
 package org.sesac.slopedbe.gpt.service;
 
 import java.io.IOException;
+import java.util.List;
+
+import org.sesac.slopedbe.facilityreview.model.entity.FacilityReviewImage;
 
 public interface GPTService {
 
-	String sendMessage(String message) throws IOException;
-
-	/**
-	 * Sends an image file and a message to an external API.
-	 *
-	 * @param imageFile The image file to be sent.
-	 * @param message The message to be sent along with the image.
-	 * @return The response from the API.
-	 * @throws IOException If there is an error reading the file or making the request.
-	 */
-	String sendImageWithMessage(String imageUrl, String message) throws IOException;
+	void generateReviewImageCaption(List<FacilityReviewImage> images) throws IOException;
+	void generateRoadImageCaption(Long roadReportId,
+		List<String> images) throws IOException;
 }
