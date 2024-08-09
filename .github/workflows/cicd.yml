@@ -100,20 +100,16 @@ jobs:
           echo "${{ env.ENV_CONTENT }}" > .env
           
           # Stop and remove the existing Spring container if it exists
-          echo "Stopping existing Spring container..."
-          docker stop spring-container || true
-          docker rm spring-container || true
+          echo "Stopping and removing existing Spring container..."
+          docker-compose down
           
           # Start the new Spring container
           echo "Starting new Spring container..."
-          docker run -d --name spring-container \
-            -p 8080:8080 \
-            -v $(pwd)/.env:/app/.env \
-            ${{ env.REGISTRY }}/${{ env.REPO_LOWER }}:latest
+          docker-compose up -d spring-app
           
           # Verify the Spring container is running
           echo "Verifying Spring container status..."
-          docker ps | grep spring-container
+          docker-compose ps spring-app
           
           # Cleanup
           echo "Cleaning up old images..."
