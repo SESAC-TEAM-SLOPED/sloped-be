@@ -194,7 +194,7 @@ spring:
           google:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
-            user-info-uri: https://api.googleapis.com/oauth2/v3/userinfo
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
             user-name-attribute: email
 
 logging:
