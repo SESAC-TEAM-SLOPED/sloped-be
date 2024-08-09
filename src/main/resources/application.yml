@@ -143,7 +143,7 @@ spring:
             required: true
   data:
     redis:
-      host: localhost
+      host: ${BE_REDIS_HOST}
       port: 6379
   jwt:
     access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME}
