@@ -48,6 +48,7 @@ public class LoginController {
 		IOException {
 
 		log.info("Login attempt for user: {}", loginRequest.memberId());
+		response.setHeader("Set-Cookie", "SameSite=None; Secure;");
 		return tokenAuthenticationService.createAuthenticationToken(loginRequest, response);
 	}
 
