@@ -192,6 +192,7 @@ public class TokenAuthenticationService {
 		cookie.setSecure(false); //test
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
+		cookie.setAttribute("SameSite", "None");
 		response.addCookie(cookie);
 	}
 
