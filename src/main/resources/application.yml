@@ -198,10 +198,23 @@ spring:
             user-name-attribute: email
 
 logging:
+  file:
+    name: /home/opc/sloped/sloped-be/application-test.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   level:
-    org:
-      sesac:
-        slopedbe: INFO
+    root: INFO
+    org.springframework.web: DEBUG
+    com.yourpackage: DEBUG
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_FILE}.%d{yyyy-MM-dd_HH-mm}.%i.log
+      clean-history-on-start: false
+      max-file-size: 10MB
+      total-size-cap: 1GB
+      max-history: 30
+    rolling-interval: 5m
 cloud:
   aws:
     stack:
