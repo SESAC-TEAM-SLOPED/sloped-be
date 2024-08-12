@@ -188,11 +188,11 @@ public class TokenAuthenticationService {
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
 		Cookie cookie = new Cookie(name, value);
-		cookie.setHttpOnly(true); //test
-		cookie.setSecure(true); //test
+		cookie.setHttpOnly(true);
+		cookie.setSecure(true);
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
-		cookie.setDomain("https://togetheroad.me");
+		cookie.setDomain("togetheroad.me");
 		response.addCookie(cookie);
 	}
 
