@@ -192,6 +192,7 @@ public class TokenAuthenticationService {
 		cookie.setSecure(true); //test
 		cookie.setPath("/");
 		cookie.setMaxAge(maxAge);
+		cookie.setDomain("https://togetheroad.me");
 		response.addCookie(cookie);
 	}
 
