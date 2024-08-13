@@ -116,6 +116,8 @@ public class SocialLoginController {
 	@PostMapping("/api/auth/exchange-token")
 	public ResponseEntity<Map<String, String>> exchangeToken(@RequestBody Map<String, String> request) {
 		String encodedToken = request.get("encodedToken");
+		log.info("encodedToken : {}", encodedToken); //test
+
 		if (encodedToken == null) {
 			return ResponseEntity.badRequest().body(Map.of("error", "Encoded token is required"));
 		}
