@@ -23,10 +23,12 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/users/bookmark")
 @RestController
+@Slf4j
 public class BookmarkController {
 
     private final BookmarkService bookmarkService;
@@ -51,7 +53,10 @@ public class BookmarkController {
     public ResponseEntity<Void> addBookmark(@RequestHeader("Authorization") String token, @RequestBody
     BookmarkRequestDTO bookmarkRequestDTO) {
         String accessToken = token.substring(7);
+        log.info("accessToken: {}", accessToken); //test
+
         MemberCompositeKey compositeKey = jwtUtil.extractCompositeKey(accessToken);
+        log.info("compositeKey: {}", compositeKey); //test
 
         bookmarkService.addBookmark(compositeKey, bookmarkRequestDTO);
         return ResponseEntity.noContent().build();
