@@ -1,8 +1,6 @@
 package org.sesac.slopedbe.auth.controller;
 
 import java.io.IOException;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,16 +9,19 @@ import org.sesac.slopedbe.auth.model.dto.response.KakaoUserInfoResponse;
 import org.sesac.slopedbe.auth.model.dto.response.NaverUserInfoResponse;
 import org.sesac.slopedbe.auth.service.OAuth2UserService;
 import org.sesac.slopedbe.auth.service.SocialLoginService;
+import org.sesac.slopedbe.auth.service.TokenAuthenticationService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.WebUtils;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,10 +31,12 @@ public class SocialLoginController {
 
 	private final SocialLoginService socialLoginService;
 	private final OAuth2UserService oAuth2UserService;
+	private final TokenAuthenticationService tokenAuthenticationService;
 
-	public SocialLoginController(OAuth2UserService oAuth2UserService, SocialLoginService socialLoginService){
+	public SocialLoginController(OAuth2UserService oAuth2UserService, SocialLoginService socialLoginService, TokenAuthenticationService tokenAuthenticationService){
 		this.socialLoginService = socialLoginService;
 		this.oAuth2UserService = oAuth2UserService;
+		this.tokenAuthenticationService = tokenAuthenticationService;
 	}
 
 	@Value("${spring.security.oauth2.client.registration.google.client-id}")
@@ -114,18 +117,9 @@ public class SocialLoginController {
 	}
 
 	@PostMapping("/api/auth/exchange-token")
-	public ResponseEntity<Map<String, String>> exchangeToken(@RequestBody Map<String, String> request) {
-		String encodedToken = request.get("encodedToken");
-		log.info("encodedToken : {}", encodedToken); //test
-
-		if (encodedToken == null) {
-			return ResponseEntity.badRequest().body(Map.of("error", "Encoded token is required"));
-		}
-		try {
-			String decodedToken = URLDecoder.decode(encodedToken, StandardCharsets.UTF_8);
-			return ResponseEntity.ok(Map.of("accessToken", decodedToken));
-		} catch (Exception e) {
-			return ResponseEntity.badRequest().body(Map.of("error", "Failed to decode token"));
-		}
+	public void exchangeToken(HttpServletRequest request, HttpServletResponse response) {
+		Cookie refreshTokenCookie = WebUtils.getCookie(request, "refreshToken");
+		String refreshToken = refreshTokenCookie.getValue();
+		tokenAuthenticationService.createAccessTokenUsingRefreshToken(response, refreshToken);
 	}
 }
