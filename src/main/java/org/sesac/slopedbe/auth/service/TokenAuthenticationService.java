@@ -105,10 +105,8 @@ public class TokenAuthenticationService {
 
 		Map<String, String> successResponse = new HashMap<>();
 		successResponse.put("message", "Login successful");
-		successResponse.put("refreshToken", refreshToken);
-		return ResponseEntity.ok()
-			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.body(successResponse);
+		successResponse.put("accessToken", accessToken);
+		return ResponseEntity.ok(successResponse);
 	}
 
 	public ResponseEntity<Map<String, String>> renewToken(String expiredAccessToken, String refreshToken, HttpServletResponse response) throws IOException {
