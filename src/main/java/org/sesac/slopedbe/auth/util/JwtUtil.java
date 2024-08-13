@@ -68,6 +68,8 @@ public class JwtUtil {
 			fakeId = "default_value";
 		}
 
+		claims.put("sub", fakeId);
+
 		if (expirationTime == accessTokenExpirationTime) {
 			claims.put("nickname", userDetails.getMember().getNickname());
 			claims.put("authType", userDetails.getUserOauthType().toString());
