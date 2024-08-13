@@ -3,8 +3,6 @@ package org.sesac.slopedbe.auth.service;
 import static org.sesac.slopedbe.auth.service.LoginServiceImpl.*;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -172,16 +170,25 @@ public class TokenAuthenticationService {
 	}
 
 	public void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException {
-		Member member = userDetails.getMember();
-		String accessToken = jwtUtil.generateAccessToken(userDetails);
 		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
-
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
-
-		String encodedAccessToken = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
-		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt?accessToken=%s", encodedAccessToken);
+		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt");
 
 		response.sendRedirect(redirectUrl);
+	}
+
+	public ResponseEntity<Map<String, String>> createAccessTokenUsingRefreshToken(HttpServletResponse response, String refreshToken){
+		String email = jwtUtil.extractEmailFromToken(refreshToken);
+		MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(refreshToken);
+		String compositeKey = createCompositeKey(email, oauthType);
+		final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
+		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
+		Map<String, String> successResponse = new HashMap<>();
+		successResponse.put("message", "Access token 발급 완료");
+
+		return ResponseEntity.ok()
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+			.body(successResponse);
 	}
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
