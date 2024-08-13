@@ -178,6 +178,8 @@ public class TokenAuthenticationService {
 	}
 
 	public ResponseEntity<Map<String, String>> createAccessTokenUsingRefreshToken(HttpServletResponse response, String refreshToken){
+		log.info("createAccessTokenUsingRefreshToken 시작");
+
 		String email = jwtUtil.extractEmailFromToken(refreshToken);
 		MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(refreshToken);
 		String compositeKey = createCompositeKey(email, oauthType);
@@ -185,6 +187,8 @@ public class TokenAuthenticationService {
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 		Map<String, String> successResponse = new HashMap<>();
 		successResponse.put("message", "Access token 발급 완료");
+
+		log.info("accessToken: {}",accessToken);
 
 		return ResponseEntity.ok()
 			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
