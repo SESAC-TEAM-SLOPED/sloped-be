@@ -51,11 +51,13 @@ public class JwtUtil {
 
 	public String generateAccessToken(GeneralUserDetails userDetails) {
 		String accessToken = generateToken(userDetails, accessTokenExpirationTime);
+		log.info("발급 accessToken : {}", accessToken);
 		return accessToken;
 	}
 
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
 		String refreshToken =generateToken(userDetails, refreshTokenExpirationTime);
+		log.info("발급 refreshToken : {}", refreshToken);
 		return refreshToken;
 	}
 
