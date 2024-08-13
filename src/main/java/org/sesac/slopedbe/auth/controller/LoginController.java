@@ -48,7 +48,7 @@ public class LoginController {
 		IOException {
 
 		log.info("Login attempt for user: {}", loginRequest.memberId());
-		return tokenAuthenticationService.createAuthenticationToken(loginRequest, response);
+		return tokenAuthenticationService.localLoginToken(loginRequest, response);
 	}
 
 	@Operation(summary = "회원 가입", description = "소셜 유저 정보를 DB에 저장한다.")

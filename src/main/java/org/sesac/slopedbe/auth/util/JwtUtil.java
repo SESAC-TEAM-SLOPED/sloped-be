@@ -1,5 +1,7 @@
 package org.sesac.slopedbe.auth.util;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,6 +13,7 @@ import javax.crypto.SecretKey;
 import org.sesac.slopedbe.auth.exception.JwtErrorCode;
 import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
+import org.sesac.slopedbe.auth.service.FakeIdService;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,37 +37,47 @@ public class JwtUtil {
 	private final SecretKey key;
 	private final long accessTokenExpirationTime;
 	private final long refreshTokenExpirationTime;
+	private final FakeIdService fakeIdService;
 
 	public JwtUtil(@Value("${JWT_SECRET_KEY}") String secretKey,
 		@Value("${JWT_ACCESS_EXPIRATION_TIME}") long accessTokenExpirationTime,
-		@Value("${JWT_REFRESH_EXPIRATION_TIME}") long refreshTokenExpirationTime) {
+		@Value("${JWT_REFRESH_EXPIRATION_TIME}") long refreshTokenExpirationTime,
+		FakeIdService fakeIdService) {
 		this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
 		this.accessTokenExpirationTime = accessTokenExpirationTime;
 		this.refreshTokenExpirationTime = refreshTokenExpirationTime;
+		this.fakeIdService = fakeIdService;
 	}
 
 	public String generateAccessToken(GeneralUserDetails userDetails) {
-		Map<String, Object> claims = new HashMap<>();
-		claims.put("nickname", userDetails.getMember().getNickname());
-		claims.put("oauthType", userDetails.getUserOauthType());
-
-		return Jwts.builder()
-			.setClaims(claims)
-			.setSubject(userDetails.getUsername())
-			.setIssuedAt(new Date(System.currentTimeMillis()))
-			.setExpiration(new Date(System.currentTimeMillis() + accessTokenExpirationTime))
-			.signWith(key, SignatureAlgorithm.HS256)
-			.compact();
+		return generateToken(userDetails, accessTokenExpirationTime);
 	}
 
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
+		return generateToken(userDetails, refreshTokenExpirationTime);
+	}
+
+	private String generateToken(GeneralUserDetails userDetails, long expirationTime) {
 		Map<String, Object> claims = new HashMap<>();
-		claims.put("oauthType", userDetails.getUserOauthType());
+		String fakeId;
+
+		try {
+			fakeId = fakeIdService.generateFakeId(userDetails.getUsername(), userDetails.getUserOauthType());
+		} catch (NoSuchAlgorithmException | InvalidKeyException e) {
+			log.info("Error generating fake ID", e);
+			fakeId = "default_value";
+		}
+
+		if (expirationTime == accessTokenExpirationTime) {
+			claims.put("nickname", userDetails.getMember().getNickname());
+			claims.put("authType", userDetails.getUserOauthType().toString());
+		}
+
 		return Jwts.builder()
 			.setClaims(claims)
-			.setSubject(userDetails.getUsername())
+			.setSubject(fakeId)
 			.setIssuedAt(new Date(System.currentTimeMillis()))
-			.setExpiration(new Date(System.currentTimeMillis() + refreshTokenExpirationTime))
+			.setExpiration(new Date(System.currentTimeMillis() + expirationTime))
 			.signWith(key, SignatureAlgorithm.HS256)
 			.compact();
 	}
@@ -77,9 +90,7 @@ public class JwtUtil {
 		return jwsClaims.getBody();
 	}
 
-	public String extractEmailFromToken(String token) {
-		log.info("Extracting email from token: {}", token);
-
+	public String extractEmailFromToken(String token){
 		try {
 			Jws<Claims> claimsJws = Jwts.parserBuilder()
 				.setSigningKey(key)
@@ -87,12 +98,12 @@ public class JwtUtil {
 				.parseClaimsJws(token);
 
 			Claims body = claimsJws.getBody();
-			String email = body.getSubject();
-			return email;
+			String fakeId = body.getSubject();
+			return fakeIdService.extractEmailFromFakeId(fakeId);
 		} catch (ExpiredJwtException e) {
 			Claims body = e.getClaims();
-			String email = body.getSubject();
-			return email;
+			String fakeId = body.getSubject();
+			return fakeIdService.extractEmailFromFakeId(fakeId);
 		} catch (Exception e) {
 			log.error("Error extracting email from token", e);
 			return null;
@@ -100,16 +111,21 @@ public class JwtUtil {
 	}
 
 	public MemberOauthType extractOAuthTypeFromToken(String token) {
-
 		try {
-			String oauthTypeValue = getClaimFromToken(token, claims -> claims.get("oauthType", String.class));
-			return MemberOauthType.valueOf(oauthTypeValue);
+			Jws<Claims> claimsJws = Jwts.parserBuilder()
+				.setSigningKey(key)
+				.build()
+				.parseClaimsJws(token);
+
+			Claims body = claimsJws.getBody();
+			String fakeId = body.getSubject();
+			return fakeIdService.extractOAuthTypeFromFakeId(fakeId);
 		} catch (ExpiredJwtException e) {
 			Claims body = e.getClaims();
-			String oauthTypeValue = body.get("oauthType", String.class);
-			return MemberOauthType.valueOf(oauthTypeValue);
+			String fakeId = body.getSubject();
+			return fakeIdService.extractOAuthTypeFromFakeId(fakeId);
 		} catch (Exception e) {
-			log.error("Error extracting OAuth type from token", e);
+			log.error("Error extracting email from token", e);
 			return null;
 		}
 	}
@@ -152,6 +168,7 @@ public class JwtUtil {
 		return extractExpirationDate(token).before(new Date());
 	}
 
+	//수정
 	public Boolean validateToken(String token, String userEmail) {
 		final String extractedUserEmail = extractAllClaims(token).getSubject();
 		return (extractedUserEmail.equals(userEmail) && !isTokenExpired(token));

@@ -3,6 +3,8 @@ package org.sesac.slopedbe.auth.service;
 import static org.sesac.slopedbe.auth.service.LoginServiceImpl.*;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +21,7 @@ import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -86,8 +89,7 @@ public class TokenAuthenticationService {
 		}
 	}
 
-	public ResponseEntity<Map<String, String>> createAuthenticationToken(LoginRequest loginRequest, HttpServletResponse response) throws
-		IOException {
+	public ResponseEntity<Map<String, String>> localLoginToken (LoginRequest loginRequest, HttpServletResponse response) throws IOException {
 		Optional<Member> memberOptional = memberRepository.findByMemberId(loginRequest.memberId());
 
 		if (!memberOptional.isPresent()) {
@@ -95,7 +97,7 @@ public class TokenAuthenticationService {
 		}
 
 		Member member = memberOptional.get();
-		String email = memberOptional.get().getId().getEmail();
+		String email = member.getId().getEmail();
 		String compositeKey = createCompositeKey(email, MemberOauthType.LOCAL);
 
 		try {
@@ -117,17 +119,17 @@ public class TokenAuthenticationService {
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 		final String refreshToken = generateAndSaveRefreshTokenIfNeeded((GeneralUserDetails) userDetails);
 
-		setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
 		Map<String, String> successResponse = new HashMap<>();
 		successResponse.put("message", "Login successful");
-		successResponse.put("accessToken", accessToken);
 		successResponse.put("refreshToken", refreshToken);
-		return ResponseEntity.ok(successResponse);
+		return ResponseEntity.ok()
+			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+			.body(successResponse);
 	}
 
-	public ResponseEntity<Map<String, String>> refreshToken(String expiredAccessToken, String refreshToken, HttpServletResponse response) throws IOException {
+	public ResponseEntity<Map<String, String>> renewToken(String expiredAccessToken, String refreshToken, HttpServletResponse response) throws IOException {
 		try {
 			String email = jwtUtil.extractEmailFromToken(expiredAccessToken);
 			MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(expiredAccessToken);
@@ -145,26 +147,24 @@ public class TokenAuthenticationService {
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 
-				setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
-
 				Map<String, String> successResponse = new HashMap<>();
 				successResponse.put("message", "Access token 갱신 완료");
-				successResponse.put("accessToken", accessToken);
-				return ResponseEntity.ok(successResponse);
+				return ResponseEntity.ok()
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+					.body(successResponse);
 			} else {
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
 				saveRefreshToken(member, newRefreshToken);
-
-				setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
 				setCookie(response, "refreshToken", newRefreshToken, refreshTokenExpirationTime);
 
 				Map<String, String> successResponse = new HashMap<>();
 				successResponse.put("message", "Access token, refresh token 갱신 완료");
-				successResponse.put("accessToken", accessToken);
 				successResponse.put("refreshToken", newRefreshToken);
-				return ResponseEntity.ok(successResponse);
+				return ResponseEntity.ok()
+					.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
+					.body(successResponse);
 			}
 		} catch (Exception e) {
 			throw new AuthException(AuthErrorCode.AUTHENTICATION_FAILED);
@@ -176,14 +176,12 @@ public class TokenAuthenticationService {
 		String accessToken = jwtUtil.generateAccessToken(userDetails);
 		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
 
-		saveRefreshToken(member, refreshToken);
-		setCookie(response, "accessToken", accessToken, accessTokenExpirationTime);
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
-		log.info("Generated access token: {}", accessToken);
-		log.info("Generated refresh token: {}", refreshToken);
+		String encodedAccessToken = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
+		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt?accessToken=%s", encodedAccessToken);
 
-		response.sendRedirect("https://www.togetheroad.me/get-jwt");
+		response.sendRedirect(redirectUrl);
 	}
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
@@ -195,5 +193,7 @@ public class TokenAuthenticationService {
 		cookie.setDomain("togetheroad.me");
 		response.addCookie(cookie);
 	}
+
+
 
 }
