@@ -117,9 +117,10 @@ public class SocialLoginController {
 	}
 
 	@PostMapping("/api/auth/exchange-token")
-	public void exchangeToken(HttpServletRequest request, HttpServletResponse response) {
+	public ResponseEntity<Map<String, String>> exchangeToken(HttpServletRequest request, HttpServletResponse response) {
 		Cookie refreshTokenCookie = WebUtils.getCookie(request, "refreshToken");
 		String refreshToken = refreshTokenCookie.getValue();
-		tokenAuthenticationService.createAccessTokenUsingRefreshToken(response, refreshToken);
+
+		return tokenAuthenticationService.createAccessTokenUsingRefreshToken(response, refreshToken);
 	}
 }
