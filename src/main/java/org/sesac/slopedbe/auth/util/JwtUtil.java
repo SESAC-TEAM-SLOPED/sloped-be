@@ -50,11 +50,15 @@ public class JwtUtil {
 	}
 
 	public String generateAccessToken(GeneralUserDetails userDetails) {
-		return generateToken(userDetails, accessTokenExpirationTime);
+		String accessToken = generateToken(userDetails, accessTokenExpirationTime);
+		log.info("발급 accessToken : {}", accessToken);
+		return accessToken;
 	}
 
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
-		return generateToken(userDetails, refreshTokenExpirationTime);
+		String refreshToken =generateToken(userDetails, refreshTokenExpirationTime);
+		log.info("발급 refreshToken : {}", refreshToken);
+		return refreshToken;
 	}
 
 	private String generateToken(GeneralUserDetails userDetails, long expirationTime) {
@@ -67,8 +71,6 @@ public class JwtUtil {
 			log.info("Error generating fake ID", e);
 			fakeId = "default_value";
 		}
-
-		claims.put("sub", fakeId);
 
 		if (expirationTime == accessTokenExpirationTime) {
 			claims.put("nickname", userDetails.getMember().getNickname());
