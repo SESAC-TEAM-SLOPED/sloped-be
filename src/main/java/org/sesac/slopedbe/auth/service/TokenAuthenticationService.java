@@ -168,12 +168,10 @@ public class TokenAuthenticationService {
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 		Map<String, String> successResponse = new HashMap<>();
 		successResponse.put("message", "Access token 발급 완료");
-
+		successResponse.put("accessToken", accessToken);
 		log.info("accessToken: {}",accessToken);
 
-		return ResponseEntity.ok()
-			.header(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken)
-			.body(successResponse);
+		return ResponseEntity.ok(successResponse);
 	}
 
 	private void setCookie(HttpServletResponse response, String name, String value, int maxAge) {
