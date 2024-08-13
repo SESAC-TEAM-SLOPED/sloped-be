@@ -65,26 +65,10 @@ public class TokenAuthenticationService {
 		refreshTokenExpirationTime = refreshTokenExpirationTime / 1000;
 	}
 
-	private void saveRefreshToken(Member member, String refreshToken) throws MemberException {
-		member.setRefreshToken(refreshToken);
-		memberRepository.save(member);
-	}
+
 
 	private boolean validateRefreshToken(Member member, String refreshToken) throws MemberException {
 		return member.getRefreshToken().equals(refreshToken);
-	}
-
-	private String generateAndSaveRefreshTokenIfNeeded(GeneralUserDetails userDetails) throws MemberException {
-		Member member = userDetails.getMember();
-		String refreshToken = member.getRefreshToken();
-
-		if (refreshToken == null || !jwtUtil.validateToken(refreshToken, userDetails.getUsername())) {
-			refreshToken = jwtUtil.generateRefreshToken(userDetails);
-			saveRefreshToken(member, refreshToken);
-			return refreshToken;
-		} else {
-			return refreshToken;
-		}
 	}
 
 	public ResponseEntity<Map<String, String>> localLoginToken (LoginRequest loginRequest, HttpServletResponse response) throws IOException {
@@ -115,7 +99,7 @@ public class TokenAuthenticationService {
 
 		final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 		final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
-		final String refreshToken = generateAndSaveRefreshTokenIfNeeded((GeneralUserDetails) userDetails);
+		final String refreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
 
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
@@ -154,7 +138,6 @@ public class TokenAuthenticationService {
 				final UserDetails userDetails = loginService.loadUserByUsername(compositeKey);
 				final String accessToken = jwtUtil.generateAccessToken((GeneralUserDetails) userDetails);
 				final String newRefreshToken = jwtUtil.generateRefreshToken((GeneralUserDetails) userDetails);
-				saveRefreshToken(member, newRefreshToken);
 				setCookie(response, "refreshToken", newRefreshToken, refreshTokenExpirationTime);
 
 				Map<String, String> successResponse = new HashMap<>();
@@ -170,7 +153,7 @@ public class TokenAuthenticationService {
 	}
 
 	public void createSocialAuthenticationCookies(HttpServletResponse response, GeneralUserDetails userDetails) throws IOException {
-		String refreshToken = generateAndSaveRefreshTokenIfNeeded(userDetails);
+		String refreshToken = jwtUtil.generateRefreshToken(userDetails);
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt");
 

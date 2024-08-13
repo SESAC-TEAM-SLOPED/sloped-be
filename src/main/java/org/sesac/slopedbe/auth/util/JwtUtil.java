@@ -14,8 +14,11 @@ import org.sesac.slopedbe.auth.exception.JwtErrorCode;
 import org.sesac.slopedbe.auth.exception.JwtException;
 import org.sesac.slopedbe.auth.model.GeneralUserDetails;
 import org.sesac.slopedbe.auth.service.FakeIdService;
+import org.sesac.slopedbe.member.exception.MemberException;
+import org.sesac.slopedbe.member.model.entity.Member;
 import org.sesac.slopedbe.member.model.entity.MemberCompositeKey;
 import org.sesac.slopedbe.member.model.type.MemberOauthType;
+import org.sesac.slopedbe.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
@@ -38,15 +41,17 @@ public class JwtUtil {
 	private final long accessTokenExpirationTime;
 	private final long refreshTokenExpirationTime;
 	private final FakeIdService fakeIdService;
+	private final MemberRepository memberRepository;
 
 	public JwtUtil(@Value("${JWT_SECRET_KEY}") String secretKey,
 		@Value("${JWT_ACCESS_EXPIRATION_TIME}") long accessTokenExpirationTime,
 		@Value("${JWT_REFRESH_EXPIRATION_TIME}") long refreshTokenExpirationTime,
-		FakeIdService fakeIdService) {
+		FakeIdService fakeIdService, MemberRepository memberRepository) {
 		this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
 		this.accessTokenExpirationTime = accessTokenExpirationTime;
 		this.refreshTokenExpirationTime = refreshTokenExpirationTime;
 		this.fakeIdService = fakeIdService;
+		this.memberRepository = memberRepository;
 	}
 
 	public String generateAccessToken(GeneralUserDetails userDetails) {
@@ -57,8 +62,13 @@ public class JwtUtil {
 
 	public String generateRefreshToken(GeneralUserDetails userDetails) {
 		String refreshToken =generateToken(userDetails, refreshTokenExpirationTime);
-		log.info("발급 refreshToken : {}", refreshToken);
+		saveRefreshToken(userDetails.getMember() ,refreshToken);
 		return refreshToken;
+	}
+
+	private void saveRefreshToken(Member member, String refreshToken) throws MemberException {
+		member.setRefreshToken(refreshToken);
+		memberRepository.save(member);
 	}
 
 	private String generateToken(GeneralUserDetails userDetails, long expirationTime) {
