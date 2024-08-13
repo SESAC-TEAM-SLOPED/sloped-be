@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.sesac.slopedbe.member.model.entity.Member;
+import org.sesac.slopedbe.member.model.type.MemberOauthType;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -63,7 +64,7 @@ public class GeneralUserDetails implements OAuth2User, UserDetails {
 		return true;
 	}
 
-	public String getUserOauthType() {
-		return this.member.getId().getOauthType().toString();
+	public MemberOauthType getUserOauthType() {
+		return this.member.getId().getOauthType();
 	}
 }

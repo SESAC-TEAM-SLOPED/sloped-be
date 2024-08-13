@@ -6,6 +6,7 @@ import java.util.Map;
 import org.sesac.slopedbe.auth.service.TokenAuthenticationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.WebUtils;
@@ -33,15 +34,13 @@ public class JwtController {
 		@ApiResponse(responseCode = "401", description = "인증 실패"),
 		@ApiResponse(responseCode = "404", description = "존재하지 않는 회원")
 	})
-	@PostMapping(value = "/refresh-token")
-	public ResponseEntity<Map<String, String>> refreshToken(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		Cookie expiredAccessTokenCookie = WebUtils.getCookie(request, "expiredAccessToken");
-		Cookie refreshTokenCookie = WebUtils.getCookie(request, "refreshToken");
+	@PostMapping(value = "/renew-token")
+	public ResponseEntity<Map<String, String>> renewToken(@RequestHeader("Authorization") String token, HttpServletRequest request, HttpServletResponse response) throws IOException {
+		String expiredAccessToken = token.substring(7);
 
-		String expiredAccessToken = expiredAccessTokenCookie.getValue();
+		Cookie refreshTokenCookie = WebUtils.getCookie(request, "refreshToken");
 		String refreshToken = refreshTokenCookie.getValue();
 
-		return tokenAuthenticationService.refreshToken(expiredAccessToken, refreshToken ,response);
+		return tokenAuthenticationService.renewToken(expiredAccessToken, refreshToken ,response);
 	}
-
 }

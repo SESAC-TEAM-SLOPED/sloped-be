@@ -1,6 +1,8 @@
 package org.sesac.slopedbe.auth.controller;
 
 import java.io.IOException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,8 @@ import org.sesac.slopedbe.auth.service.SocialLoginService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -107,5 +111,19 @@ public class SocialLoginController {
 		KakaoUserInfoResponse userInfo = socialLoginService.getKakaoUserInfo(accessToken);
 
 		oAuth2UserService.loginSocialUser(userInfo.kakaoAccount.getEmail(),"kakao", response);
+	}
+
+	@PostMapping("/api/auth/exchange-token")
+	public ResponseEntity<Map<String, String>> exchangeToken(@RequestBody Map<String, String> request) {
+		String encodedToken = request.get("encodedToken");
+		if (encodedToken == null) {
+			return ResponseEntity.badRequest().body(Map.of("error", "Encoded token is required"));
+		}
+		try {
+			String decodedToken = URLDecoder.decode(encodedToken, StandardCharsets.UTF_8);
+			return ResponseEntity.ok(Map.of("accessToken", decodedToken));
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(Map.of("error", "Failed to decode token"));
+		}
 	}
 }
