@@ -179,7 +179,7 @@ public class TokenAuthenticationService {
 		setCookie(response, "refreshToken", refreshToken, refreshTokenExpirationTime);
 
 		String encodedAccessToken = URLEncoder.encode(accessToken, StandardCharsets.UTF_8);
-		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt?accessToken=%s", encodedAccessToken);
+		String redirectUrl = String.format("https://www.togetheroad.me/get-jwt?encodedToken=%s", encodedAccessToken);
 
 		response.sendRedirect(redirectUrl);
 	}
