@@ -16,6 +16,9 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always #서버 실행 시 data.sql 파일 항상 실행, 한번 sql 문 업로드 후 never로 변경
 
   mail:
     host: smtp.gmail.com

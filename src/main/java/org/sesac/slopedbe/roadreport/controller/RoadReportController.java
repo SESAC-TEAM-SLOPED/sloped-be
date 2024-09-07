@@ -49,11 +49,17 @@ public class RoadReportController {
     })
     @PostMapping("/upload")
     public ResponseEntity<String> addRoadReport(@RequestHeader("Authorization") String token, RoadReportFormDTO request) {
+        long startTime = System.currentTimeMillis(); // 시작 시간 측정
         try {
             String email = jwtUtil.extractEmailFromToken(token.substring(7));
             MemberOauthType oauthType = jwtUtil.extractOAuthTypeFromToken(token.substring(7));
 
             roadReportService.addRoadReport(email, oauthType, request);
+
+            long endTime = System.currentTimeMillis(); // 끝난 시간 측정
+            long executionTime = endTime - startTime; // 실행 시간 계산
+            // 실행 시간을 로그로 출력
+            log.info("통행불편 제보 메서드 실행시간 측정 " + executionTime + "ms");
 
             return ResponseEntity.status(HttpStatus.CREATED).body("통행 불편 제보가 성공적으로 제출되었습니다.");
         } catch (IllegalArgumentException e) {
