@@ -1,10 +1,13 @@
 package org.sesac.slopedbe.road.service;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.sesac.slopedbe.road.repository.RoadRepository;
+import org.springframework.stereotype.Service;
 
-import org.sesac.slopedbe.road.model.dto.RoadMarkerInfoDTO;
+@RequiredArgsConstructor
+@Service
+public class RoadService {
 
-public interface RoadService {
-    List<RoadMarkerInfoDTO> getApprovedRoadPoints(double latitude, double longitude, double distance_meters, int limit);
-    RoadMarkerInfoDTO findByRoaId(Long roadId);
+    private final RoadRepository roadRepository;
+
 }

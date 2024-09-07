@@ -10,16 +10,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
-@Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "facility_review")
 @Entity
@@ -40,20 +37,6 @@ public class FacilityReview extends BaseTimeEntity {
     private Facility facility;
 
     @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "email", referencedColumnName = "email"),
-        @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
-    })
+    @JoinColumn(name = "email", nullable = false)
     private Member member;
-
-    private Long accessibilityScore;
-
-    public FacilityReview(Boolean isConvenient, String content, Facility facility, Member member) {
-        this.isConvenient = isConvenient;
-        this.content = content;
-        this.facility = facility;
-        this.member = member;
-    }
-
-
 }

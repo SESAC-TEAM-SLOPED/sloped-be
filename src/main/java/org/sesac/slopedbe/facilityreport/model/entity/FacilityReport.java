@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
@@ -25,7 +24,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "facility_report")
 @Entity
 public class FacilityReport extends BaseTimeEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,9 +51,6 @@ public class FacilityReport extends BaseTimeEntity {
     private Facility facility;
 
     @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "email", referencedColumnName = "email"),
-        @JoinColumn(name = "oauthType", referencedColumnName = "oauthType")
-    })
+    @JoinColumn(name = "email", nullable = false)
     private Member member;
 }
