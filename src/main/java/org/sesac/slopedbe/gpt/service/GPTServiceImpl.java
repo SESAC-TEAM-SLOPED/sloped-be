@@ -57,10 +57,17 @@ public class GPTServiceImpl implements GPTService {
 		StringBuilder answers = new StringBuilder();
 
 		for (int i = 0; i < images.size(); i++) {
+			long startTime = System.currentTimeMillis(); // 시작 시간
+
 			String answer = sendImageWithMessage(images.get(i), "이 사진에 나온 길이 교통약자가 이용하기 적합한 공간인지 설명해줘");
 			answers.append(i).append(". ").append(answer);
+
+			long endTime = System.currentTimeMillis(); // 종료 시간
+			long duration = endTime - startTime; // 처리 시간 계산
+
 			log.info("[통행불편 제보] 이미지 url: {}", images.get(i));
 			log.info("[통행불편 제보] 이미지 캡셔닝 결과: {}", answer);
+			log.info("[통행불편 제보] 이미지당 {} 처리 시간: {} ms", i, duration); // 처리 시간 로그 출력
 		}
 
 		String message = answers + "\n 이 설명들을 한줄로 요약해줘";
@@ -70,6 +77,9 @@ public class GPTServiceImpl implements GPTService {
 	}
 
 	private String sendMessage(String message) throws JsonProcessingException {
+		// 시작 시간 기록
+		long startTime = System.currentTimeMillis();
+
 		HttpHeaders headers = new HttpHeaders();
 
 		headers.setContentType(MediaType.APPLICATION_JSON);
@@ -103,6 +113,14 @@ public class GPTServiceImpl implements GPTService {
 
 		// Send the request
 		ResponseEntity<String> responseEntity = restTemplate.exchange(url, HttpMethod.POST, requestEntity, String.class);
+
+		// 종료 시간 기록
+		long endTime = System.currentTimeMillis();
+		long duration = endTime - startTime; // 처리 시간 계산
+
+		// 처리 시간 로그 출력
+		log.info("통행불편 제보 한 줄 요약 총 처리 시간: {} ms", duration);
+
 
 		return mapper.readTree(responseEntity.getBody()).get("choices").get(0).get("message").get("content").toString();
 	}
