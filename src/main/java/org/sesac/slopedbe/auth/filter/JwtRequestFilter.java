@@ -40,7 +40,15 @@ public class JwtRequestFilter extends OncePerRequestFilter {
 			|| path.startsWith("/api/roadReport/connect-callTaxi")
 			|| path.startsWith("/api/roadReport/info/")
 			|| path.startsWith("/api/roadReport/get-centerList")
-			|| path.startsWith("/api/gpt");
+			|| path.startsWith("/api/gpt")
+			// Swagger 경로 허용
+			|| path.startsWith("/swagger-ui/")
+			|| path.startsWith("/v3/api-docs")
+			|| path.startsWith("/swagger-resources/")
+			|| path.startsWith("/webjars/")
+			|| path.startsWith("/swagger-ui.html")
+			|| path.startsWith("/swagger-resources/configuration/ui")
+			|| path.startsWith("/swagger-resources/configuration/security");
 		log.info("Request path: {}, ShouldNotFilter: {}", path, shouldNotFilter);
 		return shouldNotFilter;
 	}
