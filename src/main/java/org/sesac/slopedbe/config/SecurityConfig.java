@@ -41,8 +41,9 @@ public class SecurityConfig {
 				authorizeRequests
 					// 로그인 필요 없는 경로 && 로그인/비로그인 모두 가능한 경로
 					.requestMatchers("/api/auth/**", "/api/facilities/**", "/api/roads/**","/api/roadReport/connect-center","/api/gpt/**",
-						"/api/roadReport/info/{roadReportId}", "/api/roadReport/get-centerList", "/api/roadReport/connect-callTaxi",
-						"/api/gpt", "/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/login/oauth2/**"
+						"/api/roadReport/info/{roadReportId}", "/api/roadReport/get-centerList", "/api/roadReport/connect-callTaxi","/api/gpt","/login/oauth2/**",
+						// Swagger 경로 허용
+						"/swagger-ui/**", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**", "/swagger-ui.html", "/swagger-resources/configuration/ui","/swagger-resources/configuration/security"
 					).permitAll()
 					// 로그인 필요한 경로
 					.requestMatchers("/api/users/**","/api/reviews/**","/api/users", "/api/roadReport/upload", "api/users/bookmark/").authenticated()
