@@ -12,8 +12,8 @@ public class SwaggerConfig {
 	public OpenAPI customOpenAPI() {
 		return new OpenAPI()
 			.info(new Info()
-				.title("My API")
+				.title("함꼐가길 API Documentation")
 				.version("1.0")
-				.description("This is a sample Spring Boot RESTful service using springdoc-openapi and OpenAPI 3."));
+				.description("새싹 스프링부트 백엔드 과정 영등포 6기 (팀 경사났네) - 함께가길 프로젝트 API 문서"));
 	}
 }
